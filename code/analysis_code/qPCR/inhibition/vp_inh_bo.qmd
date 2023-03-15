@@ -1,0 +1,40 @@
+---
+title: "inhibition"
+format:
+  html:
+    theme: default
+---
+
+Lib
+```{r}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+vp<- read_csv(here("data", "raw_data","vp_inh_bo.csv"))
+```
+
+Make Column for Inh Vs Norm
+```{r}
+vp<- vp %>%
+  mutate(type = case_when(grepl("i", sample)~ "inh")) %>%
+  mutate(type = case_when(vp$type == "inh" ~ "inh",
+                          vp$sample == "E3" ~ "inh")) 
+
+inh<- vp %>%
+  filter(type %in% "inh")
+```
+
+Plot
+```{r}
+inh %>%
+  ggplot() + geom_boxplot(
+    aes(x = sample,
+        y = cq,
+        color = type)
+  )
+```
+
+

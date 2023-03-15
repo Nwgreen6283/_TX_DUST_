@@ -1,0 +1,118 @@
+---
+title: "Vp qPCR"
+format:
+  html:
+    theme: default
+---
+*This dataset is Monthly Vp qPCR*
+
+Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+```
+
+Load data
+```{r}
+sq <-read_csv(here("data", "raw_data", "vp_mon.csv")) 
+```
+
+Filter for HEX dye (samples). Cy5 is for IAC
+```{r}
+sq2<- sq %>% 
+  select(SQ,Cq, site, Fluor, day) %>%
+  filter(Fluor %in% "HEX")
+
+```
+
+
+
+Add Dilution Column and Filter column
+```{r}
+dilution<- sq2%>%
+  mutate(dilution = case_when(site == "BO"~"1",
+                              site  == "C2"~ "1",
+                              site == "RD"~"1"), 
+        dilution = as.numeric(dilution)) 
+
+
+filter<- dilution %>%
+   mutate(filter_amt = case_when(
+                          site == "BO" & day == 2 ~"100",
+                          site == "BO" & day == 3 ~ "100",
+                          site == "BO" & day == 4 ~ "100",
+                          site == "BO" & day == 511 ~"100",
+                          site == "BO" & day == 520 ~ "100",
+                          site == "BO" & day == 524 ~ "100",
+                          site == "BO" & day == 6 ~"100",
+                          site == "BO" & day == 8~ "30",
+                          site == "BO" & day == 9~"45",
+                          site == "BO" & day == 10 ~ "60",
+                          site == "BO" & day == 11~ "30",
+                          site == "BO" & day == 12~ "60",
+                          site  == "C2"~ "100",
+                          site == "RD"~"100"),
+        filter_amt = as.numeric(filter_amt)) 
+
+```
+
+
+Cq --> Copies/mL
+```{r}
+copies<- filter %>%
+   mutate(
+   log_sq = ((Cq-36.497)/-3.166), #Equation of the line to get log(SQ)
+   sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*15, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor) %>%
+    
+select(day,copies_mL,site) 
+
+```
+
+Replace NaN with 0 for copies/mL
+```{r}
+replace<- copies %>% 
+ mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
+filter(!is.na(site))   #Dropping NAs from STD Curve 
+```
+
+Date Column
+```{r}
+date<- replace %>%
+  mutate(date = case_when(day == "2"~"2022-02-16",
+                         day ==  "3"~"2022-03-09",
+                         day ==  "4"~"2022-04-20",
+                         day ==  "511"~"2022-05-11",
+                         day == "520"~"2022-05-20",
+                         day ==  "524"~"2022-05-24",
+                         day ==  "6"~"2022-06-13",
+                         day ==  "8"~"2022-08-09",
+                         day ==  "9"~"2022-09-13",
+                         day == "10"~"2022-10-18",
+                         day ==  "11"~"2022-11-15",
+                         day == "12"~"2022-12-14"))
+
+```
+
+Take the average of qPCR triplicates 
+```{r}
+final<- date %>% 
+  group_by(day, site,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>% #Ungroup to spit everything back out 
+  select(date,copies_mL,site)
+```
+
+Save as RDS and manually add date in excel
+```{r}
+#stop() #Write error so it wont overwrite
+write.csv(final, file= here("data","processed_data","vp_mon_clean_copies.csv"))
+```
+
+
+

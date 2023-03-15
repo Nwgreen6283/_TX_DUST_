@@ -1,0 +1,98 @@
+---
+title: "Dust_Copies_Plot"
+format:
+  html:
+    theme: default
+---
+**This script is good for visualizing copies per mL data and dust data.**
+Library
+```{r}
+library(here)
+library(tidyverse)
+library(ggpubr)
+```
+
+Load Data 
+```{r}
+dust_sum<-read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv")) 
+copies<- read_csv(here("data", "processed_data", "total_clean_copies.csv")) 
+```
+
+Daily Data frames
+```{r}
+daily_dust_sum<- dust_sum %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
+
+copies_d <- copies %>%
+  filter(Type %in% "Daily") %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                             "C2" = "Canals",
+                            "RD" = "Gulf"))
+
+```
+
+
+Plot Daily Dust Concentration
+```{r}
+dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
+  aes(x = date,
+      y = t7sum),
+  color = "#935d2e",
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Dust Aerosol Optical Density")+
+  theme(
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 10),
+    axis.title.x = element_text(size = 15),
+    axis.text.x = element_text(size = 10))
+  
+
+dust_fig
+```
+
+
+Total Daily Vibrio
+```{r}
+tot_vib<- copies_d %>% ggplot()+geom_line(
+  aes(x = date,
+      y = copies_mL,
+      color = site),
+  size = 1) +
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Daily Vibrio at all Sites",
+    color = "  Site") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 10),
+    legend.position = c(0.1, 0.8),
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+tot_vib
+```
+
+Combine Dust and Copies
+```{r}
+fig<- ggarrange(tot_vib, dust_fig + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
+
+fig
+```
+
+Save as PNG
+```{r}
+png(file = here("results", "plots", "vib_dust_daily.png"))
+fig
+dev.off()
+```

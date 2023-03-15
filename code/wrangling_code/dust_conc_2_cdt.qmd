@@ -1,0 +1,97 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+THIS IS FOR CST
+```{r}
+library(tidyverse)
+library(lubridate) #To work with dates 
+library(here)
+library(base) #For ColSum
+```
+Data
+```{r}
+nrl<- read_csv(here("data","raw_data","dust.csv")) #Dust concentration data set
+copies<- read_csv(here("data", "processed_data", "total_clean_copies.csv")) #Vibrio counts data set from qPCR
+
+```
+
+Make Year-Month-Day_Hour column from yyymmddtt column
+```{r}
+nrl1<- nrl %>% 
+  mutate(
+    ymdh = ymd_h(nrl$yyymmddtt))
+```
+
+Now switch it to CST 
+**This dust dataset is in Coordinated Universal Time (UTC) and needs to be converted to Central Standard/Daylight Time (which is UTC-6 hours and UTC-5 hours for daylight savings.**
+```{r}
+nrl2<- nrl1 %>%
+  mutate(
+    cst = as_datetime(nrl1$ymdh, tz= c("America/Chicago"))) #CST/CDT
+```
+
+Make column with just date in CST
+```{r}
+nrl3<- nrl2 %>%
+  mutate(
+    just_date= as.Date(substr(nrl2$cst, 1,10)))
+
+#Create hr for cst
+#Make final DF with dust, hours, and time in CST
+dust_ind<- nrl3 %>%
+  mutate(hr_cst = substr(nrl3$cst, 12,13)) %>%
+  select(hr_cst, just_date, dust)
+  
+```
+**Now `dust_ind` data set has the date and hour of collection in CST/CDT, and the concentrations (AOD) at each time point** \
+\
+**For future analyses, it may be helpful to have the dust sum of each day (T0 +T6 +T12 +T18).**
+Make Dust Sum with CST by day
+```{r}
+dust_sum<- aggregate(dust_ind$dust, by=list(date=dust_ind$just_date),FUN=sum) %>% #could also use groupby
+ rename("SUM" = "x")
+```
+**This data set `dust_sum` has the dust concentration summed for each calendar day**\
+
+\
+**For future analysis, we need to combine the copies data from qPCR to the dust data.**
+
+Make Dust/Copies Sum with CST
+```{r}
+#Condense copies dateset
+copies2 <- copies %>% select(
+  date, copies_mL, site) 
+
+#Takes df on right of pipe and joins to the df on the left of pipe 
+dust_copies_sum_cst<- dust_sum %>% left_join(copies2) #Dust sum and copies for each day of collection
+
+```
+
+**We need to do the same thing but with the `dust_ind` dataset**
+Make Dust/Copies for Individual Times in CST
+```{r}
+dust_ind_copies<- dust_ind %>%
+   rename("date" = "just_date") %>%
+  left_join(copies2) 
+```
+
+
+Save RDS
+```{r}
+#Just dust data
+saveRDS(dust_ind, file = here("data", "processed_data", "dust_conc", "dust_ind.rds")) #Dust with Cst Time and Hours
+saveRDS(dust_sum, file = here("data", "processed_data", "dust_conc", "dust_sum_cst.rds")) #Dust Sum in Cst
+
+#Copies
+saveRDS(dust_ind_copies, file = here("data", "processed_data", "dust_copies", "dust_ind_copies.rds")) #Dust + Copies--> INDIVIDUAL
+saveRDS(dust_copies_sum_cst, file = here("data", "processed_data", "dust_copies", "dust_copies_sum_cst.rds")) #Dust + Copies--> SUM 
+```
+
+
+
+
+
+

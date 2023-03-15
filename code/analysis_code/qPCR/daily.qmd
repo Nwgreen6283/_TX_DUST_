@@ -1,0 +1,105 @@
+zx---
+title: "Exploratory"
+format:
+  html:
+    theme: default
+---
+**This code looks at Vibrio enumeration over the daily time series. This information can also be found in `dust_and_copies.qmd`
+Library
+```{r}
+library(tidyverse)
+library(here)
+```
+
+Load Data
+```{r}
+data<- read_csv(here("data", "processed_data", "tx_master.csv")) 
+```
+
+Make mini dataframes for each site
+```{r}
+#Daily All Sites
+daily<- data %>%
+  select(date,copies_mL,site,Type) %>%
+  filter(Type %in% "Daily") %>%
+drop_na() #Get rid of NAs
+
+
+#Daily by Site
+bo_daily <- daily %>% filter(site %in% "Blind Oso") #Blind Oso Bay
+c2_daily <- daily %>% filter(site %in% "Canals") #Canals
+rd_daily <- daily %>% filter(site %in% "Gulf") #Gulf Site
+
+
+
+```
+
+Total Daily Vibrio at Gulf
+```{r}
+rd_daily %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkblue") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Daily Vibrio at Gulf Site") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Total Daily Vibrio at Canals
+```{r}
+c2_daily %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkorange") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Daily Vibrio at Canals") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Total Daily Vibrio at Blind Oso
+```{r}
+bo_daily %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkgreen") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Daily Vibrio at Blind Oso") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Total Daily Vibrio
+```{r}
+tot_vib<- daily %>% ggplot()+geom_line(
+  aes(x = date,
+      y = copies_mL,
+      color = site))+
+  facet_wrap(~site) +
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Daily Vibrio at all Sites") +
+  theme(plot.title = element_text(hjust = 0.5)) + #center title
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #Tilt x axis labels 
+  theme(legend.position = "none") #Removes legend 
+
+tot_vib
+```
+Save as PNG
+```{r}
+png(file = here("results", "plots", "tot_vib_allsites_daily.png"))
+tot_vib
+dev.off()
+```
+

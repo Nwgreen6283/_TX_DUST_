@@ -1,0 +1,315 @@
+---
+title: "Environmental Parameters"
+format:
+  html:
+    theme: default
+---
+*This dataset contains environmental parameters: Temp, SAL, Nutrients*
+
+Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(lubridate)
+```
+
+Load Data
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+Daily and Monthly dataframes
+```{r}
+daily<- d1 %>%
+  filter(type %in% "daily")
+
+monthly<- d1 %>% 
+  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
+                          d1$Type == "Monthly" ~ "Monthly")) %>%
+  filter(Type %in% "Monthly") 
+```
+
+
+
+Temperature Monthly
+```{r}
+temp2<- monthly %>% ggplot() + geom_point(
+  aes(
+    x = date,
+    y = temp,
+    color = site,
+    group = date),
+  size = 1)+
+  theme_bw()+
+  facet_wrap(~site)+
+  labs(
+    x = "Date",
+    y = "Temperature (°C)",
+    title = "Monthly Temperatures",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+   # axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.text.y = element_text(size = 15),
+    axis.title.y = element_text(size = 15),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+
+temp2
+  
+```
+Salinity Monthly
+```{r}
+sal2<- monthly %>% ggplot() + geom_point(
+  aes(
+    x = date,
+    y = sal,
+    color = site,
+    group = date),
+  size = 1)+
+  facet_wrap(~site)+
+  theme_bw()+
+  labs(
+    y = "Salinity",
+    title = "Monthly Salinities",
+    color = "Site")+
+     scale_x_date(date_breaks="1 month", date_labels="%b")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(size = 15),
+    axis.text.x = element_text(hjust = 1, angle =45),
+    axis.text.y = element_text(size = 15),
+   # axis.ticks.x = element_blank(),
+    legend.position = "none")+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+
+
+sal2
+```
+
+Total Monthly Vibrio
+```{r}
+fig3 <- monthly %>%
+  ggplot()+geom_point(
+  aes(x = date,
+      y = copies_mL,
+      color = site,
+      group = date),
+  size = 1)+
+  facet_wrap(~site)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Monthly Total Vibrio") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    legend.position = "none")+ #Removes legend
+ scale_x_date(date_breaks="1 month", date_labels="%b")+
+
+scale_color_manual(values = c("Blind Oso" = "#809C52",
+                              "Canals" = "#ba4716",
+                              "Gulf" = "#4c848c"))
+fig3
+```
+
+Combine Temp and Salinity Monthly
+```{r}
+figp<- ggarrange(temp2,sal2, fig3 + font("x.text", size = 10), ncol = 1, nrow = 3,align = "v")
+
+figp
+```
+
+amm
+```{r}
+amm<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = amm,
+    color = site))
+amm
+```
+chl
+```{r}
+chl<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = chl,
+    color = site))
+chl
+```
+do (mg/L)
+```{r}
+do_mgl<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = do_mgl,
+    color = site))
+do_mgl
+```
+
+do (%)
+```{r}
+do_per<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = do_per,
+    color = site))
+do_per
+```
+
+pH
+```{r}
+ph<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = pH,
+    color = site))
+ph
+```
+
+secci
+```{r}
+secchi<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = secchi,
+    color = site))
+
+secchi
+```
+nn
+```{r}
+nn<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = nn,
+    color = site))
+
+nn
+```
+orthop
+```{r}
+orthop<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = orthop,
+    color = site))
+orthop
+```
+silicate
+```{r}
+sil<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = sil,
+    color = site))
+
+sil
+```
+
+DIN
+```{r}
+din<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = din,
+    color = site))
+din
+```
+DIN:DIP
+```{r}
+din_dip<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = din_dip,
+    color = site))
+
+din_dip
+```
+TDN
+```{r}
+tdn<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = tdn,
+    color = site))
+
+tdn
+```
+
+DON
+```{r}
+don<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = don,
+    color = site))
+don
+```
+DOC
+```{r}
+doc<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = doc,
+    color = site))
+doc
+```
+
+TOC
+```{r}
+toc<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = toc,
+    color = site))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+toc
+```
+TN
+```{r}
+tn<- monthly %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = tn,
+    color = site))
+tn
+```
+
+
+
+
+
+

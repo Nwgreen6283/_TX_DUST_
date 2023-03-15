@@ -1,0 +1,40 @@
+---
+title: "vv_mon_inh"
+format:
+  html:
+    theme: default
+---
+
+Lib
+```{r}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+inh<- read_csv(here("data", "raw_data","vp_mon_inh.csv"))
+vp<- read_csv(here("data", "raw_data","vp_mon.csv"))
+```
+
+
+Clean
+```{r}
+inh<- inh %>%
+  filter(Fluor %in% "HEX") %>%
+  mutate(site = substr(inh$Sample, 1,2))
+```
+
+Plot
+```{r}
+inh %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = site)) +
+geom_hline(yintercept= 26.66)
+
+```
+
+
+

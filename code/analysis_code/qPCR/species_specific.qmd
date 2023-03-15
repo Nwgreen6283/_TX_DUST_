@@ -1,0 +1,81 @@
+---
+title: "vp daily"
+format:
+  html:
+    theme: default
+---
+
+Lib
+```{r}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+vp<- read_csv(here("data", "processed_data","vp_clean_copies.csv"))
+vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
+vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) #Trial two is best. Other trials exist too. 
+vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
+```
+
+Add July to Monthly Data
+```{r}
+#Vp Mon
+vp_m<- vp_m %>%
+  select(!...1) 
+jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
+jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
+jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
+vp_m = rbind(jul_bo, jul_c2, jul_rd, vp_m)
+
+#Vv Mon
+vv_m<- vv_m %>%
+  select(!...1) 
+jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
+jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
+jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
+vv_m = rbind(jul_bo, jul_c2, jul_rd, vv_m)
+```
+
+
+Plot VP
+```{r}
+vp %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)
+```
+Plot VV
+```{r}
+vv %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)
+```
+
+Plot VP Monthly
+```{r}
+vp_m %>%
+  ggplot() + geom_point(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)
+```
+
+Plot Vv Monthly
+```{r}
+vv_m %>%
+  filter(!site %in% c("E3", "NT")) %>%
+  ggplot() + geom_point(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)
+```
+

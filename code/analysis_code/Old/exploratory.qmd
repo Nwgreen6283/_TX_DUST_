@@ -1,0 +1,88 @@
+---
+title: "Exploratory"
+format:
+  html:
+    theme: default
+---
+Library
+```{r}
+library(tidyverse)
+library(here)
+```
+
+Load Data
+```{r}
+copies<- read_csv(here("data", "processed_data", "clean_data_date.csv")) #This is the clean_data.csv from copies_calculator but with date manually added in,
+```
+
+Make mini dataframes for each site
+```{r}
+copies2<- copies %>%
+  select(date,copies_mL,site) %>%
+drop_na() #Get rid of NAs
+
+bo<- copies2 %>% filter(site %in% "BO") #Blind Oso Bay
+c2 <- copies2 %>% filter(site %in% "C2") #Canals
+rd<- copies2 %>% filter(site %in% "RD") #Gulf Site
+summary(copies2)
+```
+
+```{r}
+rd %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkblue") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Vibrio at Gulf Site") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+c2 %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkorange") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Vibrio at Canals") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+bo %>%
+  ggplot() +geom_line(
+    aes(x = date,
+        y = copies_mL),
+    color = "darkgreen") +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Vibrio at Blind Oso") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+copies2 %>% ggplot()+geom_line(
+  aes(x = date,
+      y = copies_mL,
+      color = site))+
+  facet_wrap(~site) +
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Total Vibrio at all Sites") +
+  theme(plot.title = element_text(hjust = 0.5)) + #center title
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #Tilt x axis labels 
+  theme(legend.position = "none") #Removes legend 
+```
+

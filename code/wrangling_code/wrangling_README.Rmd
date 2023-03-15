@@ -1,0 +1,4 @@
+The folder contains various cleaning codes:\
+(1) `dust.qmd`: This code takes dust concentration data from NRL and cleans it. Steps include, switching to the correct timezone, creating concentration sums per day, as well as combining the dust data set with the vibrio enumeration data set.\
+(2) `total_copies_calculator.qmd`: This script is for cleaning qPCR results on Total Vibrio enumeration. It takes Cq value outputs from the CFX (qPCR machine) and computes it to copies of gene targets of Vibrio. The data set contains a daily and monthly time series. We will be examining daily.\
+(3) `df_master.qmd`: This script combines the three clean data sets for dust concnetration, copies per mL, and environmental parameters

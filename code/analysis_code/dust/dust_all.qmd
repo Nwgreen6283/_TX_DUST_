@@ -1,0 +1,49 @@
+---
+title: "dust_2022"
+format:
+  html:
+    theme: default
+---
+**Script is good for dust data 2022**
+Library
+```{r}
+library(here)
+library(tidyverse)
+library(ggpubr)
+library(lubridate)
+```
+
+Load Data 
+```{r}
+dust<-read_csv(here("data", "processed_data", "tx_master.csv")) 
+```
+
+Clean
+```{r}
+year<- dust %>%
+  select(date,SUM) %>%
+  filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
+
+month<- dust %>%
+  filter(Type %in% "Monthly") %>%
+  filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
+```
+
+Plot
+```{r}
+year%>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = SUM)) +
+  geom_vline(xintercept = as.Date("2022-07-07"), color = "blue")+
+   geom_vline(xintercept = as.Date("2022-07-19"), color = "blue")+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  geom_point(data = month,
+             aes(x = date,
+                 y = SUM),
+             shape = 3,
+             size = 4,
+             color = "blue")
+```
+
+

@@ -1,0 +1,222 @@
+---
+title: "env_and_copies_stats"
+format:
+  html:
+    theme: default
+---
+### Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc) #For lag function
+library(tidymodels) #For modeling
+library(ggpmisc) #For R2 equation on graph
+library(dotwhisker) #Fpr visualization
+```
+
+# LOADING AND CLEANING DATA
+
+### Data
+```{r}
+dust<- read_csv(here("data", "processed_data","dust_conc", "dust_master.csv")) #Different Dust attributes
+data<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
+```
+
+### Clean and Trim
+```{r}
+dust<- dust %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+```{r}
+master<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") %>%  #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analaysis.
+  select(copies_mL, t7sum, site, date)
+```
+
+### Make Site DF
+```{r}
+bo<- master %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+c2<- master %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- master %>%
+  filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+#DUST
+
+**From previous literature, we know that Vibrio have responded to dust 24-48 hours after input. This can make analysis tricky, as the dust concentration of a specific day does not necessarily correlate with the Vibrio copies of that same date. We can use cross-correlation analysis to assess a lag in a time series and see where this lag is most significant.**
+
+### Cross-correlation:
+```{r}
+#Blind Oso
+ccf(bo$t7sum, bo$copies_mL) 
+
+#Canals
+ccf(c2$t7sum, c2$copies_mL) 
+
+#Gulf
+ccf(rd$t7sum, rd$copies_mL) 
+```
+**From exploratory analysis, we know that the Gulf had a dramatic response, so let's look at that site first. Lag is greatest at +2 and -1. We need to choose +2 (where dust predicts copies). -1 would be the other way around, where copies predict dust. This is not logical.**
+
+## Gulf Site Dust 
+
+### Adding a 2 day lag in dust:
+```{r}
+rd2<- rd%>% mutate(
+  lag =Lag(rd$t7sum, shift  = 2)) #Make lag from ccf
+```
+
+### Create a linear Model: 
+```{r}
+lm_spec<- linear_reg()
+lm_fit<- fit(lm_spec, copies_mL~lag, data = rd2)
+tidy(lm_fit)
+```
+
+### Plot RD T7 Sum:
+```{r}
+rd2 %>% ggplot() + geom_point(
+  aes(x = lag, 
+      y = copies_mL)) +
+  geom_smooth(aes(x = lag,
+                  y = copies_mL),
+              method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (RD+2)")
+```
+## BO Site Dust 
+
+### Adding a 2 day lag in dust:
+```{r}
+bo2<- bo%>% mutate(
+  lag =Lag(bo$t7sum, shift  = 1)) #Make lag from ccf
+```
+
+### Create a linear Model: 
+```{r}
+lm_spec<- linear_reg()
+lm_fit<- fit(lm_spec, copies_mL~lag, data = bo2)
+tidy(lm_fit)
+```
+
+### Plot BO T7 Sum:
+```{r}
+bo2 %>% ggplot() + geom_point(
+  aes(x = lag, 
+      y = copies_mL)) +
+  geom_smooth(aes(x = lag,
+                  y = copies_mL),
+              method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (BO+1)")
+```
+## C2 Site Dust 
+
+### Adding a 2 day lag in dust:
+```{r}
+c22<- c2%>% mutate(
+  lag =Lag(c2$t7sum, shift  = 2)) #Make lag from ccf
+```
+
+### Create a linear Model: 
+```{r}
+lm_spec<- linear_reg()
+lm_fit<- fit(lm_spec, copies_mL~lag, data = c22)
+tidy(lm_fit)
+```
+
+### Plot C2 T7 Sum:
+```{r}
+c22 %>% ggplot() + geom_point(
+  aes(x = lag, 
+      y = copies_mL)) +
+  geom_smooth(aes(x = lag,
+                  y = copies_mL),
+              method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (C2+2)")
+```
+
+_______________________
+
+New data set
+```{r}
+master2<- dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") %>%
+  select(!c(t1, t7, t13, t19, hr_cst, tsum, t7sum, ...1, SUM, dust, type, Type, date ))
+```
+```{r}
+bo_a<- master2 %>%
+  filter(site %in% "Blind Oso") %>%
+  select(!site)
+
+c2_a<- master2 %>%
+  filter(site %in% "Canals")%>%
+  select(!site)
+
+rd_a<- master2 %>%
+  filter(site %in% "Gulf")%>%
+  select(!site)
+```
+
+## Using all Variables vs. Growth
+```{r}
+lm_mod_all<- linear_reg()
+
+lm_fit_all_bo <- 
+  lm_mod_all %>% 
+  fit(copies_mL ~ ., data = bo_a)
+tidy(lm_fit_all)
+```
+Plot
+```{r}
+tidy(lm_fit_all_bo) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```
+```{r}
+lm_mod_all<- linear_reg()
+
+lm_fit_all_c2 <- 
+  lm_mod_all %>% 
+  fit(copies_mL ~ ., data = c2_a)
+tidy(lm_fit_all)
+```
+Plot
+```{r}
+tidy(lm_fit_all_c2) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```
+```{r}
+lm_mod_all<- linear_reg()
+
+lm_fit_all_rd <- 
+  lm_mod_all %>% 
+  fit(copies_mL ~ ., data = rd_a)
+tidy(lm_fit_all)
+```
+Plot
+```{r}
+tidy(lm_fit_all_rd) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```

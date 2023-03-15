@@ -1,0 +1,39 @@
+---
+title: "New Dust and Copies"
+format:
+  html:
+    theme: default
+---
+**This code is useful for looking at variations of daily dust trends. For example, when running statistical analysis, it may be best to look at dust concentration at a specific hour, or the sum per day, or the average. We will be working with a sum that is 24hr prior to sample collection. This utilizes a data set that has the variations of dust trends **
+Libs
+```{r}
+library(here)
+library(tidyverse)
+```
+
+
+Data
+```{r}
+dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv")) 
+```
+**There are a few columns that we do not need or that contain NaN. So let's remove those.**
+
+Clean
+```{r}
+dust<- dust %>%
+  select(date,t1,t7,t13,t19,tsum,t7sum) %>%
+  filter(between(date,as.Date('2022-07-05'), as.Date('2022-07-19')))
+```
+
+Plot T7sum
+```{r}
+dust %>% ggplot()+ geom_line(
+  aes(x = date,
+      y = t7sum))+
+  labs(title = "Dust Concentration over Daily Time Series",
+       x = "Date",
+       y = "Dust Concentration (AOD)")+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b%d")
+```
+

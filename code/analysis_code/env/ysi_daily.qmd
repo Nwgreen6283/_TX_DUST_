@@ -1,0 +1,272 @@
+---
+title: "Environmental Parameters"
+format:
+  html:
+    theme: default
+---
+*This data set contains environmental parameters: Temp and Salinity, among other environmental parameters.*
+
+Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(lubridate)
+```
+
+Load Data
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+Daily data frame
+```{r}
+daily<- d1 %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
+  select(!...1)
+```
+
+
+Plotting Daily Temperature 
+```{r}
+temp<- daily %>% ggplot() + geom_line(
+  aes(
+    x = date,
+    y = temp,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Temperature (°C)",
+    title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 15),
+    legend.position = c(0.1,0.2),
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+temp
+  
+```
+
+Plotting Daily Salinity
+```{r}
+sal<- daily %>% ggplot() + geom_line(
+  aes(
+    x = date,
+    y = sal,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Salinity",
+    title = "Salinity across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.position = "none")+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+sal
+```
+Combine Temperature and Salinity Plots 
+```{r, fig.width= 4, fig.height=4}
+fig<- ggarrange(temp,sal + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
+
+fig
+```
+
+Save as PNG
+```{r}
+png(file = here("results", "plots", "temp_sal.png"))
+fig
+dev.off()
+```
+
+amm
+```{r}
+amm<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = amm,
+    color = site))
+amm
+```
+chl
+```{r}
+chl<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = chl,
+    color = site))
+chl
+```
+do (mg/L)
+```{r}
+do_mgl<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = do_mgl,
+    color = site))
+do_mgl
+```
+
+do (%)
+```{r}
+do_per<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = do_per,
+    color = site))
+do_per
+```
+
+pH
+```{r}
+ph<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = pH,
+    color = site))
+ph
+```
+
+secci
+```{r}
+secchi<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = secchi,
+    color = site))
+
+secchi
+```
+nn
+```{r}
+nn<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = nn,
+    color = site))
+
+nn
+```
+orthop
+```{r}
+orthop<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = orthop,
+    color = site))
+orthop
+```
+silicate
+```{r}
+sil<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = sil,
+    color = site))
+
+sil
+```
+
+DIN
+```{r}
+din<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = din,
+    color = site))
+din
+```
+DIN:DIP
+```{r}
+din_dip<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = din_dip,
+    color = site))
+
+din_dip
+```
+TDN
+```{r}
+tdn<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = tdn,
+    color = site))
+
+tdn
+```
+
+DON
+```{r}
+don<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = don,
+    color = site))
+don
+```
+DOC
+```{r}
+doc<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = doc,
+    color = site))
+doc
+```
+
+TOC
+```{r}
+toc<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = toc,
+    color = site))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+toc
+```
+TN
+```{r}
+tn<- daily %>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = tn,
+    color = site))
+tn
+```
