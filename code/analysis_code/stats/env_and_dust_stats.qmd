@@ -60,13 +60,13 @@ rd<- master %>%
 ### Cross-correlation:
 ```{r}
 #Blind Oso
-ccf(bo$t7sum, bo$copies_mL) 
+#ccf(bo$t7sum, bo$copies_mL) 
 
 #Canals
-ccf(c2$t7sum, c2$copies_mL) 
+#ccf(c2$t7sum, c2$copies_mL) 
 
 #Gulf
-ccf(rd$t7sum, rd$copies_mL) 
+#ccf(rd$t7sum, rd$copies_mL) 
 ```
 **From exploratory analysis, we know that the Gulf had a dramatic response, so let's look at that site first. Lag is greatest at +2 and -1. We need to choose +2 (where dust predicts copies). -1 would be the other way around, where copies predict dust. This is not logical.**
 
@@ -153,6 +153,7 @@ c22 %>% ggplot() + geom_point(
 ```
 
 _______________________
+All Variables 
 
 New data set
 ```{r}
@@ -174,22 +175,39 @@ rd_a<- master2 %>%
   select(!site)
 ```
 
-## Using all Variables vs. Growth
+## BO: Using all Variables vs. Growth
 ```{r}
-lm_mod_all<- linear_reg()
+#Create Recipe for Growth and all other parameters
+growth_recipe_bo<- recipe(copies_mL ~ ., data = bo_a)
 
-lm_fit_all_bo <- 
-  lm_mod_all %>% 
-  fit(copies_mL ~ ., data = bo_a)
-tidy(lm_fit_all)
+#Set up linear model
+lm_mod_all<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod_all) %>%
+  add_recipe(growth_recipe_bo)
+
+#Use workflow to fit model to train data set
+growth_fit_bo<- Growth_wflow %>%
+  fit(data = bo_a)
+
+#View as Tibble 
+growth_fit_bo %>%
+  extract_fit_parsnip() %>%
+  tidy()
 ```
 Plot
 ```{r}
-tidy(lm_fit_all_bo) %>% 
+tidy(growth_fit_bo) %>% 
   dwplot(dot_args = list(size = 2, color = "black"),
          whisker_args = list(color = "black"),
          vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
 ```
+
 ```{r}
 lm_mod_all<- linear_reg()
 
