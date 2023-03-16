@@ -15,6 +15,7 @@ library(tidyverse)
 Data
 ```{r}
 dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv")) 
+dust_all<- read_csv(here("data", "processed_data","tx_master.csv")) 
 ```
 **There are a few columns that we do not need or that contain NaN. So let's remove those.**
 
@@ -23,6 +24,12 @@ Clean
 dust<- dust %>%
   select(date,t1,t7,t13,t19,tsum,t7sum) %>%
   filter(between(date,as.Date('2022-07-05'), as.Date('2022-07-19')))
+
+dust_all<- dust_all %>%
+  select(date, hr_cst, dust) %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(ymdh = paste(dust_all$date, dust_all$hr_cst, sep = "-"),
+         ymdh = ymd_h(dust_all$ymdh))
 ```
 
 Plot T7sum
@@ -36,4 +43,15 @@ dust %>% ggplot()+ geom_line(
   theme_bw()+
   scale_x_date(date_breaks = "1 day", date_labels = "%b%d")
 ```
+
+Plot all 
+```{r}
+dust_all %>%
+  ggplot() + geom_point(
+    aes(x = ymdh,
+        y = dust)
+  )+
+  
+```
+
 

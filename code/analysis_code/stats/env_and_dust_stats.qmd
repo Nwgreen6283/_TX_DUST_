@@ -18,26 +18,46 @@ library(dotwhisker) #Fpr visualization
 
 ### Data
 ```{r}
-dust<- read_csv(here("data", "processed_data","dust_conc", "dust_master.csv")) #Different Dust attributes
-data<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
+dust0<- read_csv(here("data", "processed_data","dust_conc", "dust_master.csv")) #Different Dust attributes
+data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 ```
 
 ### Clean and Trim
 ```{r}
-dust<- dust %>%
+dust<- dust0 %>%
   filter(!is.na(date),
          date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
 
 
-data<- data %>%
+data<- data0 %>%
   filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
 ```
+
+Visualize Distributions
+```{r}
+#Copies
+data0 %>%
+  filter(date %in% as.Date("2022-07-07"):as.Date("2022-07-19")) %>%
+  ggplot() + geom_histogram(
+    aes(x = copies_mL))+
+  facet_wrap(~site)
+
+#Dust
+dust %>%
+  ggplot() + geom_histogram(
+    aes(x = t7sum))
+```
+**Copies data is not normally distributed. So lets work with log transformed copies**
+
 
 ### Combine into one big data set
 ```{r}
 master<- 
   dust %>% full_join(data) %>%
-  filter(hr_cst %in% "01") %>%  #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analaysis.
+  filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+
+master<- master %>%
+  mutate(copies_mL = log(master$copies_mL)) %>% #Log transform copies
   select(copies_mL, t7sum, site, date)
 ```
 
@@ -60,13 +80,19 @@ rd<- master %>%
 ### Cross-correlation:
 ```{r}
 #Blind Oso
-#ccf(bo$t7sum, bo$copies_mL) 
+bo_ccf<- bo %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(bo_ccf$t7sum, bo_ccf$copies_mL) 
 
 #Canals
-#ccf(c2$t7sum, c2$copies_mL) 
+c2_ccf<- c2 %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(c2_ccf$t7sum, c2_ccf$copies_mL) 
 
 #Gulf
-#ccf(rd$t7sum, rd$copies_mL) 
+rd_ccf<- rd %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(rd_ccf$t7sum, rd_ccf$copies_mL) 
 ```
 **From exploratory analysis, we know that the Gulf had a dramatic response, so let's look at that site first. Lag is greatest at +2 and -1. We need to choose +2 (where dust predicts copies). -1 would be the other way around, where copies predict dust. This is not logical.**
 
@@ -75,7 +101,7 @@ rd<- master %>%
 ### Adding a 2 day lag in dust:
 ```{r}
 rd2<- rd%>% mutate(
-  lag =Lag(rd$t7sum, shift  = 2)) #Make lag from ccf
+  lag =Lag(rd$t7sum, shift  = -1)) #Make lag from ccf
 ```
 
 ### Create a linear Model: 
