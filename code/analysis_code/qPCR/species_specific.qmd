@@ -15,8 +15,20 @@ library(lubridate)
 ```{r}
 vp<- read_csv(here("data", "processed_data","vp_clean_copies.csv"))
 vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
-vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) #Trial two is best. Other trials exist too. 
+vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) 
 vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
+```
+Clean Daily data sets
+```{r}
+vv<- vv %>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
+
+vp<- vp %>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
 ```
 
 Add July to Monthly Data
@@ -27,7 +39,11 @@ vp_m<- vp_m %>%
 jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
 jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
 jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
-vp_m = rbind(jul_bo, jul_c2, jul_rd, vp_m)
+vp_m = rbind(jul_bo, jul_c2, jul_rd, vp_m) %>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
+                     
 
 #Vv Mon
 vv_m<- vv_m %>%
@@ -35,9 +51,12 @@ vv_m<- vv_m %>%
 jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
 jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
 jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
-vv_m = rbind(jul_bo, jul_c2, jul_rd, vv_m)
-```
+vv_m = rbind(jul_bo, jul_c2, jul_rd, vv_m)%>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
 
+``` 
 
 Plot VP
 ```{r}
@@ -46,36 +65,91 @@ vp %>%
     aes(x = date,
         y = copies_mL,
         color = site))+ 
-  facet_wrap(~site)
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Daily Vibrio parahaemolyticus")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
 ```
 Plot VV
 ```{r}
 vv %>%
+  #filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
         color = site))+ 
-  facet_wrap(~site)
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Daily Vibrio vulnificus")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+ 
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
 ```
 
 Plot VP Monthly
 ```{r}
 vp_m %>%
-  ggplot() + geom_point(
+ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
         color = site))+ 
-  facet_wrap(~site)
+  geom_point(
+     aes(x = date,
+        y = copies_mL,
+        color = site))+
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Monthly Vibrio parahaemolyticus")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
 ```
 
 Plot Vv Monthly
 ```{r}
 vv_m %>%
   filter(!site %in% c("E3", "NT")) %>%
-  ggplot() + geom_point(
+ ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
         color = site))+ 
-  facet_wrap(~site)
+  geom_point(
+     aes(x = date,
+        y = copies_mL,
+        color = site))+
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Monthly Vibrio vulnificus")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
 ```
 

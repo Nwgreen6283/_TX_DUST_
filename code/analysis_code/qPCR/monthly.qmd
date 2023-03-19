@@ -1,0 +1,62 @@
+---
+title: "Monthly Total Vibrio"
+format:
+  html:
+    theme: default
+---
+
+Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(lubridate)
+```
+
+Load Data
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+Monthly dataframe
+```{r}
+monthly<- d1 %>% 
+  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
+                          d1$Type == "Monthly" ~ "Monthly")) %>%
+  filter(Type %in% "Monthly") 
+```
+
+Total Monthly Vib
+```{r}
+fig3 <- monthly %>%
+  ggplot()+geom_point(
+  aes(x = date,
+      y = copies_mL,
+      color = site),
+  size = 2)+ 
+  geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+
+  facet_wrap(~site)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+    title = "Monthly Total Vibrio") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    legend.position = "none")+ #Removes legend
+ scale_x_date(date_breaks="1 month", date_labels="%b")+
+
+scale_color_manual(values = c("Blind Oso" = "#809C52",
+                              "Canals" = "#ba4716",
+                              "Gulf" = "#4c848c"))
+fig3
+```
+
+
