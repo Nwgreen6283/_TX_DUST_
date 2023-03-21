@@ -23,6 +23,7 @@ vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial 
 vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) 
 vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
 vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv"))
+vc_m<- 
 ```
 
 # CLEANING
@@ -102,7 +103,7 @@ vp %>%
 
 ```{r}
 vv %>%
-  #filter(!site %in% "Blind Oso") %>%
+  filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
