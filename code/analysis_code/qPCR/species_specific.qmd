@@ -23,7 +23,7 @@ vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial 
 vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) 
 vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
 vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv"))
-vc_m<- 
+vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))
 ```
 
 # CLEANING
@@ -73,6 +73,15 @@ vv_m = rbind(jul_bo, jul_c2, jul_rd, vv_m)%>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
 
+vc_m<- vc_m %>%
+  select(!...1) 
+  jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=263.208407, site = "BO")
+  jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
+  jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "RD")
+  vc_m = rbind(jul_bo, jul_c2, jul_rd, vc_m)%>%
+    mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+    mutate(site = recode(site, "C2" = "Canals")) %>%
+    mutate(site = recode(site, "RD" = "Gulf"))
 ```
 
 # DAILY PLOTS
@@ -103,7 +112,7 @@ vp %>%
 
 ```{r}
 vv %>%
-  filter(!site %in% "Blind Oso") %>%
+ # filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -126,7 +135,7 @@ vv %>%
 
 ```{r}
 vc %>%
- # filter(!site %in% "Blind Oso") %>%
+ #filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -193,6 +202,34 @@ vv_m %>%
   labs(x = "Date",
        y = "Copies/mL",
        title = "Monthly Vibrio vulnificus")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+```
+
+#### Vc
+
+```{r}
+vc_m %>%
+  #filter(!site %in% "Blind Oso") %>%
+ ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  geom_point(
+     aes(x = date,
+        y = copies_mL,
+        color = site))+
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Monthly Vibrio cholerae")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),

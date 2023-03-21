@@ -1,0 +1,54 @@
+---
+title: "vc_mon_inh"
+format:
+  html:
+    theme: default
+---
+
+
+Lib
+```{r}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+vc<- readRDS(file = here("data", "processed_data", "vc_mon_inh.rds"))
+```
+
+
+Clean
+```{r}
+inh<- vc %>%
+  mutate(day = substr(vc$Sample, 4,7),
+         date = case_when(
+                          inh$day == "2i" ~ "2022-02-16",
+                          inh$day == "3i" ~ "2022-03-09",
+                          inh$day == "4i" ~ "2022-04-20",
+                          inh$day == "5_11" ~ "2022-05-11",
+                          inh$day == "5_20" ~ "2022-05-20",
+                          inh$day == "5_24" ~ "2022-05-24",
+                          inh$day == "6i" ~ "2022-06-14",
+                          inh$day == "8i" ~ "2022-08-09",
+                          inh$day == "9i" ~ "2022-09-13",
+                          inh$day == "10i" ~ "2022-10-18",
+                          inh$day == "11i" ~ "2022-11-16",
+                          inh$day == "12i" ~ "2022-12-15"))
+
+```
+
+Plot
+```{r}
+inh %>%
+  ggplot() + geom_boxplot(
+    aes(x = date,
+        y = Cq,
+        color = site)) +
+      theme_bw()+
+  geom_hline(yintercept = 32.2)+
+  theme(
+    axis.text.x = element_text(hjust = 1, angle = 45))
+
+```
+

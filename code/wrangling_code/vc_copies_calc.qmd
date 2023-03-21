@@ -36,7 +36,9 @@ m1<-
 
 inh<-
   m %>%
-  filter(grepl('i', Sample)) #Select Inhibition Samples
+  filter(
+    grepl('i', m$Sample) |
+    grepl('Pos', m$Content)) # & Content %in% "Pos Con") #Select Inhibition Samples
 
 saveRDS(inh, file = here("data", "processed_data", "vc_mon_inh.rds")) #Saves inhibition data set for analysis
 ```
