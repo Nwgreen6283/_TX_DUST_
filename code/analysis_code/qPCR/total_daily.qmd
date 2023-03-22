@@ -1,4 +1,4 @@
-zx---
+---
 title: "Exploratory"
 format:
   html:
@@ -55,7 +55,7 @@ c2_daily %>%
   ggplot() +geom_line(
     aes(x = date,
         y = copies_mL),
-    color = "darkorange") +
+    color = "#ba4716") +
   theme_bw() +
   labs(
     x = "Date",
