@@ -9,6 +9,7 @@ Libs
 ```{r}
 library(here)
 library(tidyverse)
+library(lubridate)
 ```
 
 
@@ -22,14 +23,17 @@ dust_all<- read_csv(here("data", "processed_data","tx_master.csv"))
 Clean
 ```{r}
 dust<- dust %>%
-  select(date,t1,t7,t13,t19,tsum,t7sum) %>%
   filter(between(date,as.Date('2022-07-05'), as.Date('2022-07-19')))
 
 dust_all<- dust_all %>%
   select(date, hr_cst, dust) %>%
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
-  mutate(ymdh = paste(dust_all$date, dust_all$hr_cst, sep = "-"),
-         ymdh = ymd_h(dust_all$ymdh))
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
+
+dust_all<- dust_all %>%
+  mutate(ymdh = paste(dust_all$date, dust_all$hr_cst, sep = "-")) #Combines Hour and Date
+  
+dust_all<- dust_all %>% #Set as YMDH
+  mutate(ymdh = ymd_h(dust_all$ymdh))
 ```
 
 Plot T7sum
@@ -44,14 +48,6 @@ dust %>% ggplot()+ geom_line(
   scale_x_date(date_breaks = "1 day", date_labels = "%b%d")
 ```
 
-Plot all 
-```{r}
-dust_all %>%
-  ggplot() + geom_point(
-    aes(x = ymdh,
-        y = dust)
-  )+
-  
-```
+
 
 

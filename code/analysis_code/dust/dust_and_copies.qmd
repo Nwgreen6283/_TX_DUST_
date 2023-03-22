@@ -42,7 +42,7 @@ dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
   theme_bw()+
   labs(
     x = "Date",
-    y = "Dust Aerosol Optical Density")+
+    y = "Dust (AOD)")+
   theme(
     axis.title.y = element_text(size = 15),
     axis.text.y = element_text(size = 10),

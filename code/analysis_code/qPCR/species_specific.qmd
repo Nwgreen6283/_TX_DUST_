@@ -154,7 +154,71 @@ vc %>%
                                 "Gulf" = "4c848c"))
 ```
 
-#### 
+## Combine all species
+
+#### Combine dataset
+
+```{r}
+#Make new columns with species 
+type = "vc"
+vc1<- cbind(vc, type)
+
+type = "vv"
+vv1<- cbind(vv, type)
+
+type = "vp"
+vp1<- cbind(vp, type)
+
+#Combine datasets
+master<- rbind(vc1,vp1,vv1)
+```
+
+#### Plot
+
+##### Blind Oso
+
+```{r}
+master %>%
+  filter(site %in% "Blind Oso")%>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type))+ 
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(hjust = 1, angle = 45))
+```
+
+##### Canals
+
+```{r}
+master %>%
+  filter(site %in% "Canals")%>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type))+ 
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(hjust = 1, angle = 45))
+```
+
+##### Gulf
+
+```{r}
+master %>%
+  filter(site %in% "Gulf")%>%
+  ggplot() + geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type))+ 
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(hjust = 1, angle = 45))
+```
 
 # MONTHLY PLOTS
 
