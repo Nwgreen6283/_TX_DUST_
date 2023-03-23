@@ -19,11 +19,15 @@ library(lubridate)
 
 ```{r}
 vp<- read_csv(here("data", "processed_data","vp_clean_copies.csv"))
-vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
 vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) 
+
+vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
 vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
+
 vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv"))
 vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))
+
+va<- read_csv(here("data", "processed_data", "va_clean_copies_daily.csv"))
 ```
 
 # CLEANING
@@ -42,6 +46,11 @@ vp<- vp %>%
   mutate(site = recode(site, "RD" = "Gulf"))
 
 vc<- vc %>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
+
+va<- va %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
@@ -144,6 +153,29 @@ vc %>%
   labs(x = "Date",
        y = "Copies/mL",
        title = "Daily Vibrio cholerae")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+ 
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+```
+
+#### Va
+
+```{r}
+va %>%
+ #filter(!site %in% "Blind Oso") %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Daily Vibrio alginolyticus")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),
