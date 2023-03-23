@@ -106,7 +106,7 @@ Cq --> Copies/mL
 ```{r}
 copies<- filter %>%
     mutate(
-    log_sq = ((Cq-42.928)/-3.254), #Equation of the line to get log(SQ). Equation is 3/20/23
+    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6--> e1--> could make it better
     sq = 10^log_sq, #Unlog 
     copies_rxn = sq*15, #SQ*Reaction Volume
     copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
@@ -118,7 +118,7 @@ select(Sample,copies_mL, site)
 
 copies_m<- filter_m %>%
     mutate(
-    log_sq = ((Cq-42.928)/-3.254), #Equation of the line to get log(SQ). Equation is 3/20/23
+    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
     copies_rxn = sq*15, #SQ*Reaction Volume
     copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
