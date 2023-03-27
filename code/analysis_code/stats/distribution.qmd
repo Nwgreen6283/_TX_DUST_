@@ -1,0 +1,95 @@
+---
+title: "Distriburion"
+format:
+  html:
+    theme: default
+---
+
+# Libs/Data
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+```
+
+#### Data
+
+```{r}
+d<- read_csv(here("data", "processed_data","tx_master.csv"))
+```
+
+#### Clean Data
+
+```{r}
+d_clean<- d %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"),
+         hr_cst %in% "01") #Just to get rid of duplicates
+
+
+master<- d_clean %>%
+  select(copies_mL,site, date) %>%
+  filter(!is.na(site))
+
+#Site Specific datasets
+bo<- 
+  master %>%
+  filter(site %in% "Blind Oso")
+c2<- 
+  master %>%
+  filter(site %in% "Canals")
+rd<- 
+  master %>%
+  filter(site %in% "Gulf")
+```
+
+# Check Distributions of Data
+
+## Dust
+
+#### Visualization
+
+**Density plot**: the **density** plot provides a visual judgment about whether the distribution is bell shaped.
+
+```{r}
+ggdensity(
+  bo$copies_mL,
+  main = "Blind Oso",
+  xlab = "Copies per mL")
+
+ggdensity(
+  c2$copies_mL,
+  main = "Canals",
+  xlab = "Copies per mL")
+
+ggdensity(
+  rd$copies_mL,
+  main = "Gulf",
+  xlab = "Copies per mL")
+```
+
+**Q-Q plot**: **Q-Q plot** (or quantile-quantile plot) draws the correlation between a given sample and the normal distribution. A 45-degree reference line is also plotted.
+
+```{r}
+ggqqplot(bo$copies_mL)
+
+ggqqplot(c2$copies_mL)
+
+ggqqplot(rd$copies_mL)
+```
+
+### Normality Test
+
+**Shapiro-Wilk's method** is widely recommended for normality test and it provides better power than K-S. It is based on the correlation between the data and the corresponding normal scores.
+
+-   Note that, normality test is sensitive to sample size. Small samples most often pass normality tests. Therefore, it's important to combine visual inspection and significance test in order to take the right decision.
+
+    ```{r}
+    shapiro.test(bo$copies_mL)
+    shapiro.test(c2$copies_mL)
+    shapiro.test(rd$copies_mL)
+    ```
+
+    A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality.**

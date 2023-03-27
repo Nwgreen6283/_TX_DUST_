@@ -1,0 +1,266 @@
+---
+title: "multi-variate"
+format:
+  html:
+    theme: default
+---
+
+### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc) #For lag function
+library(tidymodels) #For modeling
+library(ggpmisc) #For R2 equation on graph
+library(dotwhisker) #Fpr visualization
+library(lubridate)#Dates
+```
+
+# LOADING AND CLEANING DATA
+
+### Data
+
+```{r}
+dust<- read_csv(here("data", "processed_data","dust_master.csv")) #Different Dust attributes
+data<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
+```
+
+### Clean and Trim
+
+```{r}
+dust<- dust %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+
+master<- master %>%
+  select(site, sal, temp, copies_mL) %>%
+  na.omit()
+```
+
+# Multivariate Models
+
+[This code is still in progress. For now, please ignore:]{.ul}
+
+###  Site-specific Data sets
+
+```{r}
+bo_a<- master %>%
+  filter(site %in% "Blind Oso") %>%
+  select(!site)
+
+c2_a<- master %>%
+  filter(site %in% "Canals")%>%
+  select(!site)
+
+rd_a<- master %>%
+  filter(site %in% "Gulf")%>%
+  select(!site)
+```
+
+## BO: Using all Variables vs. Growth
+
+```{r}
+#Create Recipe for Growth and all other parameters
+growth_recipe_bo<- recipe(copies_mL ~ ., data = bo_a)
+
+#Set up linear model
+lm_mod_all<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod_all) %>%
+  add_recipe(growth_recipe_bo)
+
+#Use workflow to fit model to  data set
+growth_fit_bo<- Growth_wflow %>%
+  fit(data = bo_a)
+
+#Pull model fit using parsnip()
+growth_fit_bo %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+Plot
+
+```{r}
+tidy(growth_fit_bo) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```
+
+### Use model to test data
+
+```{r}
+aug_test_bo_a <- augment(growth_fit_bo, bo_a)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_bo_a %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_bo_a %>% rsq(truth = copies_mL, .pred)
+bo_a_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+```{r}
+bo_a_mod<- lm(copies_mL ~ ., data = bo_a)
+AIC(bo_a_mod)
+```
+
+### Residuals
+
+```{r}
+res_bo_a<- resid(bo_a_mod)
+plot(fitted(bo_a_mod), res_bo_a)
+abline(0,0)
+```
+
+## C2: Using all Variables vs. Growth
+
+```{r}
+#Create Recipe for Growth and all other parameters
+growth_recipe_c2<- recipe(copies_mL ~ ., data = c2_a)
+
+#Set up linear model
+lm_mod_all<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod_all) %>%
+  add_recipe(growth_recipe_c2)
+
+#Use workflow to fit model to  data set
+growth_fit_c2<- Growth_wflow %>%
+  fit(data = c2_a)
+
+#View as Tibble 
+growth_fit_c2 %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+Plot
+
+```{r}
+tidy(growth_fit_c2) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```
+
+### Use model to test data
+
+```{r}
+aug_test_c2_a <- augment(growth_fit_c2, c2_a)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_c2_a %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_c2_a %>% rsq(truth = copies_mL, .pred)
+c2_a_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+```{r}
+c2_a_mod<- lm(copies_mL ~ ., data = c2_a)
+AIC(c2_a_mod)
+```
+
+### Residuals
+
+```{r}
+res_c2_a<- resid(c2_a_mod)
+plot(fitted(c2_a_mod), res_c2_a)
+abline(0,0)
+```
+
+## RD: Using all Variables vs. Growth
+
+```{r}
+#Create Recipe for Growth and all other parameters
+growth_recipe_rd<- recipe(copies_mL ~ ., data = rd_a)
+
+#Set up linear model
+lm_mod_all<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod_all) %>%
+  add_recipe(growth_recipe_rd)
+
+#Use workflow to fit model to  data set
+growth_fit_rd<- Growth_wflow %>%
+  fit(data = rd_a)
+
+#View as Tibble 
+growth_fit_rd %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+Plot
+
+```{r}
+tidy(growth_fit_rd) %>% 
+  dwplot(dot_args = list(size = 2, color = "black"),
+         whisker_args = list(color = "black"),
+         vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2))
+```
+
+### Use model to test data
+
+```{r}
+aug_test_rd_a <- augment(growth_fit_rd, rd_a)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_rd_a %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_rd_a %>% rsq(truth = copies_mL, .pred)
+rd_a_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+```{r}
+rd_a_mod<- lm(copies_mL ~ ., data = rd_a)
+AIC(rd_a_mod)
+```
+
+### Residuals
+
+```{r}
+res_rd_a<- resid(rd_a_mod)
+plot(fitted(rd_a_mod), res_rd_a)
+abline(0,0)
+```

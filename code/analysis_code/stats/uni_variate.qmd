@@ -1,0 +1,329 @@
+---
+title: "env_and_copies_stats"
+format:
+  html:
+    theme: default
+---
+
+### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc) #For lag function
+library(tidymodels) #For modeling
+library(ggpmisc) #For R2 equation on graph
+library(dotwhisker) #Fpr visualization
+library(zoo)#for NA approx
+```
+
+# LOADING AND CLEANING DATA
+
+### Data
+
+```{r}
+dust0<- read_csv(here("data", "processed_data","dust_conc","dust_master.csv")) #Different Dust attributes
+data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
+```
+
+### Clean and Trim
+
+```{r}
+dust<- dust0 %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data0 %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master0<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+
+master<- master0 %>%
+  select(copies_mL, t7sum, site, date) 
+```
+
+### Make Site DF
+
+```{r}
+bo<- master %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  rename("dust" = "t7sum")
+
+c2<- master %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- master %>%
+  filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+# Uni-variate Models
+
+**From previous literature, we know that Vibrio have responded to dust 24-48 hours after input. This can make analysis tricky, as the dust concentration of a specific day does not necessarily correlate with the Vibrio copies of that same date. We can use cross-correlation analysis to assess a lag in a time series and see where this lag is most significant.**
+
+## Cross-correlation:
+
+```{r}
+#Blind Oso
+bo_ccf<- bo %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(bo_ccf$t7sum, bo_ccf$copies_mL) 
+title("Blind Oso DustxCopies CCA", line =1)
+
+#Canals
+c2_ccf<- c2 %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(c2_ccf$t7sum, c2_ccf$copies_mL)
+title("Canals DustxCopies CCA", line=1)
+
+#Gulf
+rd_ccf<- rd %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+ccf(rd_ccf$t7sum, rd_ccf$copies_mL) 
+title("Gulf DustxCopies CCA", line =1)
+```
+
+**A negative Lag value indicates that x is a predictor of y, or in this case, dust is a predictor of copies_mL- so we will be looking at these negative values. A positive ACF indicates a positive relationship between the two variables, where a negative ACF indicates a negative relationship. According to the ccf plots, BO has a significant lag relationship a value of -1. In other words, dust occurs, and one day later, we see a response in copies_mL. C2 has a lag at -2, and RD at -1**
+
+## Blind Oso Site:
+
+#### Add one day lag
+
+```{r}
+bo2<- bo%>% mutate(
+  lag =Lag(bo$t7sum, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
+#### Create a linear model
+
+```{r}
+#Create Recipe for Growth 
+growth_recipe_bo<- recipe(copies_mL ~ lag, data = bo2)
+
+#Set up linear model
+lm_mod<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod) %>%
+  add_recipe(growth_recipe_bo)
+
+#Use workflow to fit model to  data set
+growth_fit_bo<- Growth_wflow %>%
+  fit(data = bo2)
+
+#View as Tibble 
+growth_fit_bo %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+### Use model to test data
+
+```{r}
+aug_test_bo <- augment(growth_fit_bo, bo2)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_bo %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_bo %>% rsq(truth = copies_mL, .pred)
+rd_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+Approaches based on such selection criteria essentially try to guess how the model would perform if it were to be fit to new data, without actually trying to do it (in contrast to CV).
+
+```{r}
+bo_mod<- lm(copies_mL ~ lag, data = bo2)
+AIC(bo_mod)
+```
+
+### Residuals
+
+```{r}
+res_bo<- resid(bo_mod)
+plot(fitted(bo_mod), res_bo)
+abline(0,0)
+```
+
+### Plot
+
+```{r}
+aug_test_bo %>% ggplot(aes(copies_mL, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (BO+1)")
+```
+
+## Canals:
+
+#### Add two day lag
+
+```{r}
+c22<- c2%>% mutate(
+  lag =Lag(c2$t7sum, shift  = 2)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
+#### Create a linear model
+
+```{r}
+#Create Recipe for Growth 
+growth_recipe_c2<- recipe(copies_mL ~ lag, data = c22)
+
+#Set up linear model
+lm_mod<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod) %>%
+  add_recipe(growth_recipe_c2)
+
+#Use workflow to fit model to  data set
+growth_fit_c2<- Growth_wflow %>%
+  fit(data = c22)
+
+#View as Tibble 
+growth_fit_c2 %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+### Use model to test data
+
+```{r}
+aug_test_c2 <- augment(growth_fit_c2, c22)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_c2 %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_c2 %>% rsq(truth = copies_mL, .pred)
+rd_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+```{r}
+c2_mod<- lm(copies_mL ~ lag, data = c22)
+AIC(c2_mod)
+```
+
+### Residuals
+
+```{r}
+res_c2<- resid(c2_mod)
+plot(fitted(c2_mod), res_c2)
+abline(0,0)
+```
+
+### Plot
+
+```{r}
+aug_test_c2 %>% ggplot(aes(copies_mL, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (C2+2)")
+```
+
+## Gulf Site:
+
+#### Add two day lag
+
+```{r}
+rd2<- rd%>% mutate(
+  lag =Lag(rd$t7sum, shift  = 2)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
+#### Create a linear model
+
+```{r}
+#Create Recipe for Growth 
+growth_recipe_rd<- recipe(copies_mL ~ lag, data = rd2)
+
+#Set up linear model
+lm_mod<- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+#Workflow that adds recipe to model
+Growth_wflow<- 
+  workflow() %>%
+  add_model(lm_mod) %>%
+  add_recipe(growth_recipe_rd)
+
+#Use workflow to fit model to  data set
+growth_fit_rd<- Growth_wflow %>%
+  fit(data = rd2)
+
+#View as Tibble 
+growth_fit_rd %>%
+  extract_fit_parsnip() %>%
+  tidy()
+```
+
+### Use model to test data
+
+```{r}
+aug_test_rd <- augment(growth_fit_rd, rd2)
+```
+
+### RMSE and R2 to test model performance
+
+```{r}
+rmse <- aug_test_rd %>% rmse(truth = copies_mL, .pred)
+rsq <- aug_test_rd %>% rsq(truth = copies_mL, .pred)
+rd_metrics<- full_join(rmse, rsq)
+```
+
+### AIC to assess Performance
+
+```{r}
+rd_mod<- lm(copies_mL ~ lag, data = rd2)
+AIC(rd_mod)
+```
+
+### Residuals
+
+```{r}
+res_rd<- resid(rd_mod)
+plot(fitted(rd_mod), res_rd)
+abline(0,0)
+```
+
+### Plot
+
+```{r}
+aug_test_rd %>% ggplot(aes(lag, copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (RD+2)")
+```
+
+# TEMPERATURE
+
+### Blind Oso

@@ -1,0 +1,145 @@
+---
+title: "roc"
+format:
+  html:
+    theme: default
+---
+
+### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+# LOADING AND CLEANING DATA
+
+### Data
+
+```{r}
+dust<- read_csv(here("data", "processed_data","dust_conc", "dust_master.csv")) #Different Dust attributes
+master<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
+```
+
+### Daily and Monthly Dataframe
+
+```{r}
+daily <- 
+  master %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'), #Daily Time series
+         hr_cst %in% "01", #gets rid of reps
+         !date %in% as.Date('2022-07-10')) %>% #Gets rid of 7/10 as no samples collected then
+  left_join(dust) %>%
+   select(date, copies_mL, site, t7sum)
+
+mon<- 
+  master %>%
+  filter(Type %in% "Monthly",
+         hr_cst ==  "01" | #gets rid of reps for copies_mL
+         hr_cst =="00" |
+         date %in% as.Date('2022-09-13'): as.Date("2022-12-14")) %>%
+  select(date, copies_mL, site)
+```
+
+### Site DF
+
+```{r}
+#Daily Sites
+bo_d<- 
+  daily %>%
+  filter(site %in% "Blind Oso")
+
+c2_d<- 
+  daily %>%
+  filter(site %in% "Canals")
+
+rd_d<- 
+  daily %>%
+  filter(site %in% "Gulf")
+
+#Monthly Sites
+
+bo_m<- 
+  mon %>%
+  filter(site %in% "Blind Oso")
+
+c2_m<- 
+  mon %>%
+  filter(site %in% "Canals")
+
+rd_m<- 
+  mon %>%
+  filter(site %in% "Gulf")
+```
+
+### Find Site average copies/mL over the year
+
+```{r}
+bo_avg<- 
+  mean(bo_m$copies_mL)
+
+c2_avg<- 
+  mean(c2_m$copies_mL)
+
+rd_avg<- 
+  mean(rd_m$copies_mL)
+```
+
++-------------+-------------------+
+| Site        | Average copies_mL |
++=============+===================+
+| Blind Oso   | 24260.4573632452  |
++-------------+-------------------+
+| Canals      | 7739.38371599866  |
++-------------+-------------------+
+| Gulf        | 23116.2579088854  |
++-------------+-------------------+
+
+### Make Rate of change column
+
+We do this by taking the measured copies_mL and dividing by the yearly average. Then we find the difference between ROC value and the average
+
+```{r}
+bo_d<- 
+  bo_d %>%
+  mutate(
+    roc = copies_mL / bo_avg, #rate of change
+    dif = roc - 1) #difference between roc and average (1)
+
+c2_d<- 
+  c2_d %>%
+  mutate(
+    roc = copies_mL / c2_avg,
+    dif = roc - 1)
+
+rd_d<- 
+  rd_d %>%
+  mutate(
+    roc = copies_mL / rd_avg,
+    dif = roc - 1)
+```
+
+### Plot rate of change for each site
+
+```{r}
+bo_d %>%
+  ggplot() +geom_line(
+    aes(
+      x = date,
+      y = roc)) +
+  geom_hline(yintercept  = 1)
+    
+c2_d %>%
+  ggplot() +geom_line(
+    aes(
+      x = date,
+      y = roc))+
+  geom_hline(yintercept  = 1)
+
+rd_d %>%
+  ggplot() +geom_line(
+    aes(
+      x = date,
+      y = roc))+
+  geom_hline(yintercept  = 1)
+```
