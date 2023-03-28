@@ -4,21 +4,25 @@ format:
   html:
     theme: default
 ---
-**This script is good for visualizing copies per mL data and dust data.**
-Library
+
+**This script is good for visualizing copies per mL data and dust data.** Library
+
 ```{r}
 library(here)
 library(tidyverse)
 library(ggpubr)
+library(Hmisc)#Lag function
 ```
 
-Load Data 
-```{r}
+## Load Data
+
+```{r, include= FALSE}
 dust_sum<-read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv")) 
 copies<- read_csv(here("data", "processed_data", "total_clean_copies.csv")) 
 ```
 
-Daily Data frames
+## Daily Data frames
+
 ```{r}
 daily_dust_sum<- dust_sum %>%
   filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
@@ -31,9 +35,11 @@ copies_d <- copies %>%
 
 ```
 
+# Copies and Dust Plots
 
-Plot Daily Dust Concentration
-```{r}
+## Plot Daily Dust Concentration
+
+```{r, include = FALSE}
 dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
   aes(x = date,
       y = t7sum),
@@ -53,10 +59,12 @@ dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
 dust_fig
 ```
 
+## Total Daily Vibrio
 
-Total Daily Vibrio
-```{r}
-tot_vib<- copies_d %>% ggplot()+geom_line(
+```{r, include = FALSE}
+tot_vib<- copies_d %>% 
+#  filter(site %in% "Canals") %>%
+  ggplot()+geom_line(
   aes(x = date,
       y = copies_mL,
       color = site),
@@ -83,16 +91,120 @@ tot_vib<- copies_d %>% ggplot()+geom_line(
 tot_vib
 ```
 
-Combine Dust and Copies
+## Combine Dust and Copies
+
 ```{r}
 fig<- ggarrange(tot_vib, dust_fig + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
 
 fig
 ```
 
-Save as PNG
+# Dust Boxplots 
+
+#### Make new df
+
 ```{r}
-png(file = here("results", "plots", "vib_dust_daily.png"))
-fig
-dev.off()
+master<- 
+  dust_sum %>%
+  left_join(copies_d) %>%
+  select(date,site,copies_mL, t7sum)
+```
+
+#### Site-specific df
+
+```{r}
+bo<- 
+  master %>%
+  filter(site %in% "Blind Oso" | date %in% as.Date('2022-07-05') : as.Date('2022-07-06')) 
+bo <- bo %>% mutate(lag = Lag(bo$t7sum, shift = 1)) %>% #Creates 1 day lag
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'))
+
+c2<- 
+  master %>%
+  filter(site %in% "Canals" | date %in% as.Date('2022-07-05') : as.Date('2022-07-06')) 
+c2 <- c2 %>% mutate(lag = Lag(c2$t7sum, shift = 2)) %>% #Creates 2 day lag
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'))
+
+rd<- 
+  master %>%
+  filter(site %in% "Gulf" | date %in% as.Date('2022-07-05') : as.Date('2022-07-06')) 
+rd <- rd %>% mutate(lag = Lag(rd$t7sum, shift = 2)) %>% #Creates 2 day lag
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'))
+```
+
+#### Set dust threshold
+
+```{r}
+x <- 0.2 #Anything = or > is a "high" dust event (t7sum)
+
+#Create new column indicating high dust or low dust
+bo<-
+  bo %>%
+  mutate(dustlevel = case_when(bo$lag >= x ~ "high",
+                               bo$lag < x ~ "low"))
+
+c2<-
+  c2 %>%
+  mutate(dustlevel = case_when(c2$lag >= x ~ "high",
+                               c2$lag < x ~ "low"))
+
+rd<-
+  rd %>%
+  mutate(dustlevel = case_when(rd$lag >= x ~ "high",
+                               rd$lag <= x ~ "low"))
+```
+
+#### Plot
+
+```{r}
+bo %>%
+  ggplot() + geom_boxplot(
+    aes(x = dustlevel,
+        y = copies_mL,
+        color = dustlevel))+
+stat_compare_means(
+  aes(x = dustlevel,
+      y = copies_mL),
+  label.x = 1.5,
+  label.y = 76000,
+  method = "t.test") +
+  theme_bw() +
+  labs(
+    title = "Blind Oso")+
+  theme(
+    legend.position = "none")
+
+c2 %>%
+  ggplot() + geom_boxplot(
+    aes(x = dustlevel,
+        y = copies_mL,
+        color = dustlevel))+
+stat_compare_means(
+  aes(x = dustlevel,
+      y = copies_mL),
+  label.x = 1.5,
+  label.y = 76000,
+  method = "t.test")+
+  theme_bw()+
+  labs(
+    title = "Canals")+
+  theme(
+    legend.position = "none")
+
+rd %>%
+  ggplot() + geom_boxplot(
+    aes(x = dustlevel,
+        y = copies_mL,
+        color = dustlevel))+
+stat_compare_means(
+  aes(x = dustlevel,
+      y = copies_mL),
+  label.x = 1.5,
+  label.y = 76000,
+  method = "t.test")+
+  theme_bw()+
+  labs(
+    title = "Gulf")+
+  theme(
+    legend.position = "none")
 ```

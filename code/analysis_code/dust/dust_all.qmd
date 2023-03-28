@@ -4,8 +4,9 @@ format:
   html:
     theme: default
 ---
-**Script is good for dust data 2022**
-Library
+
+**Script is good for dust data 2022** Library
+
 ```{r}
 library(here)
 library(tidyverse)
@@ -13,12 +14,14 @@ library(ggpubr)
 library(lubridate)
 ```
 
-Load Data 
+Load Data
+
 ```{r}
 dust<-read_csv(here("data", "processed_data", "tx_master.csv")) 
 ```
 
 Clean
+
 ```{r}
 year<- dust %>%
   select(date,SUM) %>%
@@ -30,6 +33,7 @@ month<- dust %>%
 ```
 
 Plot
+
 ```{r}
 year%>%
   ggplot() + geom_line(
@@ -50,5 +54,3 @@ year%>%
              color = "4c848c",
              stroke = 1.5)
 ```
-
-

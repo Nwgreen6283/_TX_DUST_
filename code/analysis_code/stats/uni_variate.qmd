@@ -53,8 +53,7 @@ master<- master0 %>%
 
 ```{r}
 bo<- master %>%
-  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
-  rename("dust" = "t7sum")
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) 
 
 c2<- master %>%
   filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
