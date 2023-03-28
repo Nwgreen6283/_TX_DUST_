@@ -38,9 +38,10 @@ vc %>%
     subtitle = "BO = Blind Oso // C2 = Canals // RD = Gulf // NA = 10^3 +Control",
     caption = "Ex. BO_11i = Blind Oso on the 11th (inhibition sample)")+
   theme(
-    plot.caption = element_text(hjust = 0)
-  )
-  
+    plot.caption = element_text(hjust = 0)) +
+  scale_color_manual(values = c("BO" = "#809C52",
+                                "C2" = "#ba4716",
+                                "RD" = "#4c848c"))
 ```
 
 
