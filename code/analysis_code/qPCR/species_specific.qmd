@@ -155,7 +155,7 @@ vv %>%
 
 ```{r}
 vc %>%
- filter(!site %in% "Blind Oso") %>%
+ #filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -163,7 +163,8 @@ vc %>%
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Daily Vibrio cholerae")+
+       title = "Daily Vibrio cholerae",
+       caption = "Blind Oso was 1:10")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),

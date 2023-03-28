@@ -161,7 +161,7 @@ abline(0,0)
 ### Plot
 
 ```{r}
-aug_test_bo %>% ggplot(aes(copies_mL, .pred)) +
+aug_test_bo %>% ggplot(aes(lag, copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL),
@@ -238,7 +238,7 @@ abline(0,0)
 ### Plot
 
 ```{r}
-aug_test_c2 %>% ggplot(aes(copies_mL, .pred)) +
+aug_test_c2 %>% ggplot(aes(lag, copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL),

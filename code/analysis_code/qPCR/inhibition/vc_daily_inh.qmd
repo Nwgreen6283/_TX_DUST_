@@ -1,0 +1,46 @@
+---
+title: "vc daily inhibition"
+format:
+  html:
+    theme: default
+---
+
+Lib
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+#### Data
+```{r}
+vc<- read_csv(here("data", "raw_data","vc_daily_inh.csv"))
+```
+
+#### Clean
+```{r}
+vc<- vc %>%
+  mutate(site = substr(Sample, 1,2)) %>% #Make Site column
+  filter(!Content %in% "NTC") %>% #Take out NTC
+  select(site, Cq, Sample) #Select colummns of interest
+```
+
+Plot
+```{r}
+vc %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = site)) +
+  geom_hline(yintercept = 31.35)+
+  theme_bw()+
+  labs(
+    title= "Vc Daily Inhibition Check",
+    subtitle = "BO = Blind Oso // C2 = Canals // RD = Gulf // NA = 10^3 +Control",
+    caption = "Ex. BO_11i = Blind Oso on the 11th (inhibition sample)")+
+  theme(
+    plot.caption = element_text(hjust = 0)
+  )
+  
+```
+
+

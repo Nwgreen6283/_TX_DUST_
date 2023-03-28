@@ -63,7 +63,7 @@ dust_fig
 
 ```{r, include = FALSE}
 tot_vib<- copies_d %>% 
-#  filter(site %in% "Canals") %>%
+  filter(site %in% "Canals") %>%
   ggplot()+geom_line(
   aes(x = date,
       y = copies_mL,
