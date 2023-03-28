@@ -155,7 +155,7 @@ vv %>%
 
 ```{r}
 vc %>%
- #filter(!site %in% "Blind Oso") %>%
+ filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,

@@ -99,7 +99,7 @@ fig<- ggarrange(tot_vib, dust_fig + font("x.text", size = 10), ncol = 1, nrow = 
 fig
 ```
 
-# Dust Boxplots 
+# Dust Boxplots
 
 #### Make new df
 
@@ -135,9 +135,34 @@ rd <- rd %>% mutate(lag = Lag(rd$t7sum, shift = 2)) %>% #Creates 2 day lag
 #### Set dust threshold
 
 ```{r}
-x <- 0.2 #Anything = or > is a "high" dust event (t7sum)
+dust_jul<- 
+  dust_sum %>%
+  filter(date %in% as.Date('2022-07-01') : as.Date('2022-07-31')) #DF from Month of July
+ 
+x<- mean(dust_jul$t7sum) #Finds the average of the t7sum for July. BO was chosen but any site can represent this since they all have the same dust values. We just dont want replicates so that is why we chose one site. 
+#Anything = or > 'x' is a "high" dust event (t7sum)
+```
 
-#Create new column indicating high dust or low dust
+#### Plot t7sum Dust in July
+
+```{r}
+dust_jul %>%
+  ggplot() + geom_line(
+    aes(
+      x = date, 
+      y = t7sum)) +
+  theme_bw() +
+  labs(
+    x = "Date",
+    y = "t7sum Dust (AOD)",
+    title = "Dust AOD (t7sum) in July, 2022") +
+  geom_hline(yintercept = x) #Line represents dust_avg for July
+  
+```
+
+#### Create new Column indicating high or low dust
+
+```{r}
 bo<-
   bo %>%
   mutate(dustlevel = case_when(bo$lag >= x ~ "high",
