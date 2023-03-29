@@ -85,7 +85,7 @@ filter<- dilution %>%
           filter_amt = as.numeric(filter_amt)) 
 
 dilution_m<- m%>%
-  mutate(dilution = case_when(site == "BO"~"1",
+  mutate(dilution = case_when(site == "BO"~"1", #BO was 1:1
                               site  == "C2"~ "1",
                               site == "RD"~"1"),
          dilution = as.numeric(dilution))

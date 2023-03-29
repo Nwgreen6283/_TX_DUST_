@@ -47,7 +47,7 @@ saveRDS(inh, file = here("data", "processed_data", "vc_mon_inh.rds")) #Saves inh
 Add Dilution Column and Filter column
 ```{r}
 dilution<- d%>%
-  mutate(dilution = case_when(site == "BO"~"10",
+  mutate(dilution = case_when(site == "BO"~"10",#BO was 1:10
                               site  == "C2"~ "1",
                               site == "RD"~"1"),
          dilution = as.numeric(dilution))
@@ -74,7 +74,7 @@ filter<- dilution %>%
           filter_amt = as.numeric(filter_amt)) 
 
 dilution_m<- m1%>%
-  mutate(dilution = case_when(site == "BO"~"1",
+  mutate(dilution = case_when(site == "BO"~"1", #BO was 1:1
                               site  == "C2"~ "1",
                               site == "RD"~"1"),
          dilution = as.numeric(dilution))
