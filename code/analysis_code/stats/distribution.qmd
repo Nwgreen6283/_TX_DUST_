@@ -19,9 +19,12 @@ library(ggpubr)
 
 ```{r}
 d<- read_csv(here("data", "processed_data","tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv"))
 ```
 
 #### Clean Data
+
+##### Meta
 
 ```{r}
 d_clean<- d %>%
@@ -45,9 +48,19 @@ rd<-
   filter(site %in% "Gulf")
 ```
 
+##### Dust
+
+```{r}
+#Daily df
+daily<- 
+  dust %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
+  mutate(t7sumlog = log10(t7sum)) #Log transform
+```
+
 # Check Distributions of Data
 
-## Dust
+## Copies/mL
 
 #### Visualization
 
@@ -93,3 +106,12 @@ ggqqplot(rd$copies_mL)
     ```
 
     A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality.**
+
+## Dust
+
+### Normality Test
+
+```{r}
+shapiro.test(daily$t7sum) #Normal data
+shapiro.test(daily$t7sumlog) #Log trans data
+```

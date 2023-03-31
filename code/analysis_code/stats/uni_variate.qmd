@@ -7,22 +7,21 @@ format:
 
 ### Libraries
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 library(here)
 library(Hmisc) #For lag function
 library(tidymodels) #For modeling
 library(ggpmisc) #For R2 equation on graph
 library(dotwhisker) #Fpr visualization
-library(zoo)#for NA approx
 ```
 
 # LOADING AND CLEANING DATA
 
 ### Data
 
-```{r}
-dust0<- read_csv(here("data", "processed_data","dust_conc","dust_master.csv")) #Different Dust attributes
+```{r, include = FALSE}
+dust0<- read_csv(here("data", "processed_data","dust_master.csv")) #Different Dust attributes
 data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 ```
 
@@ -31,7 +30,8 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 ```{r}
 dust<- dust0 %>%
   filter(!is.na(date),
-         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) %>%
+  mutate(t7sumlog = log10(t7sum)) #Log transform Dust conc (as it is not normal) 
 
 
 data<- data0 %>%
@@ -44,16 +44,17 @@ data<- data0 %>%
 master0<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+master<- master0[c(1:10,15,33)]
 
-master<- master0 %>%
-  select(copies_mL, t7sum, site, date) 
 ```
 
 ### Make Site DF
 
+**Need to include 7/5 and 7/6 for previous dust data (will be used for lag analysis)**
+
 ```{r}
 bo<- master %>%
-  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) 
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
 
 c2<- master %>%
   filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
@@ -66,7 +67,11 @@ rd<- master %>%
 
 **From previous literature, we know that Vibrio have responded to dust 24-48 hours after input. This can make analysis tricky, as the dust concentration of a specific day does not necessarily correlate with the Vibrio copies of that same date. We can use cross-correlation analysis to assess a lag in a time series and see where this lag is most significant.**
 
+\*\*Dust (t7sum) was log transformed
+
 ## Cross-correlation:
+
+**For this, we cannot have NAs so we choose the strict daily time series**
 
 ```{r}
 #Blind Oso
@@ -90,17 +95,40 @@ title("Gulf DustxCopies CCA", line =1)
 
 **A negative Lag value indicates that x is a predictor of y, or in this case, dust is a predictor of copies_mL- so we will be looking at these negative values. A positive ACF indicates a positive relationship between the two variables, where a negative ACF indicates a negative relationship. According to the ccf plots, BO has a significant lag relationship a value of -1. In other words, dust occurs, and one day later, we see a response in copies_mL. C2 has a lag at -2, and RD at -1**
 
-## Blind Oso Site:
++------+-----+
+| Site | Lag |
++======+=====+
+| BO   | 1   |
++------+-----+
+| C2   | 2   |
++------+-----+
+| RD   | 2\* |
++------+-----+
 
-#### Add one day lag
+: \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.
+
+# Blind Oso:
+
+### Add one day lag
 
 ```{r}
 bo2<- bo%>% mutate(
-  lag =Lag(bo$t7sum, shift  = 1)) %>% #Make lag from ccf
+  lag =Lag(bo$t7sumlog, shift  = 1)) %>% #Make lag from ccf
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
-#### Create a linear model
+### Plot
+
+```{r}
+bo2 %>% ggplot(aes(x = lag, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (BO+1)")
+```
+
+### Create a linear model
 
 ```{r}
 #Create Recipe for Growth 
@@ -158,28 +186,28 @@ plot(fitted(bo_mod), res_bo)
 abline(0,0)
 ```
 
-### Plot
-
-```{r}
-aug_test_bo %>% ggplot(aes(lag, copies_mL)) +
-  geom_point() +
-  stat_smooth(method = "lm")+
-  stat_poly_eq(aes(x = lag, y = copies_mL),
-               rr.digits = 4) +
-  labs(title = "LM DustxCopies (BO+1)")
-```
-
-## Canals:
+# Canals:
 
 #### Add two day lag
 
 ```{r}
 c22<- c2%>% mutate(
-  lag =Lag(c2$t7sum, shift  = 2)) %>% #Make lag from ccf
+  lag =Lag(c2$t7sumlog, shift  = 2)) %>% #Make lag from ccf
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
-#### Create a linear model
+### Plot
+
+```{r}
+c22 %>% ggplot(aes(x = lag, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "LM DustxCopies (C2+2)")
+```
+
+### Create a linear model
 
 ```{r}
 #Create Recipe for Growth 
@@ -235,28 +263,28 @@ plot(fitted(c2_mod), res_c2)
 abline(0,0)
 ```
 
+## Gulf Site:
+
+### Add two day lag
+
+```{r}
+rd2<- rd%>% mutate(
+  lag =Lag(rd$t7sumlog, shift  = 2)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
 ### Plot
 
 ```{r}
-aug_test_c2 %>% ggplot(aes(lag, copies_mL)) +
+rd2 %>% ggplot(aes(lag, copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL),
                rr.digits = 4) +
-  labs(title = "LM DustxCopies (C2+2)")
+  labs(title = "LM DustxCopies (RD+2)")
 ```
 
-## Gulf Site:
-
-#### Add two day lag
-
-```{r}
-rd2<- rd%>% mutate(
-  lag =Lag(rd$t7sum, shift  = 2)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
-```
-
-#### Create a linear model
+### Create a linear model
 
 ```{r}
 #Create Recipe for Growth 
@@ -312,17 +340,29 @@ plot(fitted(rd_mod), res_rd)
 abline(0,0)
 ```
 
-### Plot
+# SALINITY
+
+## Blind Oso
+
+#### New Dataframe
 
 ```{r}
-aug_test_rd %>% ggplot(aes(lag, copies_mL)) +
-  geom_point() +
-  stat_smooth(method = "lm")+
-  stat_poly_eq(aes(x = lag, y = copies_mL),
-               rr.digits = 4) +
-  labs(title = "LM DustxCopies (RD+2)")
+master2<- 
+  master0 %>%
+  select(copies_mL,sal,temp,site)
 ```
 
-# TEMPERATURE
+#### Plot
 
-### Blind Oso
+```{r}
+master2 %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot(aes(
+    x = sal, 
+    y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = sal, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Sal x Copies BO")
+```
