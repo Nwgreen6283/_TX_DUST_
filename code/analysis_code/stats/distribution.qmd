@@ -113,5 +113,6 @@ ggqqplot(rd$copies_mL)
 
 ```{r}
 shapiro.test(daily$t7sum) #Normal data
+shapiro.test() #Add all iother shit 
 shapiro.test(daily$t7sumlog) #Log trans data
 ```

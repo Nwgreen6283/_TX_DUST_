@@ -1,0 +1,67 @@
+---
+title: "dust_stats"
+format:
+  html:
+    theme: default
+---
+
+**Code is for determining which dust permutation to work with**
+
+# Libs/Data
+
+#### Libraries
+
+```{r, include = FALSE}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r, include=FALSE}
+data<- read_csv(here("data", "processed_data","tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv"))
+```
+
+### Clean and Trim
+
+```{r}
+dust<- dust %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master0<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+master<- master0[c(1:10,15,17)]
+
+```
+
+### Make Site DF
+
+**Need to include 7/5 and 7/6 for previous dust data (will be used for lag analysis)**
+
+```{r}
+bo<- master %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+c2<- master %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- master %>%
+  filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+### Create Log transformed dust
+
+```{r}
+
+```

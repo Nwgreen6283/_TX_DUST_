@@ -95,15 +95,11 @@ title("Gulf DustxCopies CCA", line =1)
 
 **A negative Lag value indicates that x is a predictor of y, or in this case, dust is a predictor of copies_mL- so we will be looking at these negative values. A positive ACF indicates a positive relationship between the two variables, where a negative ACF indicates a negative relationship. According to the ccf plots, BO has a significant lag relationship a value of -1. In other words, dust occurs, and one day later, we see a response in copies_mL. C2 has a lag at -2, and RD at -1**
 
-+------+-----+
 | Site | Lag |
-+======+=====+
+|------|-----|
 | BO   | 1   |
-+------+-----+
 | C2   | 2   |
-+------+-----+
 | RD   | 2\* |
-+------+-----+
 
 : \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.
 
