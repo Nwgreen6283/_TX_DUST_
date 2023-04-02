@@ -54,8 +54,8 @@ rd<-
 #Daily df
 daily<- 
   dust %>%
-  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  mutate(t7sumlog = log10(t7sum)) #Log transform
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) #%>%
+  #mutate(t7sumlog = log10(t7sum)) #Log transform
 ```
 
 # Check Distributions of Data
@@ -105,14 +105,43 @@ ggqqplot(rd$copies_mL)
     shapiro.test(rd$copies_mL)
     ```
 
-    A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality.**
+    A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality for copies_mL at all sites.**
 
 ## Dust
 
 ### Normality Test
 
 ```{r}
-shapiro.test(daily$t7sum) #Normal data
-shapiro.test() #Add all iother shit 
-shapiro.test(daily$t7sumlog) #Log trans data
+daily<- 
+  daily %>%
+  select(!date)
+
+apply(daily,2,shapiro.test) #Number '2' indicates columns. '1' would be rows.
 ```
+
+**All of our dust permutations are not normally distributed. So let's log transform and run the test again.**
+
+#### Log transform data
+
+```{r}
+log_daily<- 
+  daily %>%
+  mutate(
+    t1 = log10(t1),
+    t7 = log10(t7),
+    t13 = log10(t13),
+    t19 = log10(t19),
+    tsum = log10(tsum),
+    tavg = log10(tavg),
+    t7sum = log10(t7sum),
+    t7avg = log10(t7avg),
+  )
+```
+
+#### Re-run Normality test on new log data
+
+```{r}
+apply(log_daily,2,shapiro.test) 
+```
+
+**All look good except t19.**

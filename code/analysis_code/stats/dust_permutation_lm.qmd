@@ -1,0 +1,346 @@
+---
+title: "dust_stats"
+format:
+  html:
+    theme: default
+---
+
+**Code is for determining which dust permutation to work with by running linear models.**
+
+# Libs/Data
+
+#### Libraries
+
+```{r, include = FALSE}
+library(tidyverse)
+library(here)
+library(Hmisc) #For lag function
+library(ggpmisc) #For R2 equation on graph
+library(ggpubr) #For stacking plots
+```
+
+#### Data
+
+```{r, include=FALSE}
+data<- read_csv(here("data", "processed_data","tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv"))
+```
+
+### Clean and Trim
+
+```{r}
+dust<- dust %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master0<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+master<- master0[c(1:9,14,16)] #Select columns
+
+```
+
+### Create Log transformed dust
+
+We know that the dust data are not normally distributed
+
+```{r}
+master<- 
+  master %>%
+  mutate(
+    t1 = log10(t1),
+    t7 = log10(t7),
+    t13 = log10(t13),
+    t19 = log10(t19), #This is still not normal after log transformation. 
+    tsum = log10(tsum),
+    tavg = log10(tavg),
+    t7sum = log10(t7sum),
+    t7avg = log10(t7avg))
+```
+
+### Make Site DF
+
+**Need to include 7/5 and 7/6 for previous dust data (will be used for lag analysis)**
+
+```{r}
+bo<- master %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) 
+
+c2<- master %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- master %>%
+  filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+#### Now we need to add lags
+
++------------------------------+---------------------------------------+
+| Site                         | Lag                                   |
++==============================+=======================================+
+| BO                           | 1                                     |
++------------------------------+---------------------------------------+
+| C2                           | 2                                     |
++------------------------------+---------------------------------------+
+| RD                           | 2\*                                   |
++------------------------------+---------------------------------------+
+
+These lags come from the uni-variate code.
+
+\*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.
+
+```{r}
+bo2<- bo%>% mutate(
+  tsum =Lag(bo$tsum, shift  = 1),  #Make lag from ccf
+  tavg =Lag(bo$tavg, shift  = 1),
+  t7sum =Lag(bo$t7sum, shift  = 1), 
+  t7avg =Lag(bo$t7avg, shift  = 1),
+  t1 =Lag(bo$t1, shift  = 1),
+  t7 =Lag(bo$t7, shift  = 1),
+  t13 =Lag(bo$t13, shift  = 1),
+  t19 =Lag(bo$t19, shift  = 1)) %>%
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!date)
+
+c22<- c2%>% mutate(
+  tsum =Lag(c2$tsum, shift  = 2),  #Make lag from ccf
+  tavg =Lag(c2$tavg, shift  = 2),
+  t7sum =Lag(c2$t7sum, shift  = 2), 
+  t7avg =Lag(c2$t7avg, shift  = 2),
+  t1 =Lag(c2$t1, shift  = 2),
+  t7 =Lag(c2$t7, shift  = 2),
+  t13 =Lag(c2$t13, shift  = 2),
+  t19 =Lag(c2$t19, shift  = 2)) %>%
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))%>%
+  select(!date)
+
+rd2<- rd%>% mutate(
+  tsum =Lag(rd$tsum, shift  = 2),  #Make lag from ccf
+  tavg =Lag(rd$tavg, shift  = 2),
+  t7sum =Lag(rd$t7sum, shift  = 2), 
+  t7avg =Lag(rd$t7avg, shift  = 2),
+  t1 =Lag(rd$t1, shift  = 2),
+  t7 =Lag(rd$t7, shift  = 2),
+  t13 =Lag(rd$t13, shift  = 2),
+  t19 =Lag(rd$t19, shift  = 2)) %>%
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))%>%
+  select(!date)
+```
+
+### Plot 
+
+We do no plot t19 as it is not normally distributed
+
+#### Blind Oso
+
+```{r}
+t1_bo<-
+  bo2 %>% ggplot(aes(x = t1, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t1, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T1")
+
+t7_bo<- 
+  bo2 %>% ggplot(aes(x = t7, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7")
+
+t13_bo<- 
+  bo2 %>% ggplot(aes(x = t13, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t13, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T13")
+
+tsum_bo<- 
+  bo2 %>% ggplot(aes(x = tsum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tsum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tsum")
+
+tavg_bo<- 
+  bo2 %>% ggplot(aes(x = tavg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tavg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tavg")
+
+t7sum_bo<-
+  bo2 %>% ggplot(aes(x = t7sum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7sum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7sum")
+
+t7avg_bo<- 
+  bo2 %>% ggplot(aes(x = t7avg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7avg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7avg")
+
+bo_fig<- 
+  ggarrange(
+    t1_bo, t7_bo, t13_bo, tsum_bo, tavg_bo, t7sum_bo, t7avg_bo + 
+      font("x.text", size = 10), 
+    ncol = 3,
+    nrow = 3)
+bo_fig
+```
+
+#### Canals
+
+```{r}
+t1_c2<-
+  c22 %>% ggplot(aes(x = t1, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t1, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T1")
+
+t7_c2<-
+  c22 %>% ggplot(aes(x = t7, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7")
+
+t13_c2<-
+  c22 %>% ggplot(aes(x = t13, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t13, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T13")
+
+tsum_c2<-
+  c22 %>% ggplot(aes(x = tsum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tsum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tsum")
+
+tavg_c2<-
+  c22 %>% ggplot(aes(x = tavg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tavg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tavg")
+
+t7sum_c2<-
+  c22 %>% ggplot(aes(x = t7sum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7sum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7sum")
+
+t7avg_c2<-
+  c22 %>% ggplot(aes(x = t7avg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7avg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7avg")
+
+c2_fig<- 
+  ggarrange(
+    t1_c2, t7_c2, t13_c2, tsum_c2, tavg_c2, t7sum_c2, t7avg_c2 + 
+      font("x.text", size = 10), 
+    ncol = 3,
+    nrow = 3)
+c2_fig
+```
+
+#### Gulf
+
+```{r}
+t1_rd<-
+  rd2 %>% ggplot(aes(x = t1, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t1, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T1")
+
+t7_rd<-
+  rd2 %>% ggplot(aes(x = t7, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7")
+
+t13_rd<-
+  rd2 %>% ggplot(aes(x = t13, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t13, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T13")
+
+tsum_rd<-
+  rd2 %>% ggplot(aes(x = tsum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tsum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tsum")
+
+tavg_rd<-
+  rd2 %>% ggplot(aes(x = tavg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = tavg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "Tavg")
+
+t7sum_rd<-
+  rd2 %>% ggplot(aes(x = t7sum, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7sum, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7sum")
+
+t7avg_rd<-
+  rd2 %>% ggplot(aes(x = t7avg, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = t7avg, y = copies_mL),
+               rr.digits = 4) +
+  labs(title = "T7avg")
+
+rd_fig<- 
+  ggarrange(
+    t1_rd, t7_rd, t13_rd, tsum_rd, tavg_rd, t7sum_rd, t7avg_rd + 
+      font("x.text", size = 10), 
+    ncol = 3,
+    nrow = 3)
+rd_fig
+```
+
+**t7avg or sum looks to be the best for BO and C2, but t13 is best for Gulf.**
