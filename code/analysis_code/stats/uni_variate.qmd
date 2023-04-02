@@ -21,7 +21,7 @@ library(dotwhisker) #Fpr visualization
 ### Data
 
 ```{r, include = FALSE}
-dust0<- read_csv(here("data", "processed_data","dust_master.csv")) #Different Dust attributes
+dust0<- read_csv(here("data", "processed_data","dust_conc","dust_master.csv")) #Different Dust attributes
 data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 ```
 
@@ -44,7 +44,7 @@ data<- data0 %>%
 master0<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
-master<- master0[c(1:10,15,33)]
+master<- master0[c(1:10,15,17,33)]
 
 ```
 

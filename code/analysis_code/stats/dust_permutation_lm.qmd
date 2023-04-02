@@ -83,15 +83,15 @@ rd<- master %>%
 
 #### Now we need to add lags
 
-+------------------------------+---------------------------------------+
-| Site                         | Lag                                   |
-+==============================+=======================================+
-| BO                           | 1                                     |
-+------------------------------+---------------------------------------+
-| C2                           | 2                                     |
-+------------------------------+---------------------------------------+
-| RD                           | 2\*                                   |
-+------------------------------+---------------------------------------+
++-----------------------------+--------------------------------------+
+| Site                        | Lag                                  |
++=============================+======================================+
+| BO                          | 1                                    |
++-----------------------------+--------------------------------------+
+| C2                          | 2                                    |
++-----------------------------+--------------------------------------+
+| RD                          | 2\*                                  |
++-----------------------------+--------------------------------------+
 
 These lags come from the uni-variate code.
 
@@ -135,7 +135,7 @@ filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))%>%
   select(!date)
 ```
 
-### Plot 
+### Plot
 
 We do no plot t19 as it is not normally distributed
 
@@ -148,7 +148,7 @@ t1_bo<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = t1, y = copies_mL),
                rr.digits = 4) +
-  labs(title = "T1")
+  labs(title = "Blind Oso: T1")
 
 t7_bo<- 
   bo2 %>% ggplot(aes(x = t7, y = copies_mL)) +
@@ -216,7 +216,7 @@ t1_c2<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = t1, y = copies_mL),
                rr.digits = 4) +
-  labs(title = "T1")
+  labs(title = "Canals: T1")
 
 t7_c2<-
   c22 %>% ggplot(aes(x = t7, y = copies_mL)) +
@@ -284,7 +284,7 @@ t1_rd<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = t1, y = copies_mL),
                rr.digits = 4) +
-  labs(title = "T1")
+  labs(title = "Gulf: T1")
 
 t7_rd<-
   rd2 %>% ggplot(aes(x = t7, y = copies_mL)) +
