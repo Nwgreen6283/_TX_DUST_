@@ -21,7 +21,7 @@ library(dotwhisker) #Fpr visualization
 ### Data
 
 ```{r, include = FALSE}
-dust0<- read_csv(here("data", "processed_data","dust_conc","dust_master.csv")) #Different Dust attributes
+dust0<- read_csv(here("data", "processed_data","dust_conc", "dust_master.csv")) #Different Dust attributes
 data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 ```
 
@@ -31,7 +31,7 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 dust<- dust0 %>%
   filter(!is.na(date),
          date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) %>%
-  mutate(t7sumlog = log10(t7sum)) #Log transform Dust conc (as it is not normal) 
+  mutate(t7sum = log10(t7sum)) #Log transform Dust conc (as it is not normal) 
 
 
 data<- data0 %>%
@@ -44,7 +44,7 @@ data<- data0 %>%
 master0<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
-master<- master0[c(1:10,15,17,33)]
+master<- master0[c(1:9,14,16)]
 
 ```
 
@@ -65,51 +65,17 @@ rd<- master %>%
 
 # Uni-variate Models
 
-**From previous literature, we know that Vibrio have responded to dust 24-48 hours after input. This can make analysis tricky, as the dust concentration of a specific day does not necessarily correlate with the Vibrio copies of that same date. We can use cross-correlation analysis to assess a lag in a time series and see where this lag is most significant.**
-
-\*\*Dust (t7sum) was log transformed
-
-## Cross-correlation:
-
-**For this, we cannot have NAs so we choose the strict daily time series**
-
-```{r}
-#Blind Oso
-bo_ccf<- bo %>%
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
-ccf(bo_ccf$t7sum, bo_ccf$copies_mL) 
-title("Blind Oso DustxCopies CCA", line =1)
-
-#Canals
-c2_ccf<- c2 %>%
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
-ccf(c2_ccf$t7sum, c2_ccf$copies_mL)
-title("Canals DustxCopies CCA", line=1)
-
-#Gulf
-rd_ccf<- rd %>%
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
-ccf(rd_ccf$t7sum, rd_ccf$copies_mL) 
-title("Gulf DustxCopies CCA", line =1)
-```
-
-**A negative Lag value indicates that x is a predictor of y, or in this case, dust is a predictor of copies_mL- so we will be looking at these negative values. A positive ACF indicates a positive relationship between the two variables, where a negative ACF indicates a negative relationship. According to the ccf plots, BO has a significant lag relationship a value of -1. In other words, dust occurs, and one day later, we see a response in copies_mL. C2 has a lag at -2, and RD at -1**
-
-| Site | Lag |
-|------|-----|
-| BO   | 1   |
-| C2   | 2   |
-| RD   | 2\* |
-
-: \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.
-
 # Blind Oso:
 
 ### Add one day lag
 
+Lag comes from `cca.qmd`
+
+And Dust is log transformed
+
 ```{r}
 bo2<- bo%>% mutate(
-  lag =Lag(bo$t7sumlog, shift  = 1)) %>% #Make lag from ccf
+  lag =Lag(bo$t7sum, shift  = 1)) %>% #Make lag from ccf
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
@@ -188,7 +154,7 @@ abline(0,0)
 
 ```{r}
 c22<- c2%>% mutate(
-  lag =Lag(c2$t7sumlog, shift  = 2)) %>% #Make lag from ccf
+  lag =Lag(c2$t7sum, shift  = 2)) %>% #Make lag from ccf
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
