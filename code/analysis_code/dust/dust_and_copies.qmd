@@ -156,7 +156,11 @@ dust_jul %>%
     x = "Date",
     y = "t7sum Dust (AOD)",
     title = "Dust AOD (t7sum) in July, 2022") +
-  geom_hline(yintercept = x) #Line represents dust_avg for July
+  geom_hline(yintercept = x) + #Line represents dust_avg for July
+  geom_vline(xintercept = as.Date('2022-07-07'), #Lines for Daily time series
+             color = "darkblue")+
+  geom_vline(xintercept = as.Date('2022-07-19'),
+             color = "darkblue")
   
 ```
 
@@ -166,7 +170,7 @@ dust_jul %>%
 bo<-
   bo %>%
   mutate(dustlevel = case_when(bo$lag >= x ~ "high",
-                               bo$lag < x ~ "low"))
+                               bo$lag <= x ~ "low"))
 
 c2<-
   c2 %>%
@@ -195,9 +199,13 @@ stat_compare_means(
   method = "t.test") +
   theme_bw() +
   labs(
-    title = "Blind Oso")+
-  theme(
-    legend.position = "none")
+    title = "Blind Oso")+                                        
+  annotate("text",
+           x = 1:length(table(bo$dustlevel)),
+           y = aggregate(copies_mL ~ dustlevel, bo, median)[ , 2],
+           label = table(bo$dustlevel),
+           col = "red",
+           vjust = - 1)
 
 c2 %>%
   ggplot() + geom_boxplot(
@@ -214,7 +222,13 @@ stat_compare_means(
   labs(
     title = "Canals")+
   theme(
-    legend.position = "none")
+    legend.position = "none") +                                        
+  annotate("text",
+           x = 1:length(table(c2$dustlevel)),
+           y = aggregate(copies_mL ~ dustlevel, c2, median)[ , 2],
+           label = table(c2$dustlevel),
+           col = "red",
+           vjust = - 1)
 
 rd %>%
   ggplot() + geom_boxplot(
@@ -231,5 +245,11 @@ stat_compare_means(
   labs(
     title = "Gulf")+
   theme(
-    legend.position = "none")
+    legend.position = "none") +                                        
+  annotate("text",
+           x = 1:length(table(rd$dustlevel)),
+           y = aggregate(copies_mL ~ dustlevel, rd, median)[ , 2],
+           label = table(rd$dustlevel),
+           col = "red",
+           vjust = - 1)
 ```
