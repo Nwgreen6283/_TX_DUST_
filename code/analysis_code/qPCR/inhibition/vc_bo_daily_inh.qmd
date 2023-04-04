@@ -1,0 +1,63 @@
+---
+title: "vc bo inh"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+#### Libraries
+
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+#### Data
+
+```{r}
+vc<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_50.csv"))
+```
+
+# Cleaning
+
+#### Site Column
+
+```{r}
+vc<- vc %>%
+  mutate(site = substr(Sample, 1,2)) %>% #Make Site column
+  filter(!Content %in% "NTC") %>% #Take out NTC
+  select(site, Cq, Sample) #Select colummns of interest
+```
+
+#### Make Inhibition Dataframe
+
+```{r}
+vc<- 
+  vc %>%
+  filter(grepl('i', Sample))
+```
+
+# Plot
+
+Pos Ctr Cq = 31.17
+
+```{r}
+vc %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = site)) +
+  geom_hline(yintercept = 31.17)+
+  theme_bw()+
+  labs(
+    title= "Vc BO Inhibition Check(1:50)",
+    caption = "Black bar indicates Cq of 10^3 Positive Control")+
+  theme(
+    plot.caption = element_text(hjust = 0)) +
+  scale_color_manual(values = c("BO" = "#809C52",
+                                "C2" = "#ba4716",
+                                "RD" = "#4c848c"))
+```

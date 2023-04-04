@@ -26,6 +26,7 @@ vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
 
 vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv"))
 vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))
+vc_bo<- read_csv(here("data", "processed_data","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. still had inhibition
 
 va<- read_csv(here("data", "processed_data", "va_clean_copies_daily.csv"))
 va_m<-  read_csv(here("data", "processed_data", "va_clean_copies_monthly.csv"))
@@ -47,6 +48,10 @@ vp<- vp %>%
   mutate(site = recode(site, "RD" = "Gulf"))
 
 vc<- vc %>%
+  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+  mutate(site = recode(site, "C2" = "Canals")) %>%
+  mutate(site = recode(site, "RD" = "Gulf"))
+vc_bo<- vc_bo %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
@@ -106,7 +111,7 @@ vc_m<- vc_m %>%
 
 # DAILY PLOTS
 
-#### Vp
+## Vp
 
 ```{r}
 vp %>%
@@ -128,7 +133,7 @@ vp %>%
                                 "Gulf" = "4c848c"))
 ```
 
-#### Vv
+## Vv
 
 ```{r}
 vv %>%
@@ -151,11 +156,13 @@ vv %>%
                                 "Gulf" = "4c848c"))
 ```
 
-#### Vc
+## Vc
+
+#### Trial 1
 
 ```{r}
 vc %>%
- #filter(!site %in% "Blind Oso") %>%
+# filter(site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -163,7 +170,7 @@ vc %>%
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Daily Vibrio cholerae",
+       title = "Trial 1",
        caption = "Blind Oso was 1:10")+
   theme_bw()+
   theme(
@@ -175,7 +182,30 @@ vc %>%
                                 "Gulf" = "4c848c"))
 ```
 
-#### Va
+#### Trial 2: Just BO 1:50
+
+```{r}
+vc_bo %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+ 
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Trial 2",
+       caption = "Blind Oso was 1:50")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+ 
+  scale_color_manual(values = c("Blind Oso" = "#809C52"))
+```
+
+This seems to follow a more expected trend. But we still have inhibition (see inhibition code). I am going to try a 1:100 dilution.
+
+## Va
 
 ```{r}
 va %>%
