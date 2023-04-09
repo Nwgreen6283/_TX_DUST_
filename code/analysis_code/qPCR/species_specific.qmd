@@ -13,6 +13,7 @@ format:
 library(here)
 library(tidyverse)
 library(lubridate)
+library(ggpubr) #Stacking Plots
 ```
 
 #### DATA
@@ -231,7 +232,7 @@ t3<- vc_b100 %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52"))
 ```
 
-#### Stack 
+#### Stack
 
 ```{r, fig.height= 8, fig.width= 8}
 fig<- 
