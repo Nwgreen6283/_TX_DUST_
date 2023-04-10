@@ -120,7 +120,8 @@ vc_m<- vc_m %>%
 ## Vp
 
 ```{r}
-vp %>%
+png(file = here("results", "plots", "species_specific", "vp_daily.png"))
+vp_d<- vp %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -137,12 +138,16 @@ vp %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
+dev.off()
+vp_d
 ```
 
 ## Vv
 
 ```{r}
-vv %>%
+png(file = here("results", "plots", "species_specific", "vv_daily.png"))
+
+vv_d<- vv %>%
   #filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
@@ -160,6 +165,8 @@ vv %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
+dev.off()
+vv_d
 ```
 
 ## Vc
@@ -191,6 +198,8 @@ filter(site %in% "Blind Oso") %>%
 #### Trial 2: Just BO 1:50
 
 ```{r}
+png(file = here("results", "plots", "species_specific", "vc_daily.png"))
+
 t2<- vc_bo %>%
   ggplot() + geom_line(
     aes(x = date,
@@ -207,6 +216,8 @@ t2<- vc_bo %>%
     axis.text.x = element_text(hjust = 1, angle = 45),
     legend.position = "none")+ 
   scale_color_manual(values = c("Blind Oso" = "#809C52"))
+dev.off()
+t2
 ```
 
 This seems to follow a more expected trend. But we still have inhibition (see inhibition code). I am going to try a 1:100 dilution.
@@ -244,7 +255,9 @@ fig
 ## Va
 
 ```{r}
-va %>%
+png(file = here("results", "plots", "species_specific", "va_daily.png"))
+
+va_d<- va %>%
  #filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
@@ -262,6 +275,8 @@ va %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
+dev.off()
+va_d
 ```
 
 ## Combine all species
@@ -291,7 +306,9 @@ master<- rbind(vc1,vp1,vv1, va1)
 ##### Blind Oso
 
 ```{r}
-master %>%
+png(file = here("results", "plots", "species_specific", "bo_daily.png"))
+
+bo_daily<- master %>%
   filter(site %in% "Blind Oso")%>%
   ggplot() + geom_line(
     aes(
@@ -301,12 +318,17 @@ master %>%
   theme_bw()+
   theme(
     axis.text.x = element_text(hjust = 1, angle = 45))
+
+dev.off()
+bo_daily
 ```
 
 ##### Canals
 
 ```{r}
-master %>%
+png(file = here("results", "plots", "species_specific", "c2_daily.png"))
+
+c2_daily<- master %>%
   filter(site %in% "Canals")%>%
   ggplot() + geom_line(
     aes(
@@ -316,12 +338,17 @@ master %>%
   theme_bw()+
   theme(
     axis.text.x = element_text(hjust = 1, angle = 45))
+
+dev.off()
+c2_daily
 ```
 
 ##### Gulf
 
 ```{r}
-master %>%
+png(file = here("results", "plots", "species_specific", "rd_daily.png"))
+
+rd_daily<- master %>%
   filter(site %in% "Gulf")%>%
   ggplot() + geom_line(
     aes(
@@ -331,6 +358,9 @@ master %>%
   theme_bw()+
   theme(
     axis.text.x = element_text(hjust = 1, angle = 45))
+
+dev.off()
+rd_daily
 ```
 
 # MONTHLY PLOTS
@@ -338,7 +368,9 @@ master %>%
 #### Vp
 
 ```{r}
-vp_m %>%
+png(file = here("results", "plots", "species_specific", "vp_mon.png"))
+
+vp_mon<- vp_m %>%
 ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -360,12 +392,16 @@ ggplot() + geom_line(
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
+
+dev.off()
+vp_mon
 ```
 
 #### Vv
 
 ```{r}
-vv_m %>%
+png(file = here("results", "plots", "species_specific", "vv_mon.png"))
+vv_mon<- vv_m %>%
   filter(!site %in% c("E3", "NT")) %>%
  ggplot() + geom_line(
     aes(x = date,
@@ -388,12 +424,15 @@ vv_m %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
+dev.off()
+vv_mon
 ```
 
 #### Vc
 
 ```{r}
-vc_m %>%
+png(file = here("results", "plots", "species_specific", "vc_mon.png"))
+vc_mon<- vc_m %>%
   #filter(!site %in% "Blind Oso") %>%
  ggplot() + geom_line(
     aes(x = date,
@@ -416,12 +455,15 @@ vc_m %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
+dev.off()
+vc_mon
 ```
 
 #### Va
 
 ```{r}
-va_m %>%
+png(file = here("results", "plots", "species_specific", "va_mon.png"))
+va_mon<- va_m %>%
   #filter(!site %in% "Blind Oso") %>%
  ggplot() + geom_line(
     aes(x = date,
@@ -444,4 +486,6 @@ va_m %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
+dev.off()
+va_mon
 ```
