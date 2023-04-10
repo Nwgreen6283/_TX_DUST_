@@ -200,7 +200,7 @@ filter(site %in% "Blind Oso") %>%
 ```{r}
 png(file = here("results", "plots", "species_specific", "vc_daily.png"))
 
-t2<- vc_bo %>%
+ vc_bo %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -217,7 +217,7 @@ t2<- vc_bo %>%
     legend.position = "none")+ 
   scale_color_manual(values = c("Blind Oso" = "#809C52"))
 dev.off()
-t2
+
 ```
 
 This seems to follow a more expected trend. But we still have inhibition (see inhibition code). I am going to try a 1:100 dilution.
