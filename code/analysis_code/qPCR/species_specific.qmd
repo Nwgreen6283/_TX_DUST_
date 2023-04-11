@@ -241,7 +241,7 @@ dev.off()
 ```{r}
 #Make new columns with species 
 type = "vc"
-vc1<- cbind(vc, type)
+vc1<- cbind(vc_d, type)
 
 type = "vv"
 vv1<- cbind(vv, type)
@@ -254,6 +254,8 @@ va1<- cbind(va,type)
 
 #Combine datasets
 master<- rbind(vc1,vp1,vv1, va1)
+# Save this
+saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
 ```
 
 #### Plot

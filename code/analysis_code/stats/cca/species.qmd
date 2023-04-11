@@ -1,0 +1,109 @@
+---
+title: "sp-sp"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+#### Libraries
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r}
+sp<- readRDS(file = here("data", "processed_data", "species_copies.rds"))
+dust<- read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv"))
+```
+
+# Cleaning
+
+#### Combine Data set
+
+```{r}
+master<- 
+  sp %>%
+  full_join(dust)
+```
+
+#### Filter and Select
+
+```{r}
+master <- 
+  master %>%
+  select(copies_mL, site, type, t7sum, date) %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'),
+         !date %in% as.Date('2022-07-10')) %>%
+  select(!date)
+```
+
+#### Site and Species Dataframes
+
+```{r}
+#Vc
+vc_bo<- 
+  master %>%
+  filter(site == 'Blind Oso' & type =="vc")
+
+vc_c2<- 
+  master %>%
+  filter(site %in% "Canals" & type %in% "vc")
+vc_rd<- 
+  master %>%
+  filter(site %in% "Gulf" & type %in% "vc")
+
+#Vv
+vv_bo<- 
+  master %>%
+  filter(site %in% "Blind Oso" & type %in% "vv")
+vv_c2<- 
+  master %>%
+  filter(site %in% "Canals" & type %in% "vv")
+vv_rd<- 
+  master %>%
+  filter(site %in% "Gulf" & type %in% "vv")
+
+#Vp
+vp_bo<- 
+  master %>%
+  filter(site %in% "Blind Oso" & type %in% "vp")
+vp_c2<- 
+  master %>%
+  filter(site %in% "Canals" & type %in% "vp")
+vp_rd<- 
+  master %>%
+  filter(site %in% "Gulf" & type %in% "vp")
+```
+
+# CCA
+
+```{r}
+#Vc
+ccf(vc_bo$t7sum, vc_bo$copies_mL) 
+title("BO x Vc", line =0.5)
+ccf(vc_c2$t7sum, vc_c2$copies_mL) 
+title("C2 x Vc", line =0.5)
+ccf(vc_rd$t7sum, vc_rd$copies_mL) 
+title("RD x Vc", line =0.5)
+
+#Vv
+ccf(vv_bo$t7sum, vv_bo$copies_mL) 
+title("BO x Vv", line =0.5)
+ccf(vv_c2$t7sum, vv_c2$copies_mL) 
+title("C2 x Vv", line =0.5)
+ccf(vv_rd$t7sum, vv_rd$copies_mL) 
+title("RD x Vv", line =0.5)
+
+#Vp
+#ccf(vp_bo$t7sum, vp_bo$copies_mL)  #THis site had 0
+#title("BO x Vp", line =0.5)
+ccf(vp_c2$t7sum, vp_c2$copies_mL) 
+title("C2 x Vp", line =0.5)
+ccf(vp_rd$t7sum, vp_rd$copies_mL) 
+title("RD x Vp", line =0.5)
+```
