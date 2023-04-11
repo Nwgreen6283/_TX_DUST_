@@ -25,10 +25,10 @@ vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv"))
 vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
 vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
 
-vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv"))
-vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))
-vc_bo<- read_csv(here("data", "processed_data","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. still had inhibition
-vc_b100<- read_csv(here("data", "processed_data","vc_clean_copies_daily_1_100.csv")) #Ran 1:100.
+vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv")) #Daily
+vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))#Monthly
+vc_bo<- read_csv(here("data", "processed_data","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. with 5 reps (run with 2 reps + run with 3 reps)
+vc_bo_50<- read_csv(here("data", "processed_data","vc_clean_copies_daily_1_50_2reps.csv"))#Just reps 4 and 5 to compare. This looks fine, but I removed the code so as to clean up this script.
 
 va<- read_csv(here("data", "processed_data", "va_clean_copies_daily.csv"))
 va_m<-  read_csv(here("data", "processed_data", "va_clean_copies_monthly.csv"))
@@ -57,7 +57,7 @@ vc_bo<- vc_bo %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
-vc_b100<- vc_b100 %>%
+vc_bo_50<- vc_bo_50 %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
@@ -66,6 +66,16 @@ va<- va %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
+```
+
+#### Combine 5 rep Vc BO Daily to Canals and Gulf
+
+```{r}
+vc<- 
+  vc %>%
+  filter(!site %in% "Blind Oso")  #Gets rid of old BO 
+  
+vc_d<- rbind(vc, vc_bo) #Adds new BO to C2 and RD
 ```
 
 #### Add July to Monthly Data
@@ -171,11 +181,11 @@ dev.off()
 
 ## Vc
 
-#### Trial 1
+For Vc, we ran it initial with all three sites. Then tested BO for INH, and it looked inhibited. So we ran 1:50 (still inh), 1:100 (too dilute), and 1:50 one more time. For the 1:50 trials we had a total of 5 reps (which is what we see below for BO). We have the data (raw/processed) for the other trials, but they have been removied here so as to clear up space.
 
 ```{r}
-t1<-vc %>%
-filter(site %in% "Blind Oso") %>%
+vc_d %>%
+#filter(!site %in% "Blind Oso") %>%
   ggplot() + geom_line(
     aes(x = date,
         y = copies_mL,
@@ -183,74 +193,19 @@ filter(site %in% "Blind Oso") %>%
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Trial 1",
-       caption = "Blind Oso was 1:10")+
-  theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+ 
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
-```
-
-#### Trial 2: Just BO 1:50
-
-```{r}
-png(file = here("results", "plots", "species_specific", "vc_daily.png"))
-
- vc_bo %>%
-  ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Trial 2",
+       title = "Vc at Blind Oso ",
        caption = "Blind Oso was 1:50")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),
     axis.text.x = element_text(hjust = 1, angle = 45),
     legend.position = "none")+ 
-  scale_color_manual(values = c("Blind Oso" = "#809C52"))
-dev.off()
-
+  scale_color_manual(values = c("Blind Oso" = "#809C52", #5 replicates
+                                "Canals" = "#ba4716",#3
+                                "Gulf" = "4c848c"))#3
 ```
 
-This seems to follow a more expected trend. But we still have inhibition (see inhibition code). I am going to try a 1:100 dilution.
-
-#### Trial 3: Just BO 1:100
-
-```{r}
-t3<- vc_b100 %>%
-  ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Trial 3",
-       caption = "Blind Oso was 1:100")+
-  theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+ 
-  scale_color_manual(values = c("Blind Oso" = "#809C52"))
-```
-
-#### Stack
-
-```{r, fig.height= 8, fig.width= 8}
-#fig<- 
- # ggarrange(t1, t2, t3 + font("x.text", size = 10), ncol = 1, nrow = 3)
-#fig
-
-```
+#### 
 
 ## Va
 

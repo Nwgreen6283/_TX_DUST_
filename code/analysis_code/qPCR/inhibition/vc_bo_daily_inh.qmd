@@ -19,7 +19,7 @@ library(lubridate)
 
 ```{r}
 vc<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_50.csv")) #Run 1:50
-vc_100<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_100.csv")) #Run 1:100
+vc_50<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_50_trial2.csv")) #Run 1:50 with reps 4 and 5
 ```
 
 # Cleaning
@@ -32,7 +32,7 @@ vc<- vc %>%
   filter(!Content %in% "NTC") %>% #Take out NTC
   select(site, Cq, Sample) #Select colummns of interest
 
-vc_100<- vc_100 %>%
+vc_50<- vc_50 %>%
   mutate(site = substr(Sample, 1,2)) %>% #Make Site column
   filter(!Content %in% "NTC") %>% #Take out NTC
   select(site, Cq, Sample) #Select colummns of interest
@@ -45,8 +45,8 @@ vc<-
   vc %>%
   filter(grepl('i', Sample))
 
-vc_100<- 
-  vc_100 %>%
+vc_50<- 
+  vc_50 %>%
   filter(grepl('i', Sample))
 ```
 
@@ -75,19 +75,19 @@ vc %>%
                                 "RD" = "#4c848c"))
 ```
 
-#### Trial 3 (1:100)
+#### 1:50 with reps 4 and 5
 
 ```{r}
-vc_100 %>%
+vc_50 %>%
   ggplot() + geom_boxplot(
     aes(x = Sample,
         y = Cq,
         color = site)) +
-  geom_hline(yintercept = 32.03)+
+  geom_hline(yintercept = 31.84)+
   theme_bw()+
   labs(
-    title= "Vc BO Inhibition Check (1:100)",
-    subtitle = "Samples diluted 1:100",
+    title= "Vc BO Inhibition Check (1:50)",
+    subtitle = "Samples diluted 1:50 (2 reps)",
     caption = "Black bar indicates Cq of 10^3 Positive Control")+
   theme(
     plot.caption = element_text(hjust = 0),
