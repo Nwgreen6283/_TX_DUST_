@@ -1,0 +1,87 @@
+---
+title: "pca"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+[Link](https://www.datacamp.com/tutorial/pca-analysis-r)
+
+#### Libraries
+
+```{r}
+library(here)
+library(tidyverse)
+library(Hmisc) #For lags
+library(corrr)#PCA plots
+library(ggcorrplot)#PCA Plots
+library(FactoMineR)#PCA plots
+library(factoextra)#PCA Plots
+```
+
+#### Data
+
+```{r}
+dust<- read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv"))#Dust Permutations
+env<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+# Cleaning
+
+#### Filter for Daily Time Series
+
+```{r}
+dust<- 
+  dust %>%
+  filter(date %in% as.Date('2022-07-05') : as.Date('2022-07-19')) %>% #Need days prior for lag
+  select(date, t7sum)
+
+env<- 
+  env %>%
+  filter(date %in% as.Date('2022-07-05') : as.Date('2022-07-19'),
+         hr_cst %in% "01") #gets rid of duplicates for each hour
+```
+
+#### Combine Data sets
+
+```{r}
+master<- 
+  dust %>%
+  full_join(env) %>%
+  select(!c(...1, Type, type, dust, SUM, hr_cst)) %>%
+  rename("dust" = "t7sum")
+```
+
+#### Site Specific Data Frames For Env
+
+```{r}
+bo<- 
+  master %>%
+    filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+c2<- 
+  master %>%
+    filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- 
+  master %>%
+    filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+#### Add Lags
+
+```{r}
+b<- bo%>% mutate(
+  dust =Lag(bo$dust, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+c<- c2%>% mutate(
+  dust =Lag(c2$dust, shift  = 2)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+r<- rd%>% mutate(
+  dust =Lag(rd$dust, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
