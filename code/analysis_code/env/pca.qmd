@@ -107,6 +107,8 @@ r_norm<- scale(r)
 
 #### 2. Compute the Correlation Matrix
 
+<!--# Should I so another with log-trans data and Pearson? -->
+
 ```{r}
 b_mat<- 
   cor(b_norm, method = "spearman")
@@ -194,6 +196,8 @@ fviz_cos2(r_pca, choice = "var", axes = 1:2)
 ```
 
 #### Combine Bi-plots with Contribution
+
+<!--# Figure out how to add ind. data points to these plots -->
 
 Attributes with similar cos2 scores will have similar colors.  This is achieved by fine-tuning the `fviz_pca_var` function as follows:
 
