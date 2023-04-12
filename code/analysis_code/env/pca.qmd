@@ -5,9 +5,13 @@ format:
     theme: default
 ---
 
-# Getting Started
+# Introduction
 
 [Link](https://www.datacamp.com/tutorial/pca-analysis-r)
+
+PCA is a statistical approach that can be used to analyze high-dimensional data and capture the most important information from it. This is done by transforming the original data into a lower-dimensional space while collating highly correlated variables together.
+
+# Getting Started
 
 #### Libraries
 
@@ -75,13 +79,137 @@ rd<-
 ```{r}
 b<- bo%>% mutate(
   dust =Lag(bo$dust, shift  = 1)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(date, site))
 
 c<- c2%>% mutate(
   dust =Lag(c2$dust, shift  = 2)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(date, site))
 
 r<- rd%>% mutate(
   dust =Lag(rd$dust, shift  = 1)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(date, site))
+```
+
+# PCA Setup
+
+#### 1. Normalize the Data
+
+PCA only works with [**numerical**]{.ul} values. Normalization ensures that each attribute has the same level of contribution, preventing one variable from dominating others. For each variable, normalization is done by subtracting its mean and dividing by its standard deviation.
+
+```{r}
+b_norm <- scale(b)
+c_norm<- scale(c)
+r_norm<- scale(r)
+```
+
+#### 2. Compute the Correlation Matrix
+
+```{r}
+b_mat<- 
+  cor(b_norm, method = "spearman")
+ggcorrplot(b_mat)
+
+c_mat<- 
+  cor(c_norm, method = "spearman")
+ggcorrplot(c_mat)
+
+r_mat<- 
+  cor(r_norm, method = "spearman")
+ggcorrplot(r_mat)
+```
+
+#### 3. Applying PCA
+
+Now, all the resources are available to conduct the PCA analysis. First, the `princomp()` computes the PCA, and `summary()` function shows the result.
+
+```{r}
+b_pca <- princomp(b_mat)
+summary(b_pca)
+```
+
+We notice that 20 principal components have been generated (Comp.1 to Comp.20), which also correspond to the number of variables in the data.
+
+Each component explains a percentage of the total variance in the data set. In the **Cumulative Proportion** section, the first principal component explains almost 71% of the total variance. This implies that almost two-thirds of the data in the set of 20 variables can be represented by just the first principal component. The second one explains 1\~13% of the total variance. 
+
+The cumulative proportion of Comp.1 and Comp.2 explains nearly 84% of the total variance. This means that the first two principal components can accurately represent the data
+
+<!--# What is the threshold? 90%? -->
+
+```{r}
+c_pca <- princomp(c_mat)
+summary(c_pca)
+```
+
+```{r}
+r_pca <- princomp(r_mat)
+summary(r_pca)
+```
+
+# PCA Visualization
+
+#### Scree Plot
+
+The first approach of the list is the scree plot. It is used to visualize the importance of each principal component and can be used to determine the number of principal components to retain. The scree plot can be generated using the `fviz_eig()` function
+
+```{r}
+fviz_eig(b_pca, addlabels = TRUE)
+fviz_eig(c_pca, addlabels = TRUE)
+fviz_eig(r_pca, addlabels = TRUE)
+```
+
+This plot shows the eigenvalues in a downward curve, from highest to lowest.
+
+#### Bi-plot of Attributes
+
+With the biplot, it is possible to visualize the similarities and dissimilarities between the samples, and further shows the impact of each attribute on each of the principal components.
+
+```{r, fig.width=3, fig.height=3}
+fviz_pca_var(b_pca, col.var = "#809C52")
+fviz_pca_var(c_pca, col.var = "#ba4716")
+fviz_pca_var(r_pca, col.var = "4c848c")
+
+```
+
+-   All the variables that are grouped together are positively correlated to each other.
+
+-   Then, the higher the distance between the variable and the origin, the better represented that variable is.
+
+-   Finally, variables that are negatively correlated are displayed to the opposite sides of the biplot's origin. 
+
+#### Contribution of Each Variable 
+
+The goal of the third visualization is to determine how much each variable is r[epresented in a given component]{.ul}. Such a quality of representation is called the Cos2 and corresponds to the square cosine, and it is computed using the `fviz_cos2` function.
+
+-   A low value means that the variable is not perfectly represented by that component. 
+
+-   A high value, on the other hand, means a good representation of the variable on that component.
+
+```{r}
+fviz_cos2(b_pca, choice = "var", axes = 1:2)
+fviz_cos2(c_pca, choice = "var", axes = 1:2)
+fviz_cos2(r_pca, choice = "var", axes = 1:2)
+```
+
+#### Combine Bi-plots with Contribution
+
+Attributes with similar cos2 scores will have similar colors.  This is achieved by fine-tuning the `fviz_pca_var` function as follows:
+
+```{r}
+fviz_pca_var(b_pca, col.var = "cos2",
+            gradient.cols = c("black", "orange", "green"),
+            repel = TRUE,
+            title = "Blind Oso")
+
+fviz_pca_var(c_pca, col.var = "cos2",
+            gradient.cols = c("black", "orange", "green"),
+            repel = TRUE,
+            title = "Canals")
+
+fviz_pca_var(r_pca, col.var = "cos2",
+            gradient.cols = c("black", "orange", "green"),
+            repel = TRUE,
+            title = "Gulf")
 ```
