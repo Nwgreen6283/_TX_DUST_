@@ -4,9 +4,13 @@ format:
   html:
     theme: default
 ---
+
 *This dataset contains environmental parameters: Temp, SAL, Nutrients*
 
-Libraries
+# Getting Started 
+
+#### Libraries 
+
 ```{r}
 library(tidyverse)
 library(here)
@@ -14,12 +18,16 @@ library(ggpubr)
 library(lubridate)
 ```
 
-Load Data
+#### Data
+
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
-Daily and Monthly dataframes
+# Cleaning
+
+#### Daily and Monthly data frames
+
 ```{r}
 daily<- d1 %>%
   filter(type %in% "daily")
@@ -30,9 +38,10 @@ monthly<- d1 %>%
   filter(Type %in% "Monthly") 
 ```
 
+# Plots
 
+#### Temperature 
 
-Temperature Monthly
 ```{r}
 temp2<- monthly %>% ggplot() + geom_point(
   aes(
@@ -66,7 +75,9 @@ temp2<- monthly %>% ggplot() + geom_point(
 temp2
   
 ```
-Salinity Monthly
+
+#### Salinity 
+
 ```{r}
 sal2<- monthly %>% ggplot() + geom_point(
   aes(
@@ -98,7 +109,8 @@ sal2<- monthly %>% ggplot() + geom_point(
 sal2
 ```
 
-Total Monthly Vibrio
+#### Total  Vibrio
+
 ```{r}
 fig3 <- monthly %>%
   ggplot()+geom_point(
@@ -128,165 +140,231 @@ scale_color_manual(values = c("Blind Oso" = "#809C52",
 fig3
 ```
 
-Combine Temp and Salinity Monthly
+##### Combine Temp and Salinity Monthly
+
 ```{r}
 figp<- ggarrange(temp2,sal2, fig3 + font("x.text", size = 10), ncol = 1, nrow = 3,align = "v")
 
 figp
 ```
 
-amm
+#### Ammonium
+
 ```{r}
 amm<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = amm,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 amm
 ```
-chl
+
+#### Chlorophyl
+
 ```{r}
 chl<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = chl,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 chl
 ```
-do (mg/L)
+
+#### DO (mg/L)
+
 ```{r}
 do_mgl<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = do_mgl,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 do_mgl
 ```
 
-do (%)
+#### DO (%)
+
 ```{r}
 do_per<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = do_per,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 do_per
 ```
 
-pH
+#### pH
+
 ```{r}
 ph<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = pH,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 ph
 ```
 
-secci
+#### Secchi
+
 ```{r}
 secchi<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = secchi,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 
 secchi
 ```
-nn
+
+#### N+N
+
 ```{r}
 nn<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = nn,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 
 nn
 ```
-orthop
+
+#### Orthophosphate
+
 ```{r}
 orthop<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = orthop,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 orthop
 ```
-silicate
+
+#### Silicate
+
 ```{r}
 sil<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = sil,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 
 sil
 ```
 
-DIN
+#### DIN
+
 ```{r}
 din<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = din,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 din
 ```
-DIN:DIP
+
+#### DIN:DIP
+
 ```{r}
 din_dip<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = din_dip,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 
 din_dip
 ```
-TDN
+
+#### TDN
+
 ```{r}
 tdn<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = tdn,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 
 tdn
 ```
 
-DON
+#### DON
+
 ```{r}
 don<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = don,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 don
 ```
-DOC
+
+#### DOC
+
 ```{r}
 doc<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = doc,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 doc
 ```
 
-TOC
+#### TOC
+
 ```{r}
 toc<- monthly %>%
   ggplot() + geom_line(
@@ -294,22 +372,24 @@ toc<- monthly %>%
       x = date,
       y = toc,
     color = site))+
-  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 toc
 ```
-TN
+
+#### TN
+
 ```{r}
 tn<- monthly %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = tn,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
 tn
 ```
-
-
-
-
-
-
