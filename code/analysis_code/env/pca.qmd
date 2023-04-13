@@ -181,7 +181,7 @@ fviz_pca_var(r_pca, col.var = "4c848c")
 
 -   Finally, variables that are negatively correlated are displayed to the opposite sides of the biplot's origin. 
 
-#### Contribution of Each Variable 
+#### Contribution of Each Variable
 
 The goal of the third visualization is to determine how much each variable is r[epresented in a given component]{.ul}. Such a quality of representation is called the Cos2 and corresponds to the square cosine, and it is computed using the `fviz_cos2` function.
 

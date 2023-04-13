@@ -130,7 +130,7 @@ vc_m<- vc_m %>%
 ## Vp
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "vp_daily.png"))
+#png(file = here("results", "plots", "species_specific", "vp_daily.png"))
  vp %>%
   ggplot() + geom_line(
     aes(x = date,
@@ -139,7 +139,8 @@ png(file = here("results", "plots", "species_specific", "vp_daily.png"))
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Daily Vibrio parahaemolyticus")+
+       title = "Daily Vibrio parahaemolyticus",
+       caption = "BO was 1:10")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),
@@ -148,7 +149,7 @@ png(file = here("results", "plots", "species_specific", "vp_daily.png"))
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
-dev.off()
+# dev.off()
 
 ```
 
@@ -210,7 +211,7 @@ vc_d %>%
 ## Va
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "va_daily.png"))
+#png(file = here("results", "plots", "species_specific", "va_daily.png"))
 
 va %>%
  #filter(!site %in% "Blind Oso") %>%
@@ -221,7 +222,8 @@ va %>%
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Daily Vibrio alginolyticus")+
+       title = "Daily Vibrio alginolyticus",
+       caption = "gyrB. Will Re-do with groEL")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),
@@ -230,7 +232,7 @@ va %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
-dev.off()
+#dev.off()
 
 ```
 

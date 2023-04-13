@@ -1,0 +1,55 @@
+---
+title: "vp daily inh"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+#### Data
+
+```{r}
+vp<- read_csv(here("data", "raw_data","vp_daily_inh.csv"))
+```
+
+# Cleaning
+
+```{r}
+vp<- vp %>%
+  mutate(site = substr(Sample, 1,2)) %>% #Make Site column
+  filter(!Content %in% "NTC",
+         Fluor %in% "HEX") %>% #Take out NTC
+  select(site, Cq, Sample) #Select colummns of interest
+```
+
+Plot
+
+```{r}
+vp %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = site)) +
+  geom_hline(yintercept = 26.86)+
+  theme_bw()+
+  labs(
+    title= "Vp Daily Inhibition Check",
+    subtitle = "BO = Blind Oso // C2 = Canals // RD = Gulf // E3 = 10^3 +Control")+
+  theme(
+    plot.caption = element_text(hjust = 0)) +
+  scale_color_manual(values = c("BO" = "#809C52",
+                                "C2" = "#ba4716",
+                                "RD" = "#4c848c",
+                                "E3" = "darkorange"))
+```
+
+I think that this is due more to variation in aliquoting than inhibition. Samples all had E3 spiked into mastermix prior to adding it to strip tubes. The E3 for the +C (denoted here as E3) had the mastermix placed into the strip tube, and then 3.96µL of spike added.
