@@ -1,0 +1,80 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr) #Regression Eq
+```
+
+#### Data
+
+```{r}
+va<- read.csv(here("data", "raw_data", "va_gblock.csv" ))
+```
+
+# Cleaning
+
+#### Log SQ
+
+```{r}
+va<-
+  va %>%
+  mutate(
+    log = log10(SQ))
+```
+
+# Plot Curve
+
+![](images/Screen%20Shot%202023-04-17%20at%209.06.38%20PM.png)
+
+```{r}
+va %>%
+  ggplot() + geom_point(
+    aes(x = log,
+        y = Cq)) + 
+  geom_smooth(
+    aes(x = log,
+        y = Cq),
+    method = "lm") +
+  stat_regline_equation(
+    aes(x = log,
+        y = Cq),
+    label.x = 0,
+    label.y = 30)
+```
+
+# Get Regression Summary
+
+#### Formula
+
+```{r}
+relation<- lm(Cq~log, va)
+
+print(summary(relation))
+```
+
+# LOD / LOQ![](images/Screen%20Shot%202023-04-17%20at%209.31.37%20PM.png)
+
+```{r}
+S<- 0.15977
+b<- -3.74
+
+LOD_cop<- 10^((3*S) / b) #Unlog to go form logSQ --> SQ
+LOD_cq<- 41 - ((3.7) *((3*S) / b)) #Use equation of the line to go from logSQ --> Cq
+
+LOQ_cop<- 10^((10*S) / b)
+LOQ_cq<- 41 - ((3.7) *((10*S) / b))
+```
+
+**LOD = 0.74 copies/uL (Cq = 41.46)**
+
+**LOQ = 0.37 copies / uL (Cq = 42.58)**
