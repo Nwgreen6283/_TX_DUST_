@@ -1,0 +1,58 @@
+---
+title: "vv_daily_inh"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+#### Data
+
+```{r}
+vv<- read_csv(here("data", "raw_data","vv_daily_inh.csv"))
+```
+
+# Cleaning
+
+```{r}
+vv<- vv %>%
+  mutate(site = substr(Sample, 1,2)) %>% #Make Site column
+  filter(!Content %in% "NTC",
+         Fluor %in% "HEX") %>% #Take out NTC
+  select(site, Cq, Sample) %>% #Select colummns of interest
+  mutate(site = ifelse(is.na(site), "E3", site))
+  
+```
+
+Plot
+
+```{r}
+vv %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = site)) +
+  geom_hline(yintercept = 26.29)+
+  theme_bw()+
+  labs(
+    title= "Vv Daily Inhibition Check",
+    subtitle = "BO = Blind Oso // C2 = Canals // RD = Gulf // E3 = 10^3 +Control",
+    caption = "BO was 1:10")+
+  theme(
+    plot.caption = element_text(hjust = 0)) +
+  scale_color_manual(values = c("BO" = "#809C52",
+                                "C2" = "#ba4716",
+                                "RD" = "#4c848c",
+                                "E3" = "darkorange"))
+```
+
+\~0.2 higher is not that much of a difference. There is no inhibition here.
