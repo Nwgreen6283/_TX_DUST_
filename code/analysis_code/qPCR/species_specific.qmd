@@ -156,7 +156,7 @@ vc_m<- vc_m %>%
 ## Vv
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "vv_daily.png"))
+#png(file = here("results", "plots", "species_specific", "vv_daily.png"))
 
 vv %>%
   #filter(!site %in% "Blind Oso") %>%
@@ -176,13 +176,13 @@ vv %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
-dev.off()
+#dev.off()
 
 ```
 
 ## Vc
 
-For Vc, we ran it initial with all three sites. Then tested BO for INH, and it looked inhibited. So we ran 1:50 (still inh), 1:100 (too dilute), and 1:50 one more time. For the 1:50 trials we had a total of 5 reps (which is what we see below for BO). We have the data (raw/processed) for the other trials, but they have been removied here so as to clear up space.
+For Vc, we ran it initial with all three sites. Then tested BO for INH, and it looked inhibited. So we ran 1:50 (still inh), 1:100 (too dilute), and 1:50 one more time. For the 1:50 trials we had a total of 5 reps (which is what we see below for BO). We have the data (raw/processed) for the other trials, but they have been removed here so as to clear up space.
 
 ```{r}
 vc_d %>%
