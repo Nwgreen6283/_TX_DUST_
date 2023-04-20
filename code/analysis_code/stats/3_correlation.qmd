@@ -1,0 +1,274 @@
+---
+title: "cor"
+format:
+  html:
+    theme: default
+---
+
+**This code creates a correlation matrix to look at relationships between variables. This helps identify specific relationships of interest**
+
+[Link](http://www.sthda.com/english/wiki/correlation-matrix-a-quick-start-guide-to-analyze-format-and-visualize-a-correlation-matrix-using-r-software):
+
+# Getting Started
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc)#Cor Tables and Lag
+library(corrplot) #Cor Plots
+library(lubridate) #For dates
+library(ggpubr) #Plot stacking
+```
+
+#### Data
+
+```{r, include = FALSE}
+dust0<- read_csv(here("data", "processed_data","dust_master.csv")) #Different Dust permutations
+data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
+```
+
+# Cleaning
+
+### Trim data sets from 7/4 to 7/19
+
+```{r}
+dust<- dust0 %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+
+
+data<- data0 %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master0<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") %>% #While this is technically not for hour 1, this gets ride of all   duplicates for the sake of analysis.
+  select(!c(hr_cst,...1,Type, t1,t7,t13,t19,tsum,tavg,SUM,dust,t7avg)) %>%
+  rename("dust" = "t7sum") #Now dust variable is the t7sum
+```
+
+### Make Lag data sets by Site
+
+This cleans out non-numeric values, creates site lag from CCA, and produces a final daily plot
+
+```{r}
+bo<- 
+  master0 %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
+  select(!date)
+
+c2<- 
+  master0 %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust =Lag(dust, shift  = 2)) %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
+  select(!date)
+
+rd<- 
+  master0 %>%
+  filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust =Lag(dust, shift  = 1)) %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
+  select(!date)
+
+```
+
+### Make Datasets for normal and non-normal variables
+
+Variables that are normally distributed across all three sites will be in one df. All others will be in another.
+
+```{r}
+b_norm<- 
+  bo %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+b_para<- 
+  bo %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+
+c_norm<- 
+  c2 %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+c_para<- 
+  c2 %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+
+r_norm<- 
+  rd %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+r_para<- 
+  rd %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+```
+
+### Log10 Transform non-normally distributed data for Norm df
+
+Distributions can be found in `1_distribution.qmd`
+
+```{r}
+#Blind Oso
+b_norm<-
+  b_norm %>%
+  mutate(amm = log10(amm), #Log-transforms data
+         din_dip = log10(din_dip),
+         dust = log10(dust),
+         chl = log10(chl)) 
+ 
+#Canals
+c_norm<- 
+  c_norm %>%
+  mutate(orthop = log10(orthop),
+         dust = log10(dust)) 
+
+
+#Gulf
+r_norm<- 
+  r_norm %>%
+  mutate(dust = log10(dust))
+```
+
+# Correlation Matrix
+
+There are different methods for **correlation analysis** : **Pearson parametric correlation test**, **Spearman** and **Kendall** rank-based **correlation analysis**. The default is [pearson correlation coefficient](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) which measures the linear **dependence** between two variables. [kendall and spearman](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) correlation methods are non-parametric **rank-based correlation test**.
+
+#### Compute Correlation Matrix
+
+If your data contain missing values, use the following R code to handle missing values by case-wise deletion.
+
+    cor(x, method = "pearson", use = "complete.obs")
+
+```{r, include = FALSE}
+#Normal Data = Pearson's
+b<- cor(b_norm, method = "pearson") #Default method = pearson
+round(b,2) #Round correlation coeff to "x" digits 
+
+c<- cor(c_norm, method = "pearson")
+round(c,2)
+
+r<- cor(r_norm, method = "pearson")
+round(r,2)
+
+#Non-parametric Data  = Spearman's
+b1<- cor(b_para, method = "spearman") 
+round(b,2) #Round correlation coeff to "x" digits 
+
+c1<- cor(c_para, method = "spearman")
+round(c,2)
+
+r1<- cor(r_para, method = "spearman")
+round(r,2)
+
+#All Data = Spearman's
+b2<- cor(bo, method = "spearman") 
+round(b,2) #Round correlation coeff to "x" digits 
+
+c2<- cor(c2, method = "spearman")
+round(c,2)
+
+r2<- cor(rd, method = "spearman")
+round(r,2)
+```
+
+#### Make Function to Format
+
+Simple function for formatting a **correlation matrix** into a table with 4 columns containing : Column 1 : row names (variable 1 for the correlation test), Column 2 : column names (variable 2 for the correlation test), Column 3 : the **correlation coefficients**, Column 4 : the **p-values** of the correlations
+
+```{r}
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut])}
+```
+
+#### Make Matrix
+
+The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **significance levels** for **pearson** and **spearman correlations**. It returns both the correlation coefficients and the p-value of the correlation for all possible pairs of columns in the data table.
+
+```{r}
+bclean<- rcorr(as.matrix(b_norm))
+flattenCorrMatrix(bclean$r, bclean$P)
+
+cclean<- rcorr(as.matrix(c_norm))
+flattenCorrMatrix(cclean$r, cclean$P)
+
+rclean<- rcorr(as.matrix(r_norm))
+flattenCorrMatrix(rclean$r, rclean$P)
+```
+
+#### Visualize with `corrplot()` function
+
+The function **corrplot()** takes the **correlation matrix** as the first argument. The second argument (type="upper") is used to display only the upper triangular of the **correlation matrix**.
+
+```{r, fig.width=6}
+par(mfrow=c(3,3))
+#Normal Data 
+ corrplot(b, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Pearson",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+ corrplot(c, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Pearson", mar=c(0,0,1,0))
+
+ corrplot(r, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Pearson")
+         
+#Non-Parametric Data
+ corrplot(b1, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c1, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman", mar=c(0,0,1,0))
+
+corrplot(r1, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman" )
+         
+#Non-Parametric Data
+ corrplot(b2, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman_all",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c2, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman_all", mar=c(0,0,1,0))
+
+corrplot(r2, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman_all" )
+```
+
+##### 
+
+It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
+
+<!--# Get this to work -->
+
+```{r}
+# Insignificant correlation are crossed
+#corrplot(bclean$r, type="upper", order="hclust", 
+        # p.mat = bclean$P, sig.level = 0.05, insig = "blank")
+
+#corrplot(cclean$r, type="upper", order="hclust", 
+        # p.mat = cclean$P, sig.level = 0.05, insig = "blank")
+
+#corrplot(rclean$r, type="upper", order="hclust", 
+         #p.mat = rclean$P, sig.level = 0.05, insig = "blank")
+
+```
