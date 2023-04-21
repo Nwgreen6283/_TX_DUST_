@@ -7,15 +7,16 @@ format:
 
 *This dataset contains environmental parameters: Temp, SAL, Nutrients*
 
-# Getting Started 
+# Getting Started
 
-#### Libraries 
+#### Libraries
 
 ```{r}
 library(tidyverse)
 library(here)
 library(ggpubr)
 library(lubridate)
+library(kableExtra) #Tables
 ```
 
 #### Data
@@ -40,7 +41,7 @@ monthly<- d1 %>%
 
 # Plots
 
-#### Temperature 
+#### Temperature
 
 ```{r}
 temp2<- monthly %>% ggplot() + geom_point(
@@ -76,7 +77,7 @@ temp2
   
 ```
 
-#### Salinity 
+#### Salinity
 
 ```{r}
 sal2<- monthly %>% ggplot() + geom_point(
@@ -109,7 +110,7 @@ sal2<- monthly %>% ggplot() + geom_point(
 sal2
 ```
 
-#### Total  Vibrio
+#### Total Vibrio
 
 ```{r}
 fig3 <- monthly %>%
@@ -392,4 +393,61 @@ tn<- monthly %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c"))
 tn
+```
+
+# Monthly Averages
+
+We are taking out 5/20 and 5/24 here.
+
+#### Make New Site-specific Data sets 
+
+```{r}
+avg<- 
+  monthly %>%
+  filter(!date == as.Date('2022-05-24') & !date == as.Date('2022-05-20')) #Gets ride of extra dates in May
+
+b_avg<-
+  avg %>%
+  filter(site %in% "Blind Oso") 
+b_avg<- 
+  b_avg %>%
+  rbind(b_avg, sapply(b_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>% #Adds a new row with average
+  select(9:26) #Select columns of interest
+
+
+c_avg<-
+  avg %>%
+  filter(site %in% "Canals")
+c_avg<-
+  c_avg %>%
+  rbind(c_avg, sapply(c_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
+  select(9:26)
+
+r_avg<-
+  avg %>%
+  filter(site %in% "Gulf")
+r_avg<-
+  r_avg %>%
+  rbind(r_avg, sapply(r_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
+  select(9:26)
+```
+
+#### Extract Average Values
+
+```{r}
+b_nn<- b_avg$nn[65] 
+b_orthop<- b_avg$orthop[65]
+
+c_nn<- c_avg$nn[65]
+c_orthop<- c_avg$orthop[65]
+
+r_nn<- r_avg$nn[65]
+r_orthop<- r_avg$orthop[65]
+
+#DF
+average_df<- 
+  tibble(Site  = c("Blind Oso", "Canals", "Gulf"),
+             NN = c(b_nn, c_nn, r_nn),
+             OrthoP = c(b_orthop, c_orthop, r_orthop))
+kable(average_df)
 ```
