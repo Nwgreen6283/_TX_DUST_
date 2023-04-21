@@ -399,7 +399,7 @@ tn
 
 We are taking out 5/20 and 5/24 here.
 
-#### Make New Site-specific Data sets 
+#### Make New Site-specific Data sets
 
 ```{r}
 avg<- 
@@ -412,7 +412,7 @@ b_avg<-
 b_avg<- 
   b_avg %>%
   rbind(b_avg, sapply(b_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>% #Adds a new row with average
-  select(9:26) #Select columns of interest
+  select(6,9:26) #Select columns of interest
 
 
 c_avg<-
@@ -421,7 +421,7 @@ c_avg<-
 c_avg<-
   c_avg %>%
   rbind(c_avg, sapply(c_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
-  select(9:26)
+  select(6,9:26)
 
 r_avg<-
   avg %>%
@@ -429,7 +429,7 @@ r_avg<-
 r_avg<-
   r_avg %>%
   rbind(r_avg, sapply(r_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
-  select(9:26)
+  select(6,9:26)
 ```
 
 #### Extract Average Values
@@ -451,3 +451,5 @@ average_df<-
              OrthoP = c(b_orthop, c_orthop, r_orthop))
 kable(average_df)
 ```
+
+#### 
