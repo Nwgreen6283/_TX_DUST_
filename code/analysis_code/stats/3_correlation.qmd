@@ -25,7 +25,7 @@ library(ggpubr) #Plot stacking
 #### Data
 
 ```{r, include = FALSE}
-dust0<- read_csv(here("data", "processed_data","dust_master.csv")) #Different Dust permutations
+dust0<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv")) #Different Dust permutations
 data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
 ```
 
@@ -62,25 +62,25 @@ bo<-
   master0 %>%
   filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
+  mutate(dust_lag =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!date)
+  select(!c(date,type))
 
 c2<- 
   master0 %>%
   filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust =Lag(dust, shift  = 2)) %>%
+  mutate(dust_lag =Lag(dust, shift  = 2)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!date)
+  select(!c(date,type))
 
 rd<- 
   master0 %>%
   filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust =Lag(dust, shift  = 1)) %>%
+  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!date)
+  select(!c(date,type))
 
 ```
 
