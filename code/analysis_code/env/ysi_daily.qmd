@@ -4,9 +4,11 @@ format:
   html:
     theme: default
 ---
+
 *This data set contains environmental parameters: Temp and Salinity, among other environmental parameters.*
 
 Libraries
+
 ```{r}
 library(tidyverse)
 library(here)
@@ -15,19 +17,21 @@ library(lubridate)
 ```
 
 Load Data
+
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
 Daily data frame
+
 ```{r}
 daily<- d1 %>%
   filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
   select(!...1)
 ```
 
+Plotting Daily Temperature
 
-Plotting Daily Temperature 
 ```{r}
 temp<- daily %>% ggplot() + geom_line(
   aes(
@@ -58,6 +62,7 @@ temp
 ```
 
 Plotting Daily Salinity
+
 ```{r}
 sal<- daily %>% ggplot() + geom_line(
   aes(
@@ -84,7 +89,9 @@ sal<- daily %>% ggplot() + geom_line(
 
 sal
 ```
-Combine Temperature and Salinity Plots 
+
+Combine Temperature and Salinity Plots
+
 ```{r, fig.width= 4, fig.height=4}
 fig<- ggarrange(temp,sal + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
 
@@ -92,6 +99,7 @@ fig
 ```
 
 Save as PNG
+
 ```{r}
 png(file = here("results", "plots", "temp_sal.png"))
 fig
@@ -99,6 +107,7 @@ dev.off()
 ```
 
 amm
+
 ```{r}
 amm<- daily %>%
   ggplot() + geom_line(
@@ -108,7 +117,9 @@ amm<- daily %>%
     color = site))
 amm
 ```
+
 chl
+
 ```{r}
 chl<- daily %>%
   ggplot() + geom_line(
@@ -118,7 +129,9 @@ chl<- daily %>%
     color = site))
 chl
 ```
+
 do (mg/L)
+
 ```{r}
 do_mgl<- daily %>%
   ggplot() + geom_line(
@@ -130,6 +143,7 @@ do_mgl
 ```
 
 do (%)
+
 ```{r}
 do_per<- daily %>%
   ggplot() + geom_line(
@@ -141,6 +155,7 @@ do_per
 ```
 
 pH
+
 ```{r}
 ph<- daily %>%
   ggplot() + geom_line(
@@ -152,6 +167,7 @@ ph
 ```
 
 secci
+
 ```{r}
 secchi<- daily %>%
   ggplot() + geom_line(
@@ -162,28 +178,48 @@ secchi<- daily %>%
 
 secchi
 ```
-nn
+
+#### NN
+
 ```{r}
 nn<- daily %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = nn,
-    color = site))
+    color = site))+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c")) +
+  theme_bw() +
+  labs(x = "Month",
+       y = "N+N (µM)", 
+       title = "Nitrate + Nitrite")
 
 nn
 ```
-orthop
+
+#### Orthop
+
 ```{r}
 orthop<- daily %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = orthop,
-    color = site))
+    color = site)) +
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme_bw() +
+  labs(x = "Month",
+       y = "Orthophosphate (µM)",
+       title = "Orthophosphate")
 orthop
 ```
+
 silicate
+
 ```{r}
 sil<- daily %>%
   ggplot() + geom_line(
@@ -196,6 +232,7 @@ sil
 ```
 
 DIN
+
 ```{r}
 din<- daily %>%
   ggplot() + geom_line(
@@ -205,7 +242,9 @@ din<- daily %>%
     color = site))
 din
 ```
+
 DIN:DIP
+
 ```{r}
 din_dip<- daily %>%
   ggplot() + geom_line(
@@ -216,7 +255,9 @@ din_dip<- daily %>%
 
 din_dip
 ```
+
 TDN
+
 ```{r}
 tdn<- daily %>%
   ggplot() + geom_line(
@@ -229,6 +270,7 @@ tdn
 ```
 
 DON
+
 ```{r}
 don<- daily %>%
   ggplot() + geom_line(
@@ -238,7 +280,9 @@ don<- daily %>%
     color = site))
 don
 ```
+
 DOC
+
 ```{r}
 doc<- daily %>%
   ggplot() + geom_line(
@@ -250,6 +294,7 @@ doc
 ```
 
 TOC
+
 ```{r}
 toc<- daily %>%
   ggplot() + geom_line(
@@ -260,7 +305,9 @@ toc<- daily %>%
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 toc
 ```
+
 TN
+
 ```{r}
 tn<- daily %>%
   ggplot() + geom_line(

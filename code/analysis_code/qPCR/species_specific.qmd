@@ -265,7 +265,7 @@ saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
 ##### Blind Oso
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "bo_daily.png"))
+#png(file = here("results", "plots", "species_specific", "bo_daily.png"))
 
  master %>%
   filter(site %in% "Blind Oso")%>%
@@ -276,16 +276,17 @@ png(file = here("results", "plots", "species_specific", "bo_daily.png"))
       color = type))+ 
   theme_bw()+
   theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))
+    axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(title = "Blind Oso")
 
-dev.off()
+#dev.off()
 
 ```
 
 ##### Canals
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "c2_daily.png"))
+#png(file = here("results", "plots", "species_specific", "c2_daily.png"))
 
 master %>%
   filter(site %in% "Canals")%>%
@@ -296,16 +297,17 @@ master %>%
       color = type))+ 
   theme_bw()+
   theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))
+    axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(title = "Canals")
 
-dev.off()
+#dev.off()
 
 ```
 
 ##### Gulf
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "rd_daily.png"))
+#png(file = here("results", "plots", "species_specific", "rd_daily.png"))
 
 master %>%
   filter(site %in% "Gulf")%>%
@@ -316,9 +318,10 @@ master %>%
       color = type))+ 
   theme_bw()+
   theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))
+    axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(title = "Gulf")
 
-dev.off()
+#dev.off()
 
 ```
 
@@ -327,7 +330,7 @@ dev.off()
 #### Vp
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "vp_mon.png"))
+#png(file = here("results", "plots", "species_specific", "vp_mon.png"))
 
 vp_m %>%
 ggplot() + geom_line(
@@ -352,14 +355,14 @@ ggplot() + geom_line(
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 
-dev.off()
+#dev.off()
 
 ```
 
 #### Vv
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "vv_mon.png"))
+#png(file = here("results", "plots", "species_specific", "vv_mon.png"))
  vv_m %>%
   filter(!site %in% c("E3", "NT")) %>%
  ggplot() + geom_line(
@@ -383,14 +386,14 @@ png(file = here("results", "plots", "species_specific", "vv_mon.png"))
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
-dev.off()
+#dev.off()
 
 ```
 
 #### Vc
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "vc_mon.png"))
+#png(file = here("results", "plots", "species_specific", "vc_mon.png"))
 vc_m %>%
   #filter(!site %in% "Blind Oso") %>%
  ggplot() + geom_line(
@@ -414,7 +417,7 @@ vc_m %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
-dev.off()
+#dev.off()
 
 ```
 

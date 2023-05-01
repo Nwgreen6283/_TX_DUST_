@@ -251,7 +251,11 @@ nn<- monthly %>%
     color = site))+
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
+                                "Gulf" = "#4c848c")) +
+  theme_bw() +
+  labs(x = "Month",
+       y = "N+N (µM)", 
+       title = "Nitrate + Nitrite")
 
 nn
 ```
@@ -267,7 +271,11 @@ orthop<- monthly %>%
     color = site))+
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
+                                "Gulf" = "#4c848c"))+
+  theme_bw() +
+  labs(x = "Month",
+       y = "Orthophosphate (µM)",
+       title = "Orthophosphate")
 orthop
 ```
 
