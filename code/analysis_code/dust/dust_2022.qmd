@@ -22,41 +22,31 @@ library(lubridate)
 dust<-read_csv(here("data", "processed_data", "tx_master.csv")) 
 ```
 
-# Clean 
+# Clean
 
 #### Select Columns
 
 ```{r}
 dust<-
   dust %>%
-  select(Dust, date)
-```
-
-#### SUM Column
-
-```{r}
-dust_sum<- aggregate(dust$Dust, by=list(date=dust$date),FUN=sum) %>% #could also use groupby
- rename("SUM" = "x")
-
-dust<-
-  dust %>%
-  full_join(dust_sum)
+  select(Dust, date, SUM)
 ```
 
 ```{r}
-year<- dust %>%
-  select(date,SUM) %>%
-  filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
+#year<- dust %>%
+ # select(date,SUM) %>%
+  #filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
 
-month<- dust %>%
-  filter(Type %in% "Monthly") %>%
-  filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
+#month<- dust %>%
+  #filter(Type %in% "Monthly") %>%
+ # filter(between(date, as.Date('2022-02-01'), as.Date('2022-08-28')))
 ```
 
 Plot
 
 ```{r}
 dust %>%
+  filter(date %in% as.Date('2022-02-01') : as.Date('2022-12-15'))%>%
   ggplot() + geom_line(
     aes(x = date,
         y = SUM)) +
@@ -74,4 +64,6 @@ dust %>%
             # size = 4,
             # color = "4c848c",
             # stroke = 1.5)
+
+ggsave(here("results", "plots", "dust_2022.png"))
 ```

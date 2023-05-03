@@ -84,7 +84,7 @@ tot_vib<- daily %>% ggplot()+geom_line(
   aes(x = date,
       y = copies_mL,
       color = site))+
-  facet_wrap(~site) +
+  #facet_wrap(~site) +
   theme_bw()+
   labs(
     x = "Date",
@@ -98,11 +98,8 @@ tot_vib<- daily %>% ggplot()+geom_line(
                                 "Gulf" = "#4c848c"))
 
 tot_vib
+
+ggsave(here("results", "plots", "total_vib.png"))
 ```
-Save as PNG
-```{r}
-png(file = here("results", "plots", "tot_vib_allsites_daily.png"))
-tot_vib
-dev.off()
-```
+
 

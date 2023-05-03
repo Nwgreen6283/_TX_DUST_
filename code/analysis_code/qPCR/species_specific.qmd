@@ -18,20 +18,20 @@ library(ggpubr) #Stacking Plots
 
 #### DATA
 
-```{r}
-vp<- read_csv(here("data", "processed_data","vp_clean_copies.csv"))
-vp_m<- read_csv(here("data", "processed_data","vp_mon_clean_copies.csv")) 
+```{r, include=FALSE}
+vp<- read_csv(here("data", "processed_data","qpcr", "vp_clean_copies.csv"))
+vp_m<- read_csv(here("data", "processed_data","qpcr","vp_mon_clean_copies.csv")) 
 
-vv<- read_csv(here("data", "processed_data","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
-vv_m<- read_csv(here("data", "processed_data","vv_clean_copies_mon.csv"))
+vv<- read_csv(here("data", "processed_data","qpcr","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
+vv_m<- read_csv(here("data", "processed_data","qpcr","vv_clean_copies_mon.csv"))
 
-vc<- read_csv(here("data", "processed_data", "vc_clean_copies_daily.csv")) #Daily
-vc_m<- read_csv(here("data", "processed_data", "vc_clean_copies_mon.csv"))#Monthly
-vc_bo<- read_csv(here("data", "processed_data","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. with 5 reps (run with 2 reps + run with 3 reps)
-vc_bo_50<- read_csv(here("data", "processed_data","vc_clean_copies_daily_1_50_2reps.csv"))#Just reps 4 and 5 to compare. This looks fine, but I removed the code so as to clean up this script.
+vc<- read_csv(here("data", "processed_data","qpcr", "vc_clean_copies_daily.csv")) #Daily
+vc_m<- read_csv(here("data", "processed_data", "qpcr","vc_clean_copies_mon.csv"))#Monthly
+vc_bo<- read_csv(here("data", "processed_data","qpcr","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. with 5 reps (run with 2 reps + run with 3 reps)
+#vc_bo_50<- read_csv(here("data", "processed_data","vc_clean_copies_daily_1_50_2reps.csv"))#Just reps 4 and 5 to compare. This looks fine, but I removed the code so as to clean up this script.
 
-va<- read_csv(here("data", "processed_data", "va_clean_copies_daily.csv"))
-va_m<-  read_csv(here("data", "processed_data", "va_clean_copies_monthly.csv"))
+va<- read_csv(here("data", "processed_data","qpcr", "va_clean_copies_daily.csv"))
+va_m<-  read_csv(here("data", "processed_data","qpcr", "va_clean_copies_monthly.csv"))
 ```
 
 # CLEANING
@@ -57,10 +57,10 @@ vc_bo<- vc_bo %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
   mutate(site = recode(site, "C2" = "Canals")) %>%
   mutate(site = recode(site, "RD" = "Gulf"))
-vc_bo_50<- vc_bo_50 %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
+#vc_bo_50<- vc_bo_50 %>%
+ # mutate(site = recode(site, "BO" = "Blind Oso")) %>%
+ # mutate(site = recode(site, "C2" = "Canals")) %>%
+ # mutate(site = recode(site, "RD" = "Gulf"))
 
 va<- va %>%
   mutate(site = recode(site, "BO" = "Blind Oso")) %>%
@@ -151,6 +151,7 @@ vc_m<- vc_m %>%
                                 "Gulf" = "4c848c"))
 # dev.off()
 
+ ggsave(here("results", "plots", "vp_daily.png"))
 ```
 
 ## Vv
@@ -178,6 +179,7 @@ vv %>%
                                 "Gulf" = "4c848c"))
 #dev.off()
 
+ ggsave(here("results", "plots", "vv_daily.png"))
 ```
 
 ## Vc
@@ -204,6 +206,8 @@ vc_d %>%
   scale_color_manual(values = c("Blind Oso" = "#809C52", #5 replicates
                                 "Canals" = "#ba4716",#3
                                 "Gulf" = "4c848c"))#3
+
+ ggsave(here("results", "plots", "vc_daily.png"))
 ```
 
 #### 
@@ -234,6 +238,7 @@ va %>%
                                 "Gulf" = "4c848c"))
 #dev.off()
 
+ ggsave(here("results", "plots", "va_daily.png"))
 ```
 
 ## Combine all species
@@ -280,7 +285,7 @@ saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
   labs(title = "Blind Oso")
 
 #dev.off()
-
+ ggsave(here("results", "plots", "bo_all_daily.png"))
 ```
 
 ##### Canals
@@ -302,6 +307,7 @@ master %>%
 
 #dev.off()
 
+ ggsave(here("results", "plots", "c2_all_daily.png"))
 ```
 
 ##### Gulf
@@ -323,6 +329,7 @@ master %>%
 
 #dev.off()
 
+ ggsave(here("results", "plots", "rd_all_daily.png"))
 ```
 
 # MONTHLY PLOTS
@@ -357,6 +364,7 @@ ggplot() + geom_line(
 
 #dev.off()
 
+ ggsave(here("results", "plots", "vp_monthly.png"))
 ```
 
 #### Vv
@@ -388,6 +396,7 @@ ggplot() + geom_line(
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 #dev.off()
 
+  ggsave(here("results", "plots", "vv_monthly.png"))
 ```
 
 #### Vc
@@ -419,12 +428,13 @@ vc_m %>%
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 #dev.off()
 
+ ggsave(here("results", "plots", "vc_monthly.png"))
 ```
 
 #### Va
 
 ```{r}
-png(file = here("results", "plots", "species_specific", "va_mon.png"))
+
 va_m %>%
   #filter(!site %in% "Blind Oso") %>%
  ggplot() + geom_line(
@@ -448,6 +458,6 @@ va_m %>%
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
-dev.off()
 
+ ggsave(here("results", "plots", "va_monthly.png"))
 ```

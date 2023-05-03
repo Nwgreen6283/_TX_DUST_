@@ -37,7 +37,12 @@ env<- env %>%
 #### Combine 3 data sets to make a large master data set
 
 ```{r}
-master<- dust %>% full_join(env) %>% full_join(copies)
+master<- #env %>% 
+  dust %>% full_join(copies)
+
+master<-
+  master %>%
+  full_join(env)
 ```
 
 #### Clean Data Again

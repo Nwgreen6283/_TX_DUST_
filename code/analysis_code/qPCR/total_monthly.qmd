@@ -6,6 +6,7 @@ format:
 ---
 
 Libraries
+
 ```{r}
 library(tidyverse)
 library(here)
@@ -14,11 +15,13 @@ library(lubridate)
 ```
 
 Load Data
+
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
 Monthly dataframe
+
 ```{r}
 monthly<- d1 %>% 
   mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
@@ -27,6 +30,7 @@ monthly<- d1 %>%
 ```
 
 Total Monthly Vib
+
 ```{r}
 fig3 <- monthly %>%
   ggplot()+geom_point(
@@ -57,6 +61,6 @@ scale_color_manual(values = c("Blind Oso" = "#809C52",
                               "Canals" = "#ba4716",
                               "Gulf" = "#4c848c"))
 fig3
+
+ ggsave(here("results", "plots", "total_vib__monthly.png"))
 ```
-
-

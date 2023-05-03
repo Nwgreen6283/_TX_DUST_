@@ -24,7 +24,7 @@ nrl<- read_csv(here("data","raw_data","nrl_dust_2022.csv")) #Dust concentration 
 
 ```
 
-Make Year-Month-Day_Hour column from yyymmddtt column
+#### Make Year-Month-Day_Hour column from yyymmddtt column
 
 ```{r}
 nrl1<- nrl %>% 
@@ -32,7 +32,9 @@ nrl1<- nrl %>%
     ymdh = ymd_h(nrl$yyyymmddhh))
 ```
 
-Now switch it to CST **This dust dataset is in Coordinated Universal Time (UTC) and needs to be converted to Central Standard/Daylight Time (which is UTC-6 hours and UTC-5 hours for daylight savings.**
+#### Now switch it to CST
+
+**This dust dataset is in Coordinated Universal Time (UTC) and needs to be converted to Central Standard/Daylight Time (which is UTC-6 hours and UTC-5 hours for daylight savings.**
 
 ```{r}
 nrl2<- nrl1 %>%
@@ -40,7 +42,7 @@ nrl2<- nrl1 %>%
     cst = as_datetime(nrl1$ymdh, tz= c("America/Chicago"))) #CST/CDT
 ```
 
-Make column with just date in CST
+#### Make column with just date in CST
 
 ```{r}
 nrl3<- nrl2 %>%
@@ -57,6 +59,18 @@ dust_final<- nrl3 %>%
 ```
 
 **Now `dust_ind` data set has the date and hour of collection in CST/CDT, and the concentrations (AOD) at each time point**\
+
+#### Make Dust SUM
+
+Good for 2022 Year Plot
+
+```{r}
+dust_sum<- aggregate(dust_final$Dust, by=list(date=dust_final$date),FUN=sum) %>% #could also use groupby
+ rename("SUM" = "x")
+
+dust_final<-
+  dust_final %>% full_join(dust_sum)
+```
 
 # Save RDS
 

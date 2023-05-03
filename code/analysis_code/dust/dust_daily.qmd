@@ -4,29 +4,36 @@ format:
   html:
     theme: default
 ---
-**This code is useful for looking at variations of daily dust trends. For example, when running statistical analysis, it may be best to look at dust concentration at a specific hour, or the sum per day, or the average. We will be working with a sum that is 24hr prior to sample collection. This utilizes a data set that has the variations of dust trends **
-Libs
+
+**This code is useful for looking at variations of daily dust trends. For example, when running statistical analysis, it may be best to look at dust concentration at a specific hour, or the sum per day, or the average. We will be working with a sum that is 24hr prior to sample collection. This utilizes a data set that has the variations of dust trends**
+
+# Intro
+
+#### Libs
+
 ```{r}
 library(here)
 library(tidyverse)
 library(lubridate)
 ```
 
+#### Data
 
-Data
 ```{r}
-dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv")) 
+dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv")) 
 dust_all<- read_csv(here("data", "processed_data","tx_master.csv")) 
 ```
+
 **There are a few columns that we do not need or that contain NaN. So let's remove those.**
 
-Clean
+# Clean
+
 ```{r}
 dust<- dust %>%
   filter(between(date,as.Date('2022-07-05'), as.Date('2022-07-19')))
 
 dust_all<- dust_all %>%
-  select(date, hr_cst, dust) %>%
+  select(date, hr_cst, Dust) %>%
   filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
 
 dust_all<- dust_all %>%
@@ -37,6 +44,7 @@ dust_all<- dust_all %>% #Set as YMDH
 ```
 
 Plot T7sum
+
 ```{r}
 dust %>% ggplot()+ geom_line(
   aes(x = date,
@@ -46,8 +54,6 @@ dust %>% ggplot()+ geom_line(
        y = "Dust Concentration (AOD)")+
   theme_bw()+
   scale_x_date(date_breaks = "1 day", date_labels = "%b%d")
+
+ggsave(here("results", "plots", "dust_daily.png"))
 ```
-
-
-
-
