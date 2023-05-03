@@ -1,0 +1,66 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(lubridate) #To work with dates 
+library(here)
+library(base) #For ColSum
+```
+
+#### Data
+
+```{r}
+nrl<- read_csv(here("data","raw_data","nrl_dust_2022.csv")) #Dust concentration data set
+
+
+```
+
+Make Year-Month-Day_Hour column from yyymmddtt column
+
+```{r}
+nrl1<- nrl %>% 
+  mutate(
+    ymdh = ymd_h(nrl$yyyymmddhh))
+```
+
+Now switch it to CST **This dust dataset is in Coordinated Universal Time (UTC) and needs to be converted to Central Standard/Daylight Time (which is UTC-6 hours and UTC-5 hours for daylight savings.**
+
+```{r}
+nrl2<- nrl1 %>%
+  mutate(
+    cst = as_datetime(nrl1$ymdh, tz= c("America/Chicago"))) #CST/CDT
+```
+
+Make column with just date in CST
+
+```{r}
+nrl3<- nrl2 %>%
+  mutate(
+    just_date= as.Date(substr(nrl2$cst, 1,10)))
+
+#Create hr for cst
+#Make final DF with dust, hours, and time in CST
+dust_final<- nrl3 %>%
+  mutate(hr_cst = substr(nrl3$cst, 12,13)) %>%
+  select(hr_cst, just_date, Dust) %>%
+  rename(date=just_date)
+  
+```
+
+**Now `dust_ind` data set has the date and hour of collection in CST/CDT, and the concentrations (AOD) at each time point**\
+
+# Save RDS
+
+```{r}
+#Just dust data
+saveRDS(dust_final, file = here("data", "processed_data", "dust", "dust_final.rds")) #Dust 
+```

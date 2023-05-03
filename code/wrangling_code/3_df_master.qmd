@@ -19,9 +19,9 @@ library(here)
 #### Load Clean Data
 
 ```{r}
-dust<- readRDS(here("data", "processed_data", "dust_clean.rds")) #Clean dust data
-copies<- read_csv(here("data", "processed_data", "total_clean_copies.csv")) #Clean Copies Data
-env<- read_csv(here("data", "processed_data", "ysi_2.csv")) #Clean Environmental Data
+dust<- readRDS(here("data", "processed_data", "dust", "dust_final.rds")) #Clean dust data
+copies<- read_csv(here("data", "processed_data", "qpcr", "total_clean_copies.csv")) #Clean Copies Data
+env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Environmental Data
 ```
 
 # Further Cleaning
