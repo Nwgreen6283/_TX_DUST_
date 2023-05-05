@@ -31,10 +31,10 @@ d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 
 ```{r}
 daily<- d1 %>%
-  filter(type %in% "daily")
+  filter(Type %in% "Daily")
 
 monthly<- d1 %>% 
-  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
+  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-22 a monthly value for July
                           d1$Type == "Monthly" ~ "Monthly")) %>%
   filter(Type %in% "Monthly") 
 ```
@@ -409,10 +409,13 @@ We are taking out 5/20 and 5/24 here.
 
 #### Make New Site-specific Data sets
 
+<!--# This master dataset has multiple tim points. I need to just get averages from envirionmental data with one entry per date -->
+
 ```{r}
 avg<- 
   monthly %>%
-  filter(!date == as.Date('2022-05-24') & !date == as.Date('2022-05-20')) #Gets ride of extra dates in May
+  filter(!date == as.Date('2022-05-24') & !date == as.Date('2022-05-20'),#Gets ride of extra dates in May
+         hr_cst %in% "01") 
 
 b_avg<-
   avg %>%
@@ -443,14 +446,14 @@ r_avg<-
 #### Extract Average Values
 
 ```{r}
-b_nn<- b_avg$nn[65] 
-b_orthop<- b_avg$orthop[65]
+b_nn<- b_avg$nn[89] 
+b_orthop<- b_avg$orthop[89]
 
-c_nn<- c_avg$nn[65]
-c_orthop<- c_avg$orthop[65]
+c_nn<- c_avg$nn[89]
+c_orthop<- c_avg$orthop[89]
 
-r_nn<- r_avg$nn[65]
-r_orthop<- r_avg$orthop[65]
+r_nn<- r_avg$nn[89]
+r_orthop<- r_avg$orthop[89]
 
 #DF
 average_df<- 
