@@ -25,8 +25,8 @@ library(ggpubr) #Plot stacking
 #### Data
 
 ```{r, include = FALSE}
-dust0<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv")) #Different Dust permutations
-data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
+dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv")) #Different Dust permutations
+data<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
 ```
 
 # Cleaning
@@ -34,12 +34,12 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data c
 ### Trim data sets from 7/4 to 7/19
 
 ```{r}
-dust<- dust0 %>%
+dust<- dust %>%
   filter(!is.na(date),
          date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
 
 
-data<- data0 %>%
+data<- data %>%
   filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
 ```
 
@@ -49,7 +49,7 @@ data<- data0 %>%
 master0<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") %>% #While this is technically not for hour 1, this gets ride of all   duplicates for the sake of analysis.
-  select(!c(hr_cst,...1,Type, t1,t7,t13,t19,tsum,tavg,SUM,dust,t7avg)) %>%
+  select(!c(hr_cst,...1,Type, t1,t7,t13,t19,tsum,tavg,SUM,Dust,t7avg)) %>%
   rename("dust" = "t7sum") #Now dust variable is the t7sum
 ```
 
@@ -64,7 +64,7 @@ bo<-
   select(!site) %>% 
   mutate(dust_lag =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date,type))
+  select(!c(date))
 
 c2<- 
   master0 %>%
@@ -72,7 +72,7 @@ c2<-
   select(!site) %>% 
   mutate(dust_lag =Lag(dust, shift  = 2)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date,type))
+  select(!c(date))
 
 rd<- 
   master0 %>%
@@ -80,7 +80,7 @@ rd<-
   select(!site) %>% 
   mutate(dust_lag =Lag(dust, shift  = 1)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date,type))
+  select(!c(date))
 
 ```
 
@@ -89,6 +89,7 @@ rd<-
 Variables that are normally distributed across all three sites will be in one df. All others will be in another.
 
 ```{r}
+#BLIND OSO
 b_norm<- 
   bo %>%
   select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
@@ -96,6 +97,7 @@ b_para<-
   bo %>%
   select(sal, secchi, nn, tdn, don, doc, toc, tn)
 
+#CANALS
 c_norm<- 
   c2 %>%
   select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
@@ -103,6 +105,7 @@ c_para<-
   c2 %>%
   select(sal, secchi, nn, tdn, don, doc, toc, tn)
 
+#GULF
 r_norm<- 
   rd %>%
   select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
@@ -116,25 +119,28 @@ r_para<-
 Distributions can be found in `1_distribution.qmd`
 
 ```{r}
-#Blind Oso
+#BLIND OSO
 b_norm<-
   b_norm %>%
   mutate(amm = log10(amm), #Log-transforms data
          din_dip = log10(din_dip),
          dust = log10(dust),
-         chl = log10(chl)) 
+         chl = log10(chl),
+         dust_lag = log10(dust_lag)) 
  
-#Canals
+#CANALS
 c_norm<- 
   c_norm %>%
   mutate(orthop = log10(orthop),
-         dust = log10(dust)) 
+         dust = log10(dust),
+         dust_lag = log10(dust_lag)) 
 
 
-#Gulf
+#GULF
 r_norm<- 
   r_norm %>%
-  mutate(dust = log10(dust))
+  mutate(dust = log10(dust),
+         dust_lag = log10(dust_lag))
 ```
 
 # Correlation Matrix

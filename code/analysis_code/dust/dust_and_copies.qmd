@@ -5,23 +5,29 @@ format:
     theme: default
 ---
 
-**This script is good for visualizing copies per mL data and dust data.** Library
+**This script is good for visualizing copies per mL data and dust data together.**
 
-```{r}
+# Intro
+
+#### Libraries 
+
+```{r, include = FALSE}
 library(here)
 library(tidyverse)
 library(ggpubr)
 library(Hmisc)#Lag function
 ```
 
-## Load Data
+#### Data
 
 ```{r, include= FALSE}
-dust_sum<-read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv")) 
-copies<- read_csv(here("data", "processed_data", "total_clean_copies.csv")) 
+dust_sum<-read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust Permutations
+copies<- read_csv(here("data", "processed_data","qpcr", "total_clean_copies.csv")) 
 ```
 
-## Daily Data frames
+# Cleaning
+
+#### Filter Dates
 
 ```{r}
 daily_dust_sum<- dust_sum %>%
@@ -37,7 +43,7 @@ copies_d <- copies %>%
 
 # Copies and Dust Plots
 
-## Plot Daily Dust Concentration
+#### Daily Dust Concentration
 
 ```{r, include = FALSE}
 dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
@@ -59,11 +65,11 @@ dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
 dust_fig
 ```
 
-## Total Daily Vibrio
+#### Total Vibrio
 
 ```{r, include = FALSE}
 tot_vib<- copies_d %>% 
-  filter(site %in% "Canals") %>%
+ # filter(site %in% "Canals") %>%
   ggplot()+geom_line(
   aes(x = date,
       y = copies_mL,
@@ -91,7 +97,7 @@ tot_vib<- copies_d %>%
 tot_vib
 ```
 
-## Combine Dust and Copies
+#### Dust + Vibrio 
 
 ```{r}
 fig<- ggarrange(tot_vib, dust_fig + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
