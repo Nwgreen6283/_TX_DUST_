@@ -4,9 +4,11 @@ format:
   html:
     theme: default
 ---
+
 **FOR DAILY AND MONTHLY VA WRANGLING**
 
 Libraries
+
 ```{r}
 library(tidyverse)
 library(here)
@@ -14,6 +16,7 @@ library(ggpubr)
 ```
 
 Load data
+
 ```{r}
 d<- read_csv(here("data", "raw_data", "va_daily.csv"))
 
@@ -21,12 +24,14 @@ m<- read_csv(here("data", "raw_data", "va_mon.csv"))
 ```
 
 One sample was very contaminated(?) Cq = 1???
+
 ```{r}
 d<- d %>%
   filter(!Well %in% "K06")
 ```
 
 Separate out Monthly Inhibition from Regular
+
 ```{r}
 inh<- 
   m %>% 
@@ -44,8 +49,8 @@ m<-
   )
 ```
 
+Create Site Column from Sample Name
 
-Create Site Column from Sample Name 
 ```{r}
 d<- d %>%
   mutate(site = substr(d$Sample,1,2)) 
@@ -54,8 +59,8 @@ m<- m %>%
   mutate(site = substr(m$Sample,1,2)) 
 ```
 
-
 Add Dilution Column and Filter column
+
 ```{r}
 dilution<- d%>%
   mutate(dilution = case_when(site == "BO"~"1",
@@ -114,6 +119,7 @@ filter_m<- dilution_m %>%
 ```
 
 Cq --> Copies/mL
+
 ```{r}
 copies<- filter %>%
     mutate(
@@ -141,6 +147,7 @@ select(Sample,copies_mL, site,day)
 ```
 
 Replace NaN with 0 for copies/mL
+
 ```{r}
 replace<- copies %>%
  mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
@@ -154,6 +161,7 @@ filter(!is.na(Sample))
 ```
 
 Date Column
+
 ```{r}
 date<- replace %>%
   mutate(day = substr(replace$Sample,3,4)) %>% #Creates new column `date`
@@ -185,7 +193,8 @@ date_m<- replace_m %>%
                          day == "12i"~"2022-12-14"))
 ```
 
-Take the average of qPCR triplicates 
+Take the average of qPCR triplicates
+
 ```{r}
 final<- date %>% 
   group_by(site, Sample,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
@@ -201,6 +210,7 @@ final_m<- date_m %>%
 ```
 
 Save as RDS and manually add date in excel
+
 ```{r}
 #stop() #Write error so it wont overwrite
 write.csv(final, file= here("data","processed_data","va_clean_copies_daily.csv"))

@@ -214,6 +214,8 @@ rclean<- rcorr(as.matrix(r_norm))
 flattenCorrMatrix(rclean$r, rclean$P)
 ```
 
+#### Extract cor and p values
+
 #### Visualize with `corrplot()` function
 
 The function **corrplot()** takes the **correlation matrix** as the first argument. The second argument (type="upper") is used to display only the upper triangular of the **correlation matrix**.

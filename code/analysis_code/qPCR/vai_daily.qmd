@@ -1,0 +1,71 @@
+---
+title: "VAI"
+format:
+  html:
+    theme: default
+---
+
+**Code for visualizing VAI**
+
+# Intro
+
+#### Libs
+
+```{r, include=FALSE}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r}
+data<- read.csv(here("data", "raw_data", "qpcr", "vai", "rd_vai_daily.csv"))
+```
+
+# Cleaning
+
+#### Select and Filter
+
+```{r}
+data<-
+  data %>%
+  filter(!Well %in% "I07") %>%
+    select(Cq, Sample)
+```
+
+#### Make Day Column and Date Column
+
+```{r}
+data<-
+  data %>%
+  mutate(day = substr(data$Sample, 3,4),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19",
+                         Sample == "e3" ~ "Pos_e3",
+                         Sample == "e4" ~ "Pos_e4",
+                         Sample == "NTC" ~ "Neg"))
+```
+
+# Plot
+
+```{r}
+data %>%
+  ggplot() + geom_boxplot(
+  aes(x = date,
+      y = Cq)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Gulf Site VAI")
+```
+
+**Negatives amplified, and 18th may be inhibited?? Positive control was EKL-50 (Vc)**
