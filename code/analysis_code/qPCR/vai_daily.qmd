@@ -19,7 +19,8 @@ library(tidyverse)
 #### Data
 
 ```{r}
-data<- read.csv(here("data", "raw_data", "qpcr", "vai", "rd_vai_daily.csv"))
+r<- read.csv(here("data", "raw_data", "qpcr", "vai", "rd_vai_daily.csv")) #Gulf
+c<- read.csv(here("data", "raw_data", "qpcr", "vai", "c2_vai_daily.csv"))
 ```
 
 # Cleaning
@@ -27,18 +28,42 @@ data<- read.csv(here("data", "raw_data", "qpcr", "vai", "rd_vai_daily.csv"))
 #### Select and Filter
 
 ```{r}
-data<-
-  data %>%
+r<-
+  r %>%
   filter(!Well %in% "I07") %>%
     select(Cq, Sample)
+
+c<- 
+  c %>%
+  select(Cq, Sample)
 ```
 
 #### Make Day Column and Date Column
 
 ```{r}
-data<-
-  data %>%
-  mutate(day = substr(data$Sample, 3,4),
+#CANALS
+c<-
+  c %>%
+  mutate(day = substr(c$Sample, 2,3),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19",
+                         Sample == "Pos" ~ "Pos",
+                         Sample == "NTC" ~ "Neg"))
+
+#GULF
+r<-
+  r %>%
+  mutate(day = substr(r$Sample, 3,4),
          date = case_when(day == "7"~"2022-07-07",
                          day ==  "8"~"2022-07-08",
                          day ==  "9"~"2022-07-09",
@@ -58,8 +83,24 @@ data<-
 
 # Plot
 
+#### Canals
+
 ```{r}
-data %>%
+c %>%
+  ggplot() + geom_boxplot(
+  aes(x = date,
+      y = Cq)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Canals Site VAI")
+```
+
+**Negatives Amplified**
+
+#### Gulf
+
+```{r}
+r %>%
   ggplot() + geom_boxplot(
   aes(x = date,
       y = Cq)) +

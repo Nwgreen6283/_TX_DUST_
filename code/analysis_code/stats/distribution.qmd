@@ -19,7 +19,9 @@ library(ggpubr)
 
 ```{r}
 d<- read_csv(here("data", "processed_data","tx_master.csv"))
-dust<- read_csv(here("data", "processed_data", "dust_conc","dust_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv"))
+sp<- read_rds(here("data", "processed_data", "species_copies.rds")) #species specific copies
+
 ```
 
 #### Clean Data
@@ -60,7 +62,7 @@ daily<-
 
 # Check Distributions of Data
 
-## Copies/mL
+## Total Copies/mL
 
 #### Visualization
 
@@ -145,3 +147,70 @@ apply(log_daily,2,shapiro.test)
 ```
 
 **All look good except t19.**
+
+## Species-specific Distributions
+
+#### Make site and sp df 
+
+```{r}
+#BLIND OSO
+b_vc<- 
+  sp %>%
+  filter(site %in% "Blind Oso" & type %in% "V. cholerae")
+
+b_vv<- 
+  sp %>%
+  filter(site %in% "Blind Oso" & type %in% "V. vulnificus")
+
+#b_vp = 0 
+
+#CANALS
+c_vc<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. cholerae")
+
+c_vv<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. vulnificus")
+
+c_vp<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. parahaemolyticus")
+
+#GULF
+r_vc<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. cholerae")
+
+r_vv<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. vulnificus")
+
+r_vp<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
+```
+
+#### Shapiro Test
+
+```{r}
+#BLIND OSO
+shapiro.test(b_vc$copies_mL)
+shapiro.test(b_vv$copies_mL)
+
+#CANALS
+shapiro.test(c_vc$copies_mL)
+shapiro.test(c_vv$copies_mL)
+shapiro.test(c_vp$copies_mL)
+
+#GULF
+shapiro.test(c_vc$copies_mL)
+shapiro.test(c_vv$copies_mL)
+shapiro.test(c_vp$copies_mL)
+```
+
+#### Log-transform
+
+```{r}
+
+```
