@@ -1,7 +1,7 @@
 ---
 title: "New Dust and Copies"
 format:
-  html:
+  pdf:
     theme: default
 ---
 
@@ -15,6 +15,7 @@ format:
 library(here)
 library(tidyverse)
 library(lubridate)
+library(kableExtra)
 ```
 
 #### Data
@@ -49,11 +50,30 @@ Plot T7sum
 dust %>% ggplot()+ geom_line(
   aes(x = date,
       y = t7sum))+
-  labs(title = "Dust Concentration over Daily Time Series",
+  labs(title = "Dust Aerosol Optical Density over Daily Time Series",
        x = "Date",
-       y = "Dust Concentration (AOD)")+
+       y = "Dust AOD")+
   theme_bw()+
-  scale_x_date(date_breaks = "1 day", date_labels = "%b%d")
+  scale_x_date(date_breaks = "1 day", date_labels = "%b%d") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 ggsave(here("results", "plots", "dust_daily.png"))
+```
+
+# Make Pretty Dust Table
+
+```{r}
+dust_tbl<-
+  dust %>%
+  select(t1,t7,t13,t19,t7sum,date) %>%
+  rename("1:00" = "t1",
+         "7:00" = "t7",
+         "13:00" = "t13",
+         "19:00"= "t19",
+         "Dust" = "t7sum",
+         "Date" = "date") 
+
+dust_tbl<-
+  kable(dust_tbl[,c(6,1:5)])
+dust_tbl
 ```

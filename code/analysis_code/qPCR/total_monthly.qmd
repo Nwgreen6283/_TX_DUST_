@@ -47,7 +47,7 @@ fig3 <- monthly %>%
   labs(
     x = "Date",
     y = "Copies/mL",
-    title = "Monthly Total Vibrio") +
+    title = "Vibrio Growth over Monthly Time Series") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 20),  #center title
     axis.title.x = element_blank(),
@@ -59,7 +59,7 @@ fig3 <- monthly %>%
 
 scale_color_manual(values = c("Blind Oso" = "#809C52",
                               "Canals" = "#ba4716",
-                              "Gulf" = "#4c848c"))
+                              "Gulf" = "4c848c"))
 fig3
 
  ggsave(here("results", "plots", "total_vib__monthly.png"))

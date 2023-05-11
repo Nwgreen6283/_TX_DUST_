@@ -260,7 +260,11 @@ type = "va"
 va1<- cbind(va,type)
 
 #Combine datasets
-master<- rbind(vc1,vp1,vv1, va1)
+master<- rbind(vc1,vp1,vv1, va1) %>%
+  mutate(type = recode(type, "va" = "V. alginolyticus",
+                       "vc" = "V. cholerae",
+                       "vp" = "V. parahaemolyticus",
+                       "vv" = "V. vulnificus"))
 # Save this
 saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
 ```
@@ -270,19 +274,29 @@ saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
 ##### Blind Oso
 
 ```{r}
-#png(file = here("results", "plots", "species_specific", "bo_daily.png"))
-
- master %>%
-  filter(site %in% "Blind Oso")%>%
+bo_spp<- master %>%
+  filter(site %in% "Blind Oso") %>%
+  filter(!type %in% "V. cholerae") %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = copies_mL,
-      color = type))+ 
+      color = type),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))+
-  labs(title = "Blind Oso")
+     labs(title = "Vibrio Species at Blind Oso",
+       x = "Date",
+       y = "Copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+
+bo_spp
 
 #dev.off()
  ggsave(here("results", "plots", "bo_all_daily.png"))
@@ -291,21 +305,30 @@ saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
 ##### Canals
 
 ```{r}
-#png(file = here("results", "plots", "species_specific", "c2_daily.png"))
-
-master %>%
-  filter(site %in% "Canals")%>%
+c2_spp<-
+  master %>%
+  filter(site %in% "Canals") %>%
+  #filter(!type %in% "V. cholerae") %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = copies_mL,
-      color = type))+ 
+      color = type),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))+
-  labs(title = "Canals")
+     labs(title = "Vibrio Species at the Canals",
+       x = "Date",
+       y = "Copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
 
-#dev.off()
+c2_spp
 
  ggsave(here("results", "plots", "c2_all_daily.png"))
 ```
@@ -313,23 +336,42 @@ master %>%
 ##### Gulf
 
 ```{r}
-#png(file = here("results", "plots", "species_specific", "rd_daily.png"))
-
-master %>%
-  filter(site %in% "Gulf")%>%
+rd_spp<-
+ master %>%
+  filter(site %in% "Gulf") %>%
+  #filter(!type %in% "V. cholerae") %>%
   ggplot() + geom_line(
     aes(
       x = date,
       y = copies_mL,
-      color = type))+ 
+      color = type),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    axis.text.x = element_text(hjust = 1, angle = 45))+
-  labs(title = "Gulf")
+     labs(title = "Vibrio Species at the Gulf",
+       x = "Date",
+       y = "Copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
 
-#dev.off()
+rd_spp
 
  ggsave(here("results", "plots", "rd_all_daily.png"))
+```
+
+#### Combine
+
+```{r, fig.width= 4}
+all_spp<-
+  ggarrange(bo_spp, c2_spp, rd_spp,
+            nrow = 1,
+            ncol = 3)
+all_spp
 ```
 
 # MONTHLY PLOTS

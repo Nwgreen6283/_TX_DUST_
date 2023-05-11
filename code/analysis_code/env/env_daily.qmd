@@ -43,12 +43,12 @@ daily<- d1 %>%
 temp<- 
   daily %>% 
   ggplot() + 
-  geom_point(
-  aes(
-    x = date,
-    y = temp,
-    color = site),
-  size = 2)+
+ # geom_point(
+ # aes(
+  #  x = date,
+  #  y = temp,
+  #  color = site),
+ # size = 2)+
   geom_line(
   aes(
     x = date,
@@ -59,7 +59,7 @@ temp<-
   labs(
     x = "Date",
     y = "Temperature (°C)",
-   title = "Daily Temperatures",
+   #title = "Daily Temperatures",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
@@ -67,7 +67,7 @@ temp<-
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
     axis.title.y = element_text(size = 15),
-    axis.text.y = element_text(size = 15),
+    axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
     scale_color_manual(values = c("Blind Oso" = "#809C52",
@@ -86,17 +86,17 @@ sal<- daily %>%
     y = sal,
     color = site),
   size = 1)+
-  geom_point(
-  aes(
-    x = date,
-    y = sal,
-    color = site),
-  size = 2)+
+  #geom_point(
+ # aes(
+  #  x = date,
+  #  y = sal,
+  #  color = site),
+  #size = 2)+
   theme_bw()+
   labs(
     x = "Date",
     y = "Salinity",
-    title = "Daily Salinities",
+  #  title = "Daily Salinities",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
@@ -104,7 +104,7 @@ sal<- daily %>%
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
     axis.title.y = element_text(size = 15),
-    axis.text.y = element_text(size = 15),
+    axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
     scale_color_manual(values = c("Blind Oso" = "#809C52",
@@ -591,26 +591,26 @@ cop<-
 
 #### ALL
 
-```{r, fig.height=3, fig.width=3}
+```{r, fig.width=4}
 fig<- ggarrange(temp,
                 sal,
-                #do,
-                #nn,
-                #ortho,
-                #don,
-                #doc,
-                #pH,
-                #amm,
-                #tn,
-                #sil,
-                cop,
-                #tdn,
-                #secchi,
-                #din,
-                #din_dip,
-                #chl,
-                ncol = 1, 
-                nrow = 3,
+                do,
+                nn,
+                ortho,
+                don,
+                doc,
+                pH,
+                amm,
+                tn,
+                sil,
+               # cop,
+                tdn,
+                secchi,
+                din,
+                din_dip,
+                chl,
+                ncol = 4, 
+                nrow = 4,
                 align = "v")
 
 fig

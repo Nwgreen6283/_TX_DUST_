@@ -50,7 +50,7 @@ temp2<- monthly %>% ggplot() + geom_point(
     y = temp,
     color = site,
     group = date),
-  size = 1)+
+  size = 2)+
   theme_bw()+
   facet_wrap(~site)+
   labs(
@@ -60,9 +60,9 @@ temp2<- monthly %>% ggplot() + geom_point(
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-   # axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.text.y = element_text(size = 15),
     axis.title.y = element_text(size = 15),
     legend.position = "none",
@@ -86,7 +86,7 @@ sal2<- monthly %>% ggplot() + geom_point(
     y = sal,
     color = site,
     group = date),
-  size = 1)+
+  size = 2)+
   facet_wrap(~site)+
   theme_bw()+
   labs(
@@ -98,7 +98,8 @@ sal2<- monthly %>% ggplot() + geom_point(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
     axis.title.y = element_text(size = 15),
-    axis.text.x = element_text(hjust = 1, angle =45),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
     axis.text.y = element_text(size = 15),
    # axis.ticks.x = element_blank(),
     legend.position = "none")+
@@ -119,7 +120,7 @@ fig3 <- monthly %>%
       y = copies_mL,
       color = site,
       group = date),
-  size = 1)+
+  size = 2)+
   facet_wrap(~site)+
   theme_bw()+
   labs(
@@ -143,7 +144,7 @@ fig3
 
 ##### Combine Temp and Salinity Monthly
 
-```{r}
+```{r, fig.width=3.5, fig.height=3.5}
 figp<- ggarrange(temp2,sal2, fig3 + font("x.text", size = 10), ncol = 1, nrow = 3,align = "v")
 
 figp

@@ -216,12 +216,16 @@ flattenCorrMatrix(rclean$r, rclean$P)
 
 #### Extract cor and p values
 
+```{r}
+bclean$r
+```
+
 #### Visualize with `corrplot()` function
 
 The function **corrplot()** takes the **correlation matrix** as the first argument. The second argument (type="upper") is used to display only the upper triangular of the **correlation matrix**.
 
 ```{r, fig.width=6}
-par(mfrow=c(3,3))
+#par(mfrow=c(3,3))
 #Normal Data 
  corrplot(b, type = "upper", 
          tl.col = "black", tl.srt = 45,

@@ -9,7 +9,7 @@ format:
 
 # Intro
 
-#### Libraries 
+#### Libraries
 
 ```{r, include = FALSE}
 library(here)
@@ -79,16 +79,16 @@ tot_vib<- copies_d %>%
   labs(
     x = "Date",
     y = "Copies/mL",
-    title = "Total Daily Vibrio at all Sites",
+    title = "Vibrio Growth and Dust AOD over Daily Time Series",
     color = "  Site") +
   theme(
-    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    plot.title = element_text(size = 18),  #center title
     axis.text.x = element_blank(),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.title.y = element_text(size = 15),
     axis.text.y = element_text(size = 10),
-    legend.position = c(0.1, 0.6),
+    legend.position = c(0.1, 0.63),
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
@@ -97,7 +97,7 @@ tot_vib<- copies_d %>%
 tot_vib
 ```
 
-#### Dust + Vibrio 
+#### Dust + Vibrio
 
 ```{r}
 fig<- ggarrange(tot_vib, dust_fig + font("x.text", size = 10), ncol = 1, nrow = 2,align = "v")
