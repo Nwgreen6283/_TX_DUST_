@@ -18,7 +18,7 @@ library(tidyverse)
 
 ```{r}
 sp<- readRDS(file = here("data", "processed_data", "species_copies.rds"))
-dust<- read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 ```
 
 # Cleaning
@@ -48,36 +48,36 @@ master <-
 #Vc
 vc_bo<- 
   master %>%
-  filter(site == 'Blind Oso' & type =="vc")
+  filter(site == 'Blind Oso' & type =="V. cholerae")
 
 vc_c2<- 
   master %>%
-  filter(site %in% "Canals" & type %in% "vc")
+  filter(site %in% "Canals" & type %in% "V. cholerae")
 vc_rd<- 
   master %>%
-  filter(site %in% "Gulf" & type %in% "vc")
+  filter(site %in% "Gulf" & type %in% "V. cholerae")
 
 #Vv
 vv_bo<- 
   master %>%
-  filter(site %in% "Blind Oso" & type %in% "vv")
+  filter(site %in% "Blind Oso" & type %in% "V. vulnificus")
 vv_c2<- 
   master %>%
-  filter(site %in% "Canals" & type %in% "vv")
+  filter(site %in% "Canals" & type %in% "V. vulnificus")
 vv_rd<- 
   master %>%
-  filter(site %in% "Gulf" & type %in% "vv")
+  filter(site %in% "Gulf" & type %in% "V. vulnificus")
 
 #Vp
 vp_bo<- 
   master %>%
-  filter(site %in% "Blind Oso" & type %in% "vp")
+  filter(site %in% "Blind Oso" & type %in% "V. parahaemolyticus")
 vp_c2<- 
   master %>%
-  filter(site %in% "Canals" & type %in% "vp")
+  filter(site %in% "Canals" & type %in% "V. parahaemolyticus")
 vp_rd<- 
   master %>%
-  filter(site %in% "Gulf" & type %in% "vp")
+  filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
 ```
 
 # CCA
@@ -107,3 +107,5 @@ title("C2 x Vp", line =0.5)
 ccf(vp_rd$t7sum, vp_rd$copies_mL) 
 title("RD x Vp", line =0.5)
 ```
+
+**All spp either had no significant lag, 0 lag, or 1 day lag (RD_Vc).**

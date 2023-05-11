@@ -1,0 +1,86 @@
+---
+title: "spp_cor_mat"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include=FALSE}
+sp<- read_rds(here("data", "processed_data", "species_copies.rds")) #species specific copies
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust Data set
+```
+
+# Clean
+
+#### Trim Dust data to Daily Time series
+
+```{r}
+dust<- dust %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+```
+
+#### Combine into Master data set
+
+```{r}
+master<-
+  dust %>%
+  full_join(sp) %>%
+  select(date, t7sum, type, copies_mL, site) %>%
+  rename("dust" = "t7sum") %>%
+  mutate(dust = log10(dust)) #Log transform
+```
+
+<!--# Need to check dist. of copies_mL  -->
+
+#### Site-specific data frames
+
+Since there is not really a significant lag we don't need to make lags
+
+<!--# Is this ok thinking? -->
+
+```{r}
+b<-
+  master %>%
+  filter(site %in% "Blind Oso") %>%
+  select(!c(site, date))
+
+c<-
+  master %>%
+  filter(site %in% "Canals") %>%
+  select(!c(site, date))
+
+r<-
+  master %>%
+  filter(site %in% "Gulf") %>%
+  select(!c(site, date))
+```
+
+# Correlation
+
+#### Make Matrix
+
+```{r}
+b %>%
+  group_by(type) %>%
+  summarise(cor = cor(copies_mL, dust))
+
+c %>%
+  group_by(type) %>%
+  summarise(cor = cor(copies_mL, dust))
+
+r %>%
+  group_by(type) %>%
+  summarise(cor = cor(copies_mL, dust))
+```

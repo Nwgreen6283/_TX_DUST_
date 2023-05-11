@@ -89,17 +89,16 @@ filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 
 #### Plot
 
-```{r}
+```{r, fig.width= 4, fig.height=4}
+#BLIND OSO
 fig1<-
   bo2 %>% ggplot(aes(x = lag, y = copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL),
-               rr.digits = 4)+
-  stat_correlation(method = "pearson",
-                   label.x = 0.05,
-                   label.y = 0.7,
-                   small.r = TRUE)+
+               rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE,size = 3.5)+
+  annotate("text", x = -1.175, y = 48000, label = "p = 0.01", size =3.5)+
   labs(title = "Blind Oso",
        x = "log10(dust)",
        y = "Copies/mL")+
@@ -107,16 +106,15 @@ fig1<-
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank())
+
+#CANALS
  fig2<-
    c22 %>% ggplot(aes(x = lag, y = copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
-  stat_poly_eq(aes(x = lag, y = copies_mL),
-               rr.digits = 4)+
-  stat_correlation(method = "pearson",
-                   label.x = 0.05,
-                   label.y = 0.7,
-                   small.r = TRUE)+
+  stat_poly_eq(aes(x = lag, y = copies_mL), rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
+  annotate("text", x = -1.17, y = 18000, label = "p = 0.005", size = 3.5)+
   labs(title = "Canals",
        x = "log10(dust)",
        y = "Copies/mL") +
@@ -124,33 +122,34 @@ fig1<-
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank())
- 
+
+#GULF  
 fig3<-
   rd2 %>% ggplot(aes(lag, copies_mL)) +
   geom_point() +
   stat_smooth(method = "lm")+
-  stat_poly_eq(aes(x = lag, y = copies_mL),
-               rr.digits = 4)+
-  stat_correlation(method = "pearson",
-                   label.x = 0.05,
-                   label.y = 0.7,
-                   small.r = TRUE)+
+  stat_poly_eq(aes(x = lag, y = copies_mL),rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
+  annotate("text", x = -1.175, y = 75000, label = "p = 0.02", size = 3.5)+
   labs(title = "Gulf",
        x = "log10(dust)",
        y = "Copies/mL")+
-   theme_bw()+
+   theme_bw() +
+
   theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank(),
+        #axis.title.x = element_blank(),
         axis.ticks.x = element_blank())
 
 ```
 
 #### Stack
 
-```{r}
+```{r, fig.height=4}
 ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
             ncol = 1, 
-            nrow = 3)
+            nrow = 3,
+          heights = c(1,1,1.25)) 
+
 ggsave(here("results", "plots", "uni.png"))
 ```
 
