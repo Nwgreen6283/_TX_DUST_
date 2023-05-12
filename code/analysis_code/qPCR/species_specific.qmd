@@ -266,7 +266,7 @@ master<- rbind(vc1,vp1,vv1, va1) %>%
                        "vp" = "V. parahaemolyticus",
                        "vv" = "V. vulnificus"))
 # Save this
-saveRDS(master, file = here("data", "processed_data","species_copies.rds"))
+saveRDS(master, file = here("data", "processed_data", "qpcr","species_copies.rds"))
 ```
 
 #### Plot

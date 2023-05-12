@@ -13,75 +13,41 @@ format:
 
 #### Libraries
 
-```{r}
+```{r, include= FALSE}
 library(tidyverse)
 library(here)
 library(Hmisc)#Cor Tables and Lag
 library(corrplot) #Cor Plots
 library(lubridate) #For dates
 library(ggpubr) #Plot stacking
+library(kableExtra)
+library(naniar)
 ```
 
 #### Data
 
 ```{r, include = FALSE}
-dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv")) #Different Dust permutations
-data<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
+bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
 ```
 
 # Cleaning
 
-### Trim data sets from 7/4 to 7/19
-
-```{r}
-dust<- dust %>%
-  filter(!is.na(date),
-         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
-
-
-data<- data %>%
-  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
-```
-
-### Combine into one big data set
-
-```{r}
-master0<- 
-  dust %>% full_join(data) %>%
-  filter(hr_cst %in% "01") %>% #While this is technically not for hour 1, this gets ride of all   duplicates for the sake of analysis.
-  select(!c(hr_cst,...1,Type, t1,t7,t13,t19,tsum,tavg,SUM,Dust,t7avg)) %>%
-  rename("dust" = "t7sum") #Now dust variable is the t7sum
-```
-
-### Make Lag data sets by Site
-
-This cleans out non-numeric values, creates site lag from CCA, and produces a final daily plot
+#### Remove non-numeric variables
 
 ```{r}
 bo<- 
-  master0 %>%
-  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
-  select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
-  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date))
+  bo %>%
+  select(!c(date, ...1))
 
 c2<- 
-  master0 %>%
-  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
-  select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 2)) %>%
-  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date))
+  c2 %>%
+  select(!c(date, ...1))
 
 rd<- 
-  master0 %>%
-  filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
-  select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
-  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
-  select(!c(date))
-
+  rd %>%
+  select(!c(date, ...1))
 ```
 
 ### Make Datasets for normal and non-normal variables
@@ -217,7 +183,9 @@ flattenCorrMatrix(rclean$r, rclean$P)
 #### Extract cor and p values
 
 ```{r}
-bclean$r
+b_p_values<-
+ as.data.frame(bclean$P)
+
 ```
 
 #### Visualize with `corrplot()` function
@@ -283,4 +251,40 @@ It's also possible to **combine correlogram with the significance test**. We'll 
 #corrplot(rclean$r, type="upper", order="hclust", 
          #p.mat = rclean$P, sig.level = 0.05, insig = "blank")
 
+```
+
+# Correlation Table
+
+#### Corrleation Matrices --> DF
+
+This is using Spearman's for all
+
+```{r}
+b_df<-
+  as.data.frame(b2) %>%
+  round(2) 
+
+c_df<-
+  as.data.frame(c2) %>%
+  round(2)
+
+r_df<-
+  as.data.frame(r2) %>%
+  round(2)
+  
+```
+
+```{r}
+cor_tbl<-
+kable(data.frame(
+Environment = c("Chl", "Salinity", "Temperature", "DO (mg/L)", "DO (%)", "pH", "Secchi", "Ammonium", "Nitrate+Nitrite", "Orthophosphate", "Silicate", "DIN", "DIN:DIP", "TDN", "DON", "DOC", "TOC", "TN", "Dust Lag"),
+
+`Blind Oso Vibrio` = c(b_df["copies_mL", "chl"], b_df["copies_mL", "sal"], b_df["copies_mL", "temp"], b_df["copies_mL", "do_mgl"], b_df["copies_mL", "do_per"], b_df["copies_mL", "pH"], b_df["copies_mL", "secchi"], b_df["copies_mL", "amm"], b_df["copies_mL", "nn"], b_df["copies_mL", "orthop"], b_df["copies_mL", "sil"], b_df["copies_mL", "din"], b_df["copies_mL", "din_dip"], b_df["copies_mL", "tdn"], b_df["copies_mL", "don"], b_df["copies_mL", "doc"], b_df["copies_mL", "toc"], b_df["copies_mL", "tn"], b_df["copies_mL", "dust_lag"]),
+
+`Canals Vibrio` = c(c_df["copies_mL", "chl"], c_df["copies_mL", "sal"], c_df["copies_mL", "temp"], c_df["copies_mL", "do_mgl"], c_df["copies_mL", "do_per"], c_df["copies_mL", "pH"], c_df["copies_mL", "secchi"], c_df["copies_mL", "amm"], c_df["copies_mL", "nn"], c_df["copies_mL", "orthop"], c_df["copies_mL", "sil"], c_df["copies_mL", "din"], c_df["copies_mL", "din_dip"], c_df["copies_mL", "tdn"], c_df["copies_mL", "don"], c_df["copies_mL", "doc"], c_df["copies_mL", "toc"], c_df["copies_mL", "tn"], c_df["copies_mL", "dust_lag"]),
+
+`Gulf Vibrio` = c(r_df["copies_mL", "chl"], r_df["copies_mL", "sal"], r_df["copies_mL", "temp"], r_df["copies_mL", "do_mgl"], r_df["copies_mL", "do_per"], r_df["copies_mL", "pH"], r_df["copies_mL", "secchi"], r_df["copies_mL", "amm"], r_df["copies_mL", "nn"], r_df["copies_mL", "orthop"], r_df["copies_mL", "sil"], r_df["copies_mL", "din"], r_df["copies_mL", "din_dip"], r_df["copies_mL", "tdn"], r_df["copies_mL", "don"], r_df["copies_mL", "doc"], r_df["copies_mL", "toc"], r_df["copies_mL", "tn"], r_df["copies_mL", "dust_lag"])))
+
+
+cor_tbl
 ```

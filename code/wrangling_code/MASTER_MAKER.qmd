@@ -18,10 +18,11 @@ library(here)
 
 #### Load Clean Data
 
-```{r}
+```{r, include = FALSE}
 dust<- readRDS(here("data", "processed_data", "dust", "dust_final.rds")) #Clean dust data
 copies<- read_csv(here("data", "processed_data", "qpcr", "total_clean_copies.csv")) #Clean Copies Data
 env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Environmental Data
+dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust permutations
 ```
 
 # Further Cleaning
@@ -74,9 +75,66 @@ master<- master %>%
                             "RD" = "Gulf"))
 ```
 
-#### Save as CSV
+####  
+
+## Site-specific data frames for daily
+
+#### Trim Dates
 
 ```{r}
+master2<-
+  master %>%
+  filter(date %in% as.Date('2022-07-05') : as.Date('2022-07-19'))
+```
+
+#### Add Dust permutations DF
+
+```{r}
+master2<-
+  master2 %>% full_join(dust_perm) %>%
+  filter(hr_cst %in% "01") %>% #Gets rid of duplicates
+  select(!c(Dust, SUM, Type, t1, t7, t13, t19, tsum, tavg, t7avg, hr_cst)) %>% #Get rid of var
+  rename("dust" = "t7sum")
+```
+
+#### Site-specific Dataframes + Lag
+
+This cleans out non-numeric values, creates site lag from CCA, and produces a final daily plot
+
+```{r}
+bo<- 
+  master2 %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust_lag =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
+c2<- 
+  master2 %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust_lag =Lag(dust, shift  = 2)) %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
+rd<- 
+  master2 %>%
+  filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
+  select(!site) %>% 
+  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
+```
+
+# Save CSV
+
+```{r}
+#MASTER
 write.csv(master,file= here("data","processed_data","tx_master.csv")) 
+
+#BLIND OSO
+write.csv(bo,file= here("data","processed_data","bo_master.csv"))
+
+#CANALS
+write.csv(c2,file= here("data","processed_data","c2_master.csv"))
+
+#GULF
+write.csv(rd,file= here("data","processed_data","rd_master.csv"))
 
 ```
