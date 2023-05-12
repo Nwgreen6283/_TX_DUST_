@@ -14,13 +14,15 @@ format:
 ```{r, include=FALSE}
 library(here)
 library(tidyverse)
+library(ggpubr)
 ```
 
 #### Data
 
 ```{r}
 r<- read.csv(here("data", "raw_data", "qpcr", "vai", "rd_vai_daily.csv")) #Gulf
-c<- read.csv(here("data", "raw_data", "qpcr", "vai", "c2_vai_daily.csv"))
+c<- read.csv(here("data", "raw_data", "qpcr", "vai", "c2_vai_daily.csv")) #Canals
+b<- read.csv(here("data", "raw_data", "qpcr", "vai", "bo_vai_daily.csv")) #Blind Oso
 ```
 
 # Cleaning
@@ -36,11 +38,33 @@ r<-
 c<- 
   c %>%
   select(Cq, Sample)
+
+b<- 
+  b %>%
+  select(Cq, Sample)
 ```
 
 #### Make Day Column and Date Column
 
 ```{r}
+#BLINS OSO
+b<-
+  b %>%
+  mutate(day = substr(c$Sample, 2,3),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19",
+                         Sample == "Pos" ~ "Pos",
+                         day == "TC" ~ "Neg"))
 #CANALS
 c<-
   c %>%
@@ -83,16 +107,35 @@ r<-
 
 # Plot
 
+#### Blind Oso
+
+```{r}
+fig_b<-
+  b %>%
+  ggplot() + geom_boxplot(
+  aes(x = date,
+      y = Cq)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Blind Oso  VAI",
+       caption = "BO was 1:10")
+
+fig_b
+```
+
 #### Canals
 
 ```{r}
-c %>%
+fig_c<-
+  c %>%
   ggplot() + geom_boxplot(
   aes(x = date,
       y = Cq)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Canals Site VAI")
+
+fig_c
 ```
 
 **Negatives Amplified**
@@ -100,13 +143,25 @@ c %>%
 #### Gulf
 
 ```{r}
-r %>%
+fig_r<- 
+  r %>%
   ggplot() + geom_boxplot(
   aes(x = date,
       y = Cq)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Gulf Site VAI")
+
+fig_r
 ```
 
 **Negatives amplified, and 18th may be inhibited?? Positive control was EKL-50 (Vc)**
+
+```{r}
+fig_all<-
+  ggarrange(fig_b, fig_c, fig_r,
+            nrow = 1,
+            ncol = 3)
+
+fig_all
+```
