@@ -17,10 +17,10 @@ library(ggpubr)
 
 #### Data
 
-```{r}
+```{r, include = FALSE}
 d<- read_csv(here("data", "processed_data","tx_master.csv"))
 dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv"))
-sp<- read_rds(here("data", "processed_data", "species_copies.rds")) #species specific copies
+sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #species specific copies
 
 ```
 
@@ -150,7 +150,7 @@ apply(log_daily,2,shapiro.test)
 
 ## Species-specific Distributions
 
-#### Make site and sp df 
+#### Make site and sp df
 
 ```{r}
 #BLIND OSO

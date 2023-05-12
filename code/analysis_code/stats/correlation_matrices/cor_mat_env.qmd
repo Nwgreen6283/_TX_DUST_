@@ -1,7 +1,7 @@
 ---
 title: "cor"
 format:
-  html:
+  pdf:
     theme: default
 ---
 
@@ -22,6 +22,7 @@ library(lubridate) #For dates
 library(ggpubr) #Plot stacking
 library(kableExtra)
 library(naniar)
+library(corrtable)
 ```
 
 #### Data
@@ -30,6 +31,7 @@ library(naniar)
 bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
 c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
 rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
+sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #species specific copiesv
 ```
 
 # Cleaning
@@ -144,7 +146,7 @@ round(r,2)
 b2<- cor(bo, method = "spearman") 
 round(b,2) #Round correlation coeff to "x" digits 
 
-c2<- cor(c2, method = "spearman")
+c22<- cor(c2, method = "spearman")
 round(c,2)
 
 r2<- cor(rd, method = "spearman")
@@ -192,8 +194,44 @@ b_p_values<-
 
 The function **corrplot()** takes the **correlation matrix** as the first argument. The second argument (type="upper") is used to display only the upper triangular of the **correlation matrix**.
 
+#### Just Normal Data
+
+```{r}
+#Normal Data 
+ corrplot(b, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Pearson",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+ corrplot(c, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Pearson", mar=c(0,0,1,0))
+
+ corrplot(r, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Pearson")
+```
+
+#### All Spearman 
+
+```{r}
+#Non-Parametric Data
+ corrplot(b2, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman_all",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c22, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman_all", mar=c(0,0,1,0))
+
+corrplot(r2, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman_all" )
+```
+
+#### Everything
+
 ```{r, fig.width=6}
-#par(mfrow=c(3,3))
+par(mfrow=c(3,3))
 #Normal Data 
  corrplot(b, type = "upper", 
          tl.col = "black", tl.srt = 45,
@@ -225,7 +263,7 @@ corrplot(r1, type = "upper",
          tl.col = "black", tl.srt = 45,
          title = "Blind Oso_Spearman_all",  mar=c(0,0,1,0)) #Adds and lowers title 
 
-corrplot(c2, type = "upper", 
+corrplot(c22, type = "upper", 
          tl.col = "black", tl.srt = 45,
          title = "Canals_Spearman_all", mar=c(0,0,1,0))
 
@@ -253,38 +291,141 @@ It's also possible to **combine correlogram with the significance test**. We'll 
 
 ```
 
-# Correlation Table
+# Correlation Tables
 
-#### Corrleation Matrices --> DF
+#### Load in data again to bypass earlier code
+
+```{r, include = FALSE}
+bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
+```
+
+#### Rename COpies --> TOtal Vib
+
+```{r}
+bo<- 
+  bo %>%
+  rename("Vibrio" = "copies_mL")
+
+c2<- 
+  c2 %>%
+  rename("Vibrio" = "copies_mL")
+
+rd<- 
+  rd %>%
+  rename("Vibrio" = "copies_mL")
+```
+
+#### Create Species Dataframes and Site-Species Dataframes
+
+```{r}
+#SPECIES DF
+vc<-
+  sp %>%
+  filter(type %in% "V. cholerae") %>%
+  rename("Vc" = "copies_mL")
+vp<-
+  sp %>%
+  filter(type %in% "V. parahaemolyticus") %>%
+  rename("Vp" = "copies_mL")
+vv<-
+  sp %>%
+  filter(type %in% "V. vulnificus") %>%
+  rename("Vv" = "copies_mL")
+
+#SITE_SPECIES DF
+b_vc <- 
+  vc %>%
+  filter(site %in% "Blind Oso") %>% 
+  select(Vc, date)
+b_vv <- 
+  vv %>%
+  filter(site %in% "Blind Oso") %>%
+  select(Vv, date)
+b_vp <- 
+  vp %>%
+  filter(site %in% "Blind Oso") %>%
+  select(Vp, date)
+
+c_vc <- 
+  vc %>%
+  filter(site %in% "Canals") %>% 
+  select(Vc, date)
+c_vv <- 
+  vv %>%
+  filter(site %in% "Canals") %>%
+  select(Vv, date)
+c_vp <- 
+  vp %>%
+  filter(site %in% "Canals") %>%
+  select(Vp, date)
+
+r_vc <- 
+  vc %>%
+  filter(site %in% "Gulf") %>% 
+  select(Vc, date)
+r_vv <- 
+  vv %>%
+  filter(site %in% "Gulf") %>%
+  select(Vv, date)
+r_vp <- 
+  vp %>%
+  filter(site %in% "Gulf") %>%
+  select(Vp, date)
+
+```
+
+#### Combine Species with Site Masters
+
+```{r}
+b_list<- list(b_vc, b_vv, b_vp, bo)
+c_list<- list(c_vc, c_vv, c_vp, c2)
+r_list<- list(r_vc, r_vv, r_vp, rd)
+
+bo<- 
+  b_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1, Vp))
+
+c2<- 
+  c_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1))
+
+rd<- 
+  r_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1))
+```
 
 This is using Spearman's for all
 
-```{r}
-b_df<-
-  as.data.frame(b2) %>%
-  round(2) 
+#### Make [Correlation Function](https://paulvanderlaken.com/2020/07/28/publication-ready-correlation-matrix-significance-r/)
 
-c_df<-
-  as.data.frame(c2) %>%
-  round(2)
+p\* = \< 0.05
 
-r_df<-
-  as.data.frame(r2) %>%
-  round(2)
-  
-```
+\*\* = \< 0.01
+
+\*\*\* = \<0.001
 
 ```{r}
-cor_tbl<-
-kable(data.frame(
-Environment = c("Chl", "Salinity", "Temperature", "DO (mg/L)", "DO (%)", "pH", "Secchi", "Ammonium", "Nitrate+Nitrite", "Orthophosphate", "Silicate", "DIN", "DIN:DIP", "TDN", "DON", "DOC", "TOC", "TN", "Dust Lag"),
+bo_table<-
+  kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
+  select(1:4) %>%
+    filter(!row_number() %in% c(1:4)),
+  caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
-`Blind Oso Vibrio` = c(b_df["copies_mL", "chl"], b_df["copies_mL", "sal"], b_df["copies_mL", "temp"], b_df["copies_mL", "do_mgl"], b_df["copies_mL", "do_per"], b_df["copies_mL", "pH"], b_df["copies_mL", "secchi"], b_df["copies_mL", "amm"], b_df["copies_mL", "nn"], b_df["copies_mL", "orthop"], b_df["copies_mL", "sil"], b_df["copies_mL", "din"], b_df["copies_mL", "din_dip"], b_df["copies_mL", "tdn"], b_df["copies_mL", "don"], b_df["copies_mL", "doc"], b_df["copies_mL", "toc"], b_df["copies_mL", "tn"], b_df["copies_mL", "dust_lag"]),
+c2_table<-
+  kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
+  select(1:5) %>%
+    filter(!row_number() %in% c(1:5)),
+  caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
-`Canals Vibrio` = c(c_df["copies_mL", "chl"], c_df["copies_mL", "sal"], c_df["copies_mL", "temp"], c_df["copies_mL", "do_mgl"], c_df["copies_mL", "do_per"], c_df["copies_mL", "pH"], c_df["copies_mL", "secchi"], c_df["copies_mL", "amm"], c_df["copies_mL", "nn"], c_df["copies_mL", "orthop"], c_df["copies_mL", "sil"], c_df["copies_mL", "din"], c_df["copies_mL", "din_dip"], c_df["copies_mL", "tdn"], c_df["copies_mL", "don"], c_df["copies_mL", "doc"], c_df["copies_mL", "toc"], c_df["copies_mL", "tn"], c_df["copies_mL", "dust_lag"]),
+rd_table<-
+  kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
+  select(1:5) %>%
+    filter(!row_number() %in% c(1:5)),
+  caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
-`Gulf Vibrio` = c(r_df["copies_mL", "chl"], r_df["copies_mL", "sal"], r_df["copies_mL", "temp"], r_df["copies_mL", "do_mgl"], r_df["copies_mL", "do_per"], r_df["copies_mL", "pH"], r_df["copies_mL", "secchi"], r_df["copies_mL", "amm"], r_df["copies_mL", "nn"], r_df["copies_mL", "orthop"], r_df["copies_mL", "sil"], r_df["copies_mL", "din"], r_df["copies_mL", "din_dip"], r_df["copies_mL", "tdn"], r_df["copies_mL", "don"], r_df["copies_mL", "doc"], r_df["copies_mL", "toc"], r_df["copies_mL", "tn"], r_df["copies_mL", "dust_lag"])))
-
-
-cor_tbl
+bo_table
+c2_table
+rd_table
 ```
