@@ -22,7 +22,7 @@ library(lubridate) #For dates
 library(ggpubr) #Plot stacking
 library(kableExtra)
 library(naniar)
-library(corrtable)
+library(corrtable) #This is a good package for making corrleation tables as opposed to matrices
 ```
 
 #### Data
@@ -276,27 +276,6 @@ corrplot(r2, type = "upper",
          title(main = "Gulf_Spearman_all" )
 ```
 
-##### 
-
-It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
-
-We get errors but still get the corrplot
-
-Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
-
-```{r}
-# Insignificant correlation are crossed
-corrplot(bclean$r, type="upper", 
-         p.mat = bclean$P, sig.level = 0.05, insig = "blank")
-
-corrplot(cclean$r, type="upper", 
-         p.mat = cclean$P, sig.level = 0.05, insig = "blank")
-
-corrplot(rclean$r, type="upper", 
-         p.mat = rclean$P, sig.level = 0.05, insig = "blank")
-
-```
-
 # Correlation Tables
 
 #### Load in data again to bypass earlier code
@@ -307,7 +286,7 @@ c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
 rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
 ```
 
-#### Rename COpies --> TOtal Vib
+#### Rename Copies -->  Vibrio
 
 ```{r}
 bo<- 
@@ -402,15 +381,11 @@ rd<-
   select(!c(date, ...1))
 ```
 
-This is using Spearman's for all
+#### Table: Env, Spp, Total
 
-#### Make [Correlation Function](https://paulvanderlaken.com/2020/07/28/publication-ready-correlation-matrix-significance-r/)
+This is using Spearman's for all. This [Correlation Function](https://paulvanderlaken.com/2020/07/28/publication-ready-correlation-matrix-significance-r/) uses a df as opposed to a matrix, so it is more user friendly for making tables.
 
-p\* = \< 0.05
-
-\*\* = \< 0.01
-
-\*\*\* = \<0.001
+p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 
 ```{r}
 bo_table<-
@@ -436,7 +411,47 @@ c2_table
 rd_table
 ```
 
-#### Table with Just Dust and Vibrio/Chl
+#### Matrix: Env, Sp, Total 
+
+##### Create Matrix for all environmental parameters, species, and total vibrio
+
+```{r}
+bo_2<- rcorr(as.matrix(bo))
+flattenCorrMatrix(bo_2$r, bo_2$P)
+
+c2_2<- rcorr(as.matrix(c2))
+flattenCorrMatrix(c2_2$r, c2_2$P)
+
+rd_2<- rcorr(as.matrix(rd))
+flattenCorrMatrix(rd_2$r, rd_2$P)
+```
+
+It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
+
+We get errors but still get the corrplot
+
+Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
+
+```{r}
+#BLIND OSO
+corrplot(bo_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = bo_2$P, sig.level = 0.05, insig = "blank")
+
+#CANALS
+
+corrplot(c2_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
+
+#GULF
+
+corrplot(rd_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
+```
+
+#### Table: Species, Total, Chl
 
 ```{r}
 bo_table2<-
