@@ -196,7 +196,7 @@ vc_d %>%
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Vc at Blind Oso ",
+       title = "Daily Vibrio cholerae ",
        caption = "Blind Oso was 1:50")+
   theme_bw()+
   theme(
@@ -276,7 +276,7 @@ saveRDS(master, file = here("data", "processed_data", "qpcr","species_copies.rds
 ```{r}
 bo_spp<- master %>%
   filter(site %in% "Blind Oso") %>%
-  filter(!type %in% "V. cholerae") %>%
+  #filter(!type %in% "V. cholerae") %>%
   ggplot() + geom_line(
     aes(
       x = date,

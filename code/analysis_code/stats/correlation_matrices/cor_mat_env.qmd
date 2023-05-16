@@ -27,6 +27,8 @@ library(corrtable)
 
 #### Data
 
+Site data sets have lags incorporated (made in `MASTER_MAKER.qmd`)
+
 ```{r, include = FALSE}
 bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
 c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
@@ -171,14 +173,16 @@ flattenCorrMatrix <- function(cormat, pmat) {
 
 The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **significance levels** for **pearson** and **spearman correlations**. It returns both the correlation coefficients and the p-value of the correlation for all possible pairs of columns in the data table.
 
+**NOTE THIS IS WITH DATA SETS PRIOR TO LOG TRANSFORMATION. SO EVERYTHING SPEARMANS.**
+
 ```{r}
-bclean<- rcorr(as.matrix(b_norm))
+bclean<- rcorr(as.matrix(bo))
 flattenCorrMatrix(bclean$r, bclean$P)
 
-cclean<- rcorr(as.matrix(c_norm))
+cclean<- rcorr(as.matrix(c2))
 flattenCorrMatrix(cclean$r, cclean$P)
 
-rclean<- rcorr(as.matrix(r_norm))
+rclean<- rcorr(as.matrix(rd))
 flattenCorrMatrix(rclean$r, rclean$P)
 ```
 
@@ -211,7 +215,7 @@ The function **corrplot()** takes the **correlation matrix** as the first argume
          title(main = "Gulf_Pearson")
 ```
 
-#### All Spearman 
+#### All Spearman
 
 ```{r}
 #Non-Parametric Data
@@ -276,18 +280,20 @@ corrplot(r2, type = "upper",
 
 It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
 
-<!--# Get this to work -->
+We get errors but still get the corrplot
+
+Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
 
 ```{r}
 # Insignificant correlation are crossed
-#corrplot(bclean$r, type="upper", order="hclust", 
-        # p.mat = bclean$P, sig.level = 0.05, insig = "blank")
+corrplot(bclean$r, type="upper", 
+         p.mat = bclean$P, sig.level = 0.05, insig = "blank")
 
-#corrplot(cclean$r, type="upper", order="hclust", 
-        # p.mat = cclean$P, sig.level = 0.05, insig = "blank")
+corrplot(cclean$r, type="upper", 
+         p.mat = cclean$P, sig.level = 0.05, insig = "blank")
 
-#corrplot(rclean$r, type="upper", order="hclust", 
-         #p.mat = rclean$P, sig.level = 0.05, insig = "blank")
+corrplot(rclean$r, type="upper", 
+         p.mat = rclean$P, sig.level = 0.05, insig = "blank")
 
 ```
 
@@ -428,4 +434,31 @@ rd_table<-
 bo_table
 c2_table
 rd_table
+```
+
+#### Table with Just Dust and Vibrio/Chl
+
+```{r}
+bo_table2<-
+  kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
+  select(1:4) %>%
+    filter(row_number() %in% c(22,23)),
+  caption = "Blind Oso: Correlations between Dust Depsoition and Biological Variables using Spearman's Rank correlations")
+
+c2_table2<-
+  kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
+  select(1:5) %>%
+    filter(row_number() %in% c(23,24)),
+  caption = "Canals: Correlations between Dust Depsoition and Biological Variables using Spearman's Rank correlations")
+
+rd_table2<-
+  kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
+  select(1:5) %>%
+    filter(row_number() %in% c(23,24)),
+  caption = "Gulf: Correlations between Dust Depsoition and Biological Variables using Spearman's Rank correlations")
+
+bo_table2
+c2_table2
+rd_table2
+
 ```

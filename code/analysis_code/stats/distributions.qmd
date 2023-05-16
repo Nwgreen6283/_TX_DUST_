@@ -1,0 +1,465 @@
+---
+title: "Distriburion"
+format:
+  html:
+    theme: default
+---
+
+**This code is for checking the distribution of our variables of interest.**
+
+# Libraries/Data
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+```
+
+#### Data
+
+```{r}
+d<- read_csv(here("data", "processed_data","tx_master.csv")) #Data containing copies_mL
+dust<- read_csv(here("data", "processed_data","dust", "dust_master.csv"))#Dust data
+sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #species specific copies
+```
+
+# Cleaning
+
+#### Meta Data
+
+```{r}
+d_clean<- d %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"),
+         hr_cst %in% "01") #Just to get rid of duplicates
+
+
+master<- d_clean %>%
+  filter(!is.na(site)) #Drop NAs
+
+#Site Specific datasets
+bo<- 
+  master %>%
+  filter(site %in% "Blind Oso")
+c2<- 
+  master %>%
+  filter(site %in% "Canals")
+rd<- 
+  master %>%
+  filter(site %in% "Gulf")
+```
+
+#### Dust Data
+
+```{r}
+#Daily df
+daily<- 
+  dust %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) %>%
+  mutate(t7sumlog = log10(t7sum)) #Creates column that is log transformed 
+```
+
+# Check Distributions of Data
+
+<!--# Need to do this with all data -->
+
+## \[Copies/mL\]
+
+#### Visualization
+
+**Density plot**: the **density** plot provides a visual judgment about whether the distribution is bell shaped.
+
+```{r}
+ggdensity(
+  bo$copies_mL,
+  main = "Blind Oso",
+  xlab = "Copies per mL")
+
+ggdensity(
+  c2$copies_mL,
+  main = "Canals",
+  xlab = "Copies per mL")
+
+ggdensity(
+  rd$copies_mL,
+  main = "Gulf",
+  xlab = "Copies per mL")
+```
+
+**Q-Q plot**: **Q-Q plot** (or quantile-quantile plot) draws the correlation between a given sample and the normal distribution. A 45-degree reference line is also plotted.
+
+```{r}
+ggqqplot(bo$copies_mL) + 
+labs(title = "BO")
+
+ggqqplot(c2$copies_mL)+
+  labs(title = "C2")
+
+ggqqplot(rd$copies_mL) +
+  labs(title= "RD")
+```
+
+### Normality Test
+
+**Shapiro-Wilk's method** is widely recommended for normality test and it provides better power than K-S. It is based on the correlation between the data and the corresponding normal scores.
+
+-   Note that, normality test is sensitive to sample size. Small samples most often pass normality tests. Therefore, it's important to combine visual inspection and significance test in order to take the right decision.
+
+    ```{r}
+    shapiro.test(bo$copies_mL)
+    shapiro.test(c2$copies_mL)
+    shapiro.test(rd$copies_mL)
+    ```
+
+    A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality for the copies_mL data.**
+
+## \[Dust\]
+
+**Q-Q plot**
+
+```{r}
+ggqqplot(daily$t7sum)
+ggqqplot(daily$t7sumlog) + 
+  labs(title = "log10(Dust)")
+```
+
+### 
+
+### Normality Test Dust
+
+```{r}
+shapiro.test(daily$t7sum) #Normal data
+shapiro.test(daily$t7sumlog) #Log trans data
+```
+
+**Based on the Shapiro test, the dust permutation that we are using (t7sum) is not normally distributed. After log transforming, we see that this is now normally distributed. For downstream analysis, we will need to use the log10(dust).**
+
+## Environmental
+
+#### Blind Oso
+
+```{r}
+shapiro.test(bo$temp)
+shapiro.test(bo$sal)
+shapiro.test((bo$chl))
+shapiro.test(bo$do_mgl)
+shapiro.test(bo$do_per)
+shapiro.test(bo$pH)
+shapiro.test(bo$secchi)
+shapiro.test(bo$amm)
+shapiro.test(bo$nn)
+shapiro.test(bo$orthop)
+shapiro.test(bo$sil)
+shapiro.test(bo$din_dip)
+shapiro.test(bo$tdn)
+shapiro.test(bo$don)
+shapiro.test(bo$doc)
+shapiro.test(bo$toc)
+shapiro.test(bo$tn)
+```
+
+#### Canals
+
+```{r}
+shapiro.test(c2$temp)
+shapiro.test(c2$sal)
+shapiro.test(c2$chl)
+shapiro.test(c2$do_mgl)
+shapiro.test(c2$do_per)
+shapiro.test(c2$pH)
+shapiro.test(c2$secchi)
+shapiro.test(c2$amm)
+shapiro.test(c2$nn)
+shapiro.test(c2$orthop)
+shapiro.test(c2$sil)
+shapiro.test(c2$din_dip)
+shapiro.test(c2$tdn)
+shapiro.test(c2$don)
+shapiro.test(c2$doc)
+shapiro.test(c2$toc)
+shapiro.test(c2$tn)
+```
+
+#### Gulf
+
+```{r}
+shapiro.test(rd$temp)
+shapiro.test(rd$sal)
+shapiro.test(rd$chl)
+shapiro.test(rd$do_mgl)
+shapiro.test(rd$do_per)
+shapiro.test(rd$pH)
+shapiro.test(rd$secchi)
+shapiro.test(rd$amm)
+shapiro.test(rd$nn)
+shapiro.test(rd$orthop)
+shapiro.test(rd$sil)
+shapiro.test(rd$din_dip)
+shapiro.test(rd$tdn)
+shapiro.test(rd$don)
+shapiro.test(rd$doc)
+shapiro.test(rd$toc)
+shapiro.test(rd$tn)
+```
+
+### Log Transform necessary data
+
+```{r}
+bo_log<- 
+  bo %>%
+  mutate(secchi = log10(secchi),
+         amm = log10(amm),
+         nn = log10(nn),
+         din_dip = log10(din_dip),
+         tdn = log10(tdn),
+         don = log10(don),
+         doc = log10(doc),
+         chl = log10(chl))
+
+c2_log<- 
+   c2 %>%
+   mutate(secchi = log10(secchi),
+         nn = log10(nn),
+         orthop = log10(orthop),
+         sil = log10(sil),
+         doc = log10(doc),
+         toc = log10(toc),
+         tn = log10(tn))
+
+rd_log<- 
+  rd %>%
+  mutate(sal = log10(sal),
+         do_mgl = log10(do_mgl),
+         secchi = log10(secchi),
+         nn = log10(nn),
+         doc = log10(doc),
+         toc = log10(toc),
+         tn = log10(tn))
+```
+
+Now re-run with log transformed data
+
+#### Blind Oso
+
+```{r}
+shapiro.test(bo_log$temp)
+shapiro.test(bo_log$sal)
+shapiro.test(bo_log$chl)
+shapiro.test(bo_log$do_mgl)
+shapiro.test(bo_log$do_per)
+shapiro.test(bo_log$pH)
+shapiro.test(bo_log$secchi)
+shapiro.test(bo_log$amm)
+shapiro.test(bo_log$nn)
+shapiro.test(bo_log$orthop)
+shapiro.test(bo_log$sil)
+shapiro.test(bo_log$din_dip)
+shapiro.test(bo_log$tdn)
+shapiro.test(bo_log$don)
+shapiro.test(bo_log$doc)
+shapiro.test(bo_log$toc)
+shapiro.test(bo_log$tn)
+```
+
+#### Canals
+
+```{r}
+shapiro.test(c2_log$temp)
+shapiro.test(c2_log$sal)
+shapiro.test(c2_log$do_mgl)
+shapiro.test(c2_log$do_per)
+shapiro.test(c2_log$pH)
+shapiro.test(c2_log$secchi)
+shapiro.test(c2_log$amm)
+shapiro.test(c2_log$nn)
+shapiro.test(c2_log$orthop)
+shapiro.test(c2_log$sil)
+shapiro.test(c2_log$din_dip)
+shapiro.test(c2_log$tdn)
+shapiro.test(c2_log$don)
+shapiro.test(c2_log$doc)
+shapiro.test(c2_log$toc)
+shapiro.test(c2_log$tn)
+```
+
+#### Gulf
+
+```{r}
+shapiro.test(rd_log$temp)
+shapiro.test(rd_log$sal)
+shapiro.test(rd_log$do_mgl)
+shapiro.test(rd_log$do_per)
+shapiro.test(rd_log$pH)
+shapiro.test(rd_log$secchi)
+shapiro.test(rd_log$amm)
+shapiro.test(rd_log$nn)
+shapiro.test(rd_log$orthop)
+shapiro.test(rd_log$sil)
+shapiro.test(rd_log$din_dip)
+shapiro.test(rd_log$tdn)
+shapiro.test(rd_log$don)
+shapiro.test(rd_log$doc)
+shapiro.test(rd_log$toc)
+shapiro.test(rd_log$tn)
+```
+
+# Conclusion
+
+Variables under **Normal Dist.** are those that initially passed the Shapiro-Wilk's test.
+
+Variables under **Log-Normal Dist.** are those that passed after log-transformation.
+
+Variables under **Non-parametric** are those that need another test.
+
+### Blind Oso
+
+| Normal Dist. | Log-Normal Dist. | Non-parametric |
+|--------------|------------------|----------------|
+| temp         | amm              | secchi         |
+| sal          | din_dip          | nn             |
+| don_mgl      | doc              | tdn            |
+| don_per      | chl              | don            |
+| pH           |                  |                |
+| orthop       |                  |                |
+| sil          |                  |                |
+| toc          |                  |                |
+| tn           |                  |                |
+
+### Canals
+
+| Normal Dist. | Log-Normal Dist. | Non-parametric |
+|--------------|------------------|----------------|
+| temp         | orthop           | secchi         |
+| sal          |                  | nn             |
+| do_mgl       |                  | sil            |
+| do_per       |                  | doc            |
+| pH           |                  | toc            |
+| amm          |                  | tn             |
+| din_dip      |                  |                |
+| tdn          |                  |                |
+| don          |                  |                |
+| chl          |                  |                |
+
+### Gulf
+
+| Normal Dist. | Log-Normal Dist. | Non-parametric |
+|--------------|------------------|----------------|
+| temp         | doc              | sal            |
+| do_per       | toc              | do_mgl         |
+| pH           |                  | secchi         |
+| amm          |                  | nn             |
+| orthop       |                  | tn             |
+| sil          |                  |                |
+| din_dip      |                  |                |
+| tdn          |                  |                |
+| don          |                  |                |
+| chl          |                  |                |
+
+## Species-specific Distributions
+
+#### Make site and sp df
+
+```{r}
+#BLIND OSO
+b_vc<- 
+  sp %>%
+  filter(site %in% "Blind Oso" & type %in% "V. cholerae")
+
+b_vv<- 
+  sp %>%
+  filter(site %in% "Blind Oso" & type %in% "V. vulnificus")
+
+#b_vp = 0 
+
+#CANALS
+c_vc<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. cholerae")
+
+c_vv<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. vulnificus")
+
+c_vp<- 
+  sp %>%
+  filter(site %in% "Canals" & type %in% "V. parahaemolyticus")
+
+#GULF
+r_vc<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. cholerae")
+
+r_vv<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. vulnificus")
+
+r_vp<- 
+  sp %>%
+  filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
+```
+
+#### Shapiro Test
+
+```{r}
+#BLIND OSO
+shapiro.test(b_vc$copies_mL)
+shapiro.test(b_vv$copies_mL)
+
+#CANALS
+shapiro.test(c_vc$copies_mL)
+shapiro.test(c_vv$copies_mL)
+shapiro.test(c_vp$copies_mL)
+
+#GULF
+shapiro.test(r_vc$copies_mL)
+shapiro.test(r_vv$copies_mL)
+shapiro.test(r_vp$copies_mL)
+```
+
+#### Log-transform and Re-run Shapiro Test
+
+```{r}
+b_vc_log<-
+  b_vc %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+b_vv_log<-
+  b_vv %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+c_vc_log<-
+  c_vc %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+c_vp_log<-
+  c_vp %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+r_vc_log<-
+  r_vc %>%
+  mutate(copies_mL = log10(copies_mL +1))
+    
+```
+
+```{r}
+shapiro.test(b_vc_log$copies_mL)
+shapiro.test(b_vv_log$copies_mL)
+shapiro.test(c_vc_log$copies_mL)
+shapiro.test(c_vp_log$copies_mL)
+shapiro.test(r_vc_log$copies_mL)
+```
+
+#### Table
+
+| Normal | Log-Normal | Non-Parametric |
+|--------|------------|----------------|
+| c_vv   |            | b_vc           |
+| r_vv   |            | b_vv           |
+| r_vp   |            | c_vc           |
+|        |            | c_vp           |
+|        |            | r_vc           |
+
+#### Species Conclusion
+
+Most species data has a non normal distribution, so **Shapiro-Wilk's test** will be used uniformally

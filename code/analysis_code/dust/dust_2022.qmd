@@ -50,7 +50,7 @@ dust %>%
         y = SUM)) +
   theme_bw()+
   labs(
-    title = "Dust Aersol Optical Density in 2022",
+    title = "Dust Aerosol Optical Density in 2022",
     x = "Month",
     y = "Dust AOD")+
   theme(plot.title = element_text(hjust = 0.5)) +

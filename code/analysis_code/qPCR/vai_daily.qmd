@@ -117,7 +117,7 @@ fig_b<-
       y = Cq)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Blind Oso  VAI",
+  labs(title = "Blind Oso Total 16S",
        caption = "BO was 1:10")
 
 fig_b
@@ -133,7 +133,8 @@ fig_c<-
       y = Cq)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Canals Site VAI")
+  labs(title = "Canals Site Total 16S",
+       caption = " ")
 
 fig_c
 ```
@@ -150,14 +151,15 @@ fig_r<-
       y = Cq)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Gulf Site VAI")
+  labs(title = "Gulf Site Total 16S",
+       caption = "Positive Control = EKL50 (ATCC 39315)")
 
 fig_r
 ```
 
 **Negatives amplified, and 18th may be inhibited?? Positive control was EKL-50 (Vc)**
 
-```{r}
+```{r, fig.width=4}
 fig_all<-
   ggarrange(fig_b, fig_c, fig_r,
             nrow = 1,
