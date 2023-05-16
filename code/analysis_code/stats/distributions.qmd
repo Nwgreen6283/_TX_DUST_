@@ -23,6 +23,7 @@ library(ggpubr)
 d<- read_csv(here("data", "processed_data","tx_master.csv")) #Data containing copies_mL
 dust<- read_csv(here("data", "processed_data","dust", "dust_master.csv"))#Dust data
 sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #species specific copies
+sp_m<- read_rds(here("data", "processed_data", "qpcr", "species_copies_monthly.rds"))
 ```
 
 # Cleaning
@@ -358,6 +359,8 @@ Variables under **Non-parametric** are those that need another test.
 
 ## Species-specific Distributions
 
+### DAILY
+
 #### Make site and sp df
 
 ```{r}
@@ -450,8 +453,6 @@ shapiro.test(c_vp_log$copies_mL)
 shapiro.test(r_vc_log$copies_mL)
 ```
 
-#### Table
-
 | Normal | Log-Normal | Non-Parametric |
 |--------|------------|----------------|
 | c_vv   |            | b_vc           |
@@ -460,6 +461,122 @@ shapiro.test(r_vc_log$copies_mL)
 |        |            | c_vp           |
 |        |            | r_vc           |
 
-#### Species Conclusion
+#### Daily Species Conclusion
 
 Most species data has a non normal distribution, so **Shapiro-Wilk's test** will be used uniformally
+
+### MONTHLY
+
+#### Make Site/Sp DF
+
+```{r}
+#BLIND OSO
+b_vc<- 
+  sp_m %>%
+  filter(site %in% "Blind Oso" & type %in% "V. cholerae")
+
+b_vv<- 
+  sp_m  %>%
+  filter(site %in% "Blind Oso" & type %in% "V. vulnificus")
+
+#b_vp = 0 
+
+#CANALS
+c_vc<- 
+  sp_m %>%
+  filter(site %in% "Canals" & type %in% "V. cholerae")
+
+c_vv<- 
+  sp_m %>%
+  filter(site %in% "Canals" & type %in% "V. vulnificus")
+
+c_vp<- 
+  sp_m %>%
+  filter(site %in% "Canals" & type %in% "V. parahaemolyticus")
+
+#GULF
+r_vc<- 
+  sp_m %>%
+  filter(site %in% "Gulf" & type %in% "V. cholerae")
+
+r_vv<- 
+  sp_m %>%
+  filter(site %in% "Gulf" & type %in% "V. vulnificus")
+
+r_vp<- 
+  sp_m %>%
+  filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
+```
+
+#### Shapiro Test
+
+```{r}
+#BLIND OSO
+shapiro.test(b_vc$copies_mL)
+shapiro.test(b_vv$copies_mL)
+
+#CANALS
+#shapiro.test(c_vc$copies_mL)
+#shapiro.test(c_vv$copies_mL)
+shapiro.test(c_vp$copies_mL)
+
+#GULF
+shapiro.test(r_vc$copies_mL)
+shapiro.test(r_vv$copies_mL)
+shapiro.test(r_vp$copies_mL)
+```
+
+#### Log-transform
+
+```{r}
+b_vc_log<-
+  b_vc %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+b_vv_log<-
+  b_vv %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+c_vp_log<-
+  c_vp %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+r_vc_log<-
+  r_vc %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+r_vv_log<-
+  r_vv %>%
+  mutate(copies_mL = log10(copies_mL +1))
+
+r_vp_log<-
+  r_vp %>%
+  mutate(copies_mL = log10(copies_mL +1))
+    
+```
+
+```{r}
+shapiro.test(b_vc_log$copies_mL)
+shapiro.test(b_vv_log$copies_mL)
+shapiro.test(c_vp_log$copies_mL)
+shapiro.test(r_vp_log$copies_mL)
+shapiro.test(r_vc_log$copies_mL)
+shapiro.test(r_vv_log$copies_mL)
+```
+
+#### Table
+
+#### Table
+
+| Normal | Log-Normal | Non-Parametric |
+|--------|------------|----------------|
+|        |            | b_vc           |
+|        |            | b_vv           |
+|        |            | c_vp           |
+|        |            | r_vc           |
+|        |            | r_vp           |
+|        |            | r_vv           |
+
+#### MONTHLY Species Conclusion
+
+All are non-normally distributed so Spearmans will be used.

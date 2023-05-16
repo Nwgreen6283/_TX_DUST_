@@ -77,7 +77,7 @@ master<- master %>%
 
 #### 
 
-## Site-specific data frames for daily
+## DAILY Site-specific data frames 
 
 #### Trim Dates
 
@@ -122,19 +122,64 @@ rd<-
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 ```
 
+## MONTHLY Site-specific data frames 
+
+#### Select Monthly Dates 
+
+Also including 7/7/23 to represent July
+
+```{r}
+monthly<-
+  master %>%
+  filter(Type %in% "Monthly" | date %in% as.Date('2022-07-07'),
+         hr_cst %in% c("00","01")) #Gets rid of duplicates
+```
+
+#### Site-specific DF
+
+```{r}
+bo_m<-
+  monthly %>%
+  filter(site %in% "Blind Oso") %>%
+  select(!c(site, hr_cst))
+
+c2_m<-
+  monthly %>%
+  filter(site %in% "Canals") %>%
+  select(!c(site, hr_cst))
+
+rd_m<-
+  monthly %>%
+  filter(site %in% "Gulf") %>%
+  select(!c(site, hr_cst))
+  
+```
+
 # Save CSV
 
 ```{r}
 #MASTER
 write.csv(master,file= here("data","processed_data","tx_master.csv")) 
 
+#[DAILY]
+
 #BLIND OSO
-write.csv(bo,file= here("data","processed_data","bo_master.csv"))
+write.csv(bo,file= here("data","processed_data","bo_master_daily.csv"))
 
 #CANALS
-write.csv(c2,file= here("data","processed_data","c2_master.csv"))
+write.csv(c2,file= here("data","processed_data","c2_master_daily.csv"))
 
 #GULF
-write.csv(rd,file= here("data","processed_data","rd_master.csv"))
+write.csv(rd,file= here("data","processed_data","rd_master_daily.csv"))
 
+#[MONTHLY]
+
+#BLIND OSO
+write.csv(bo_m,file= here("data","processed_data","bo_master_monthly.csv"))
+
+#CANALS
+write.csv(c2_m,file= here("data","processed_data","c2_master_monthly.csv"))
+
+#GULF
+write.csv(rd_m,file= here("data","processed_data","rd_master_monthly.csv"))
 ```

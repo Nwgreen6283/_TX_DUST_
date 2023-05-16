@@ -30,9 +30,9 @@ library(corrtable) #This is a good package for making corrleation tables as oppo
 Site data sets have lags incorporated (made in `MASTER_MAKER.qmd`)
 
 ```{r, include = FALSE}
-bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
-c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
-rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
+bo<- read_csv(here("data", "processed_data", "bo_master_daily.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master_daily.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
 sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #species specific copiesv
 ```
 
@@ -54,7 +54,7 @@ rd<-
   select(!c(date, ...1))
 ```
 
-### Make Datasets for normal and non-normal variables
+#### Make Datasets for normal and non-normal variables
 
 Variables that are normally distributed across all three sites will be in one df. All others will be in another.
 
@@ -84,7 +84,7 @@ r_para<-
   select(sal, secchi, nn, tdn, don, doc, toc, tn)
 ```
 
-### Log10 Transform non-normally distributed data for Norm df
+#### Log10 Transform non-normally distributed data for Norm df
 
 Distributions can be found in `1_distribution.qmd`
 
@@ -117,7 +117,7 @@ r_norm<-
 
 There are different methods for **correlation analysis** : **Pearson parametric correlation test**, **Spearman** and **Kendall** rank-based **correlation analysis**. The default is [pearson correlation coefficient](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) which measures the linear **dependence** between two variables. [kendall and spearman](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) correlation methods are non-parametric **rank-based correlation test**.
 
-#### Compute Correlation Matrix
+#### 1. Compute Correlations
 
 If your data contain missing values, use the following R code to handle missing values by case-wise deletion.
 
@@ -155,7 +155,7 @@ r2<- cor(rd, method = "spearman")
 round(r,2)
 ```
 
-#### Make Function to Format
+#### 2. Make Function to Format
 
 Simple function for formatting a **correlation matrix** into a table with 4 columns containing : Column 1 : row names (variable 1 for the correlation test), Column 2 : column names (variable 2 for the correlation test), Column 3 : the **correlation coefficients**, Column 4 : the **p-values** of the correlations
 
@@ -169,7 +169,7 @@ flattenCorrMatrix <- function(cormat, pmat) {
     p = pmat[ut])}
 ```
 
-#### Make Matrix
+#### 3. Make Matrix
 
 The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **significance levels** for **pearson** and **spearman correlations**. It returns both the correlation coefficients and the p-value of the correlation for all possible pairs of columns in the data table.
 
@@ -186,13 +186,7 @@ rclean<- rcorr(as.matrix(rd))
 flattenCorrMatrix(rclean$r, rclean$P)
 ```
 
-#### Extract cor and p values
-
-```{r}
-b_p_values<-
- as.data.frame(bclean$P)
-
-```
+#### Extract cor and p value
 
 #### Visualize with `corrplot()` function
 
@@ -281,12 +275,12 @@ corrplot(r2, type = "upper",
 #### Load in data again to bypass earlier code
 
 ```{r, include = FALSE}
-bo<- read_csv(here("data", "processed_data", "bo_master.csv"))
-c2<- read_csv(here("data", "processed_data", "c2_master.csv"))
-rd<- read_csv(here("data", "processed_data", "rd_master.csv"))
+bo<- read_csv(here("data", "processed_data", "bo_master_daily.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master_daily.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
 ```
 
-#### Rename Copies -->  Vibrio
+#### Rename Copies --> Vibrio
 
 ```{r}
 bo<- 
@@ -358,7 +352,6 @@ r_vp <-
   vp %>%
   filter(site %in% "Gulf") %>%
   select(Vp, date)
-
 ```
 
 #### Combine Species with Site Masters
@@ -411,7 +404,7 @@ c2_table
 rd_table
 ```
 
-#### Matrix: Env, Sp, Total 
+#### Matrix: Env, Sp, Total
 
 ##### Create Matrix for all environmental parameters, species, and total vibrio
 
@@ -424,31 +417,6 @@ flattenCorrMatrix(c2_2$r, c2_2$P)
 
 rd_2<- rcorr(as.matrix(rd))
 flattenCorrMatrix(rd_2$r, rd_2$P)
-```
-
-It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
-
-We get errors but still get the corrplot
-
-Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
-
-```{r}
-#BLIND OSO
-corrplot(bo_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
-         p.mat = bo_2$P, sig.level = 0.05, insig = "blank")
-
-#CANALS
-
-corrplot(c2_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
-         p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
-
-#GULF
-
-corrplot(rd_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
-         p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
 ```
 
 #### Table: Species, Total, Chl
@@ -477,3 +445,30 @@ c2_table2
 rd_table2
 
 ```
+
+It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
+
+We get errors but still get the corrplot
+
+Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
+
+```{r}
+#BLIND OSO
+corrplot(bo_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = bo_2$P, sig.level = 0.05, insig = "blank")
+
+#CANALS
+
+corrplot(c2_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
+
+#GULF
+
+corrplot(rd_2$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
+```
+
+#### 

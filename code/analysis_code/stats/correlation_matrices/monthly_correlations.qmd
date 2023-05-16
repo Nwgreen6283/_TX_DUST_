@@ -1,0 +1,220 @@
+---
+title: "monthly_correlations"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+#### Libraries
+
+```{r, include= FALSE}
+library(tidyverse)
+library(here)
+library(Hmisc)#Cor Tables and Lag
+library(corrplot) #Cor Plots
+library(lubridate) #For dates
+library(ggpubr) #Plot stacking
+library(kableExtra)
+library(naniar)
+library(corrtable) #This is a good package for making corrleation tables as opposed to matrices
+```
+
+#### Data
+
+Site data sets have lags incorporated (made in `MASTER_MAKER.qmd`)
+
+```{r, include = FALSE}
+bo<- read_csv(here("data", "processed_data", "bo_master_monthly.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master_monthly.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master_monthly.csv"))
+sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies_monthly.rds")) #species specific copiesv
+```
+
+# Cleaning
+
+#### Rename copies_mL to Vibrio
+
+```{r}
+bo<- 
+  bo %>%
+  rename("Vibrio" = "copies_mL")
+
+c2<- 
+  c2 %>%
+  rename("Vibrio" = "copies_mL")
+
+rd<- 
+  rd %>%
+  rename("Vibrio" = "copies_mL")
+```
+
+#### Site/Species Specific DF
+
+```{r}
+#SPECIES DF
+vc<-
+  sp %>%
+  filter(type %in% "V. cholerae") %>%
+  rename("Vc" = "copies_mL")
+vp<-
+  sp %>%
+  filter(type %in% "V. parahaemolyticus") %>%
+  rename("Vp" = "copies_mL")
+vv<-
+  sp %>%
+  filter(type %in% "V. vulnificus") %>%
+  rename("Vv" = "copies_mL")
+
+#SITE_SPECIES DF
+b_vc <- 
+  vc %>%
+  filter(site %in% "Blind Oso") %>% 
+  select(Vc, date)
+b_vv <- 
+  vv %>%
+  filter(site %in% "Blind Oso") %>%
+  select(Vv, date)
+b_vp <- 
+  vp %>%
+  filter(site %in% "Blind Oso") %>%
+  select(Vp, date)
+
+c_vc <- 
+  vc %>%
+  filter(site %in% "Canals") %>% 
+  select(Vc, date)
+c_vv <- 
+  vv %>%
+  filter(site %in% "Canals") %>%
+  select(Vv, date)
+c_vp <- 
+  vp %>%
+  filter(site %in% "Canals") %>%
+  select(Vp, date)
+
+r_vc <- 
+  vc %>%
+  filter(site %in% "Gulf") %>% 
+  select(Vc, date)
+r_vv <- 
+  vv %>%
+  filter(site %in% "Gulf") %>%
+  select(Vv, date)
+r_vp <- 
+  vp %>%
+  filter(site %in% "Gulf") %>%
+  select(Vp, date)
+```
+
+#### Combine Species with Site Masters
+
+```{r}
+b_list<- list(b_vc, b_vv, b_vp, bo)
+c_list<- list(c_vc, c_vv, c_vp, c2)
+r_list<- list(r_vc, r_vv, r_vp, rd)
+
+bo<- 
+  b_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1, Vp, Type))
+
+c2<- 
+  c_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1, Type, Vv, Vc))
+
+rd<- 
+  r_list %>% reduce(full_join, by = 'date') %>%
+  select(!c(date, ...1, Type))
+```
+
+# Correlation Matrix
+
+[Tutorial Link](http://www.sthda.com/english/wiki/correlation-matrix-a-quick-start-guide-to-analyze-format-and-visualize-a-correlation-matrix-using-r-software)
+
+#### 1. Create Correlation
+
+```{r, include = FALSE}
+b<- cor(bo, method = "spearman") #Default method = pearson
+round(b,2) #Round correlation coeff to "x" digits 
+
+c<- cor(c2, method = "spearman")
+round(c,2)
+
+r<- cor(rd, method = "spearman")
+round(r,2)
+```
+
+#### 2. Create Function for Formatting
+
+```{r}
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut])}
+```
+
+#### 3. Create Matrix
+
+```{r}
+b_mat<- rcorr(as.matrix(bo))
+flattenCorrMatrix(b_mat$r, b_mat$P)
+
+c_mat<- rcorr(as.matrix(c2))
+flattenCorrMatrix(c_mat$r, c_mat$P)
+
+r_mat<- rcorr(as.matrix(rd))
+flattenCorrMatrix(r_mat$r, r_mat$P)
+```
+
+#### 4. Table
+
+```{r}
+bo_table<-
+  kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,2,5,6)) %>%
+  select(1,2,5,6), 
+  caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+c2_table<-
+  kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,4,5)) %>%
+  select(1,4,5), 
+  caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+rd_table<-
+  kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,2,3,6,7)) %>%
+  select(1,2,3,6,7), 
+  caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+bo_table
+c2_table
+rd_table
+```
+
+#### 5. Plot
+
+```{r}
+#BLIND OSO
+corrplot(b_mat$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = b_mat$P, sig.level = 0.05, insig = "blank")
+
+#CANALS
+
+corrplot(c_mat$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = c_mat$P, sig.level = 0.05, insig = "blank")
+
+#GULF
+
+corrplot(r_mat$r, type="upper", 
+         tl.col = "black", tl.srt = 45,
+         p.mat = r_mat$P, sig.level = 0.05, insig = "blank")
+```
+
+#### 

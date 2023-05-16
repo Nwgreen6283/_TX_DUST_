@@ -245,6 +245,8 @@ va %>%
 
 #### Combine dataset
 
+DAILY
+
 ```{r}
 #Make new columns with species 
 type = "vc"
@@ -267,6 +269,42 @@ master<- rbind(vc1,vp1,vv1, va1) %>%
                        "vv" = "V. vulnificus"))
 # Save this
 saveRDS(master, file = here("data", "processed_data", "qpcr","species_copies.rds"))
+```
+
+MONTHLY
+
+I was dumb and have 6/13 for some DF and 6/14 for others. Below, I changed to be the correct 6/14.
+
+```{r}
+#Make new columns with species 
+type = "vc"
+vc2<- cbind(vc_m, type)
+
+type = "vv"
+vv2<- cbind(vv_m, type)
+
+type = "vp"
+vp2<- cbind(vp_m, type)
+
+type = "va"
+va2<- cbind(va_m,type)
+
+#Combine datasets
+master_monthly<- rbind(vc2,vp2,vv2, va2) %>%
+  mutate(type = recode(type, "va" = "V. alginolyticus",
+                       "vc" = "V. cholerae",
+                       "vp" = "V. parahaemolyticus",
+                       "vv" = "V. vulnificus")) %>%
+  #Fix date mislabeling
+  mutate(date = as.character(date))
+  master_monthly$date <- recode_factor(master_monthly$date, '2022-06-13' = "2022-06-14") 
+master_monthly<- 
+    master_monthly %>%
+    mutate(date = as.Date(date))
+
+
+# Save this
+saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_copies_monthly.rds"))
 ```
 
 #### Plot
