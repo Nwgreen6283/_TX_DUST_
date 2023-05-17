@@ -266,6 +266,36 @@ doc<-
                                 "Gulf" = "4c848c"))
 ```
 
+#### TOC
+
+```{r}
+toc<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = toc,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TOC (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    #axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    #axis.ticks.x = element_blank(),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+```
+
 #### pH
 
 ```{r}
@@ -450,7 +480,7 @@ din_dip<-
                                 "Gulf" = "4c848c"))
 ```
 
-#### DIN (Amm-NN)
+#### DIN (Amm+NN)
 
 ```{r}
 din<- 
@@ -599,6 +629,7 @@ fig<- ggarrange(temp,
                 ortho,
                 don,
                 doc,
+                toc,
                 pH,
                 amm,
                 tn,
@@ -610,7 +641,7 @@ fig<- ggarrange(temp,
                 din_dip,
                 chl,
                 ncol = 4, 
-                nrow = 4,
+                nrow = 5,
                 align = "v")
 
 fig

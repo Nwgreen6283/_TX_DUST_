@@ -17,7 +17,7 @@ library(tidyverse)
 #### Data
 
 ```{r}
-sp<- readRDS(file = here("data", "processed_data", "species_copies.rds"))
+sp<- readRDS(file = here("data", "processed_data","qpcr","species_copies.rds"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 ```
 
@@ -79,6 +79,8 @@ vp_rd<-
   master %>%
   filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
 ```
+
+<!--# Did not log10 dust since spp-distributions are all non-normal for the most part anyway -->
 
 # CCA
 

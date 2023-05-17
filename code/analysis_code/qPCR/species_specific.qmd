@@ -313,8 +313,8 @@ saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_co
 
 ```{r}
 bo_spp<- master %>%
-  filter(site %in% "Blind Oso") %>%
-  #filter(!type %in% "V. cholerae") %>%
+  filter(site %in% "Blind Oso",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
   ggplot() + geom_line(
     aes(
       x = date,
@@ -345,8 +345,8 @@ bo_spp
 ```{r}
 c2_spp<-
   master %>%
-  filter(site %in% "Canals") %>%
-  #filter(!type %in% "V. cholerae") %>%
+  filter(site %in% "Canals",
+         !type %in% "V. alginolyticus") %>%
   ggplot() + geom_line(
     aes(
       x = date,
@@ -376,8 +376,8 @@ c2_spp
 ```{r}
 rd_spp<-
  master %>%
-  filter(site %in% "Gulf") %>%
-  #filter(!type %in% "V. cholerae") %>%
+  filter(site %in% "Gulf",
+         !type %in% "V. alginolyticus") %>%
   ggplot() + geom_line(
     aes(
       x = date,
