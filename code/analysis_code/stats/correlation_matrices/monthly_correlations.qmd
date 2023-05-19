@@ -39,15 +39,72 @@ sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies_monthly.rds
 ```{r}
 bo<- 
   bo %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "Dust") %>%
+  select(!SUM)
 
 c2<- 
   c2 %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "Dust") %>%
+  select(!SUM)
 
 rd<- 
   rd %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "Dust")%>%
+  select(!SUM)
 ```
 
 #### Site/Species Specific DF
@@ -117,15 +174,24 @@ r_list<- list(r_vc, r_vv, r_vp, rd)
 
 bo<- 
   b_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1, Vp, Type))
+  select(!c(date, ...1, Vp, Type)) %>%
+  rename("V. cholerae" = "Vc",
+         "V. vulnificus" = "Vv") 
+ bo<-bo[, c(4,2,1,5,3,6:22)] #Reorder col
 
 c2<- 
   c_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1, Type, Vv, Vc))
+  select(!c(date, ...1, Type, Vv, Vc))%>%
+  rename("V. parahaemolyticus" = "Vp")
+ c2<-c2[, c(3,1,4,2,5:21)]
 
 rd<- 
   r_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1, Type))
+  select(!c(date, ...1, Type))%>%
+  rename("V. cholerae" = "Vc",
+         "V. parahaemolyticus" = "Vp",
+         "V. vulnificus" = "Vv")
+rd<-rd[, c(5,1,2,3,6,4,7:23)]
 ```
 
 # Correlation Matrix
@@ -172,23 +238,25 @@ flattenCorrMatrix(r_mat$r, r_mat$P)
 
 #### 4. Table
 
+##### All Variables
+
 ```{r}
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
-  filter(!row_number() %in% c(1,2,5,6)) %>%
-  select(1,2,5,6), 
+  filter(!row_number() %in% c(1,2,4,5)) %>%
+  select(1,2,4,5), 
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 c2_table<-
   kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
-  filter(!row_number() %in% c(1,4,5)) %>%
-  select(1,4,5), 
+  filter(!row_number() %in% c(1,3,4)) %>%
+  select(1,3,4), 
   caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 rd_table<-
   kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
-  filter(!row_number() %in% c(1,2,3,6,7)) %>%
-  select(1,2,3,6,7), 
+  filter(!row_number() %in% c(1,2,3,5,6)) %>%
+  select(1,2,3,5,6), 
   caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 bo_table
@@ -196,24 +264,52 @@ c2_table
 rd_table
 ```
 
-#### 5. Plot
+##### Just Total, Species, Chl
 
 ```{r}
+bo_table2<-
+  kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,2,5,6)) %>%
+  select(1,2,5,6), 
+  caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+c2_table2<-
+  kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,4,5)) %>%
+  select(1,4,5), 
+  caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+rd_table2<-
+  kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
+  filter(!row_number() %in% c(1,2,3,6,7)) %>%
+  select(1,2,3,6,7), 
+  caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
+
+bo_table2
+c2_table2
+rd_table2
+```
+
+#### 5. Plot
+
+```{r, fig.width=9}
+colors<- c("#ba4716", "#ba4716","#ba4716", "#ba4716","#ba4716","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black", "black")
+
 #BLIND OSO
 corrplot(b_mat$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors, 
          p.mat = b_mat$P, sig.level = 0.05, insig = "blank")
 
 #CANALS
 
 corrplot(c_mat$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors, 
          p.mat = c_mat$P, sig.level = 0.05, insig = "blank")
 
 #GULF
 
 corrplot(r_mat$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors, 
          p.mat = r_mat$P, sig.level = 0.05, insig = "blank")
 ```
 

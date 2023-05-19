@@ -46,8 +46,8 @@ fig3 <- monthly %>%
   theme_bw()+
   labs(
     x = "Date",
-    y = "Copies/mL",
-    title = "Vibrio Growth over Monthly Time Series") +
+    y = "Vibrio gene copies/mL",
+    title = "Vibrio Concentrations over Monthly Time Series") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 20),  #center title
     axis.title.x = element_blank(),

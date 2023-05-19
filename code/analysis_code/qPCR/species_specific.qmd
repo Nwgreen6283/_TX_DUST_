@@ -271,42 +271,6 @@ master<- rbind(vc1,vp1,vv1, va1) %>%
 saveRDS(master, file = here("data", "processed_data", "qpcr","species_copies.rds"))
 ```
 
-MONTHLY
-
-I was dumb and have 6/13 for some DF and 6/14 for others. Below, I changed to be the correct 6/14.
-
-```{r}
-#Make new columns with species 
-type = "vc"
-vc2<- cbind(vc_m, type)
-
-type = "vv"
-vv2<- cbind(vv_m, type)
-
-type = "vp"
-vp2<- cbind(vp_m, type)
-
-type = "va"
-va2<- cbind(va_m,type)
-
-#Combine datasets
-master_monthly<- rbind(vc2,vp2,vv2, va2) %>%
-  mutate(type = recode(type, "va" = "V. alginolyticus",
-                       "vc" = "V. cholerae",
-                       "vp" = "V. parahaemolyticus",
-                       "vv" = "V. vulnificus")) %>%
-  #Fix date mislabeling
-  mutate(date = as.character(date))
-  master_monthly$date <- recode_factor(master_monthly$date, '2022-06-13' = "2022-06-14") 
-master_monthly<- 
-    master_monthly %>%
-    mutate(date = as.Date(date))
-
-
-# Save this
-saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_copies_monthly.rds"))
-```
-
 #### Plot
 
 ##### Blind Oso
@@ -324,7 +288,7 @@ bo_spp<- master %>%
   theme_bw()+
      labs(title = "Vibrio Species at Blind Oso",
        x = "Date",
-       y = "Copies/mL",
+       y = "Vibrio gene copies/mL",
        color = "Vibrio spp.") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
@@ -356,7 +320,7 @@ c2_spp<-
   theme_bw()+
      labs(title = "Vibrio Species at the Canals",
        x = "Date",
-       y = "Copies/mL",
+       y = "Vibrio gene copies/mL",
        color = "Vibrio spp.") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
@@ -387,7 +351,7 @@ rd_spp<-
   theme_bw()+
      labs(title = "Vibrio Species at the Gulf",
        x = "Date",
-       y = "Copies/mL",
+       y = "Vibrio gene copies/mL",
        color = "Vibrio spp.") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
@@ -540,4 +504,159 @@ va_m %>%
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 
  ggsave(here("results", "plots", "va_monthly.png"))
+```
+
+#### Combine all species
+
+I was dumb and have 6/13 for some DF and 6/14 for others. Below, I changed to be the correct 6/14.
+
+```{r}
+#Make new columns with species 
+type = "vc"
+vc2<- cbind(vc_m, type)
+
+type = "vv"
+vv2<- cbind(vv_m, type)
+
+type = "vp"
+vp2<- cbind(vp_m, type)
+
+type = "va"
+va2<- cbind(va_m,type)
+
+#Combine datasets
+master_monthly<- rbind(vc2,vp2,vv2, va2) %>%
+  mutate(type = recode(type, "va" = "V. alginolyticus",
+                       "vc" = "V. cholerae",
+                       "vp" = "V. parahaemolyticus",
+                       "vv" = "V. vulnificus")) %>%
+  #Fix date mislabeling
+  mutate(date = as.character(date))
+  master_monthly$date <- recode_factor(master_monthly$date, '2022-06-13' = "2022-06-14") 
+master_monthly<- 
+    master_monthly %>%
+    mutate(date = as.Date(date))
+
+
+# Save this
+saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_copies_monthly.rds"))
+```
+
+#### Plot
+
+##### Blind Oso
+
+```{r}
+bo_spp_monthly<- master_monthly %>%
+  filter(site %in% "Blind Oso",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_point(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 2)+
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at Blind Oso",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+  scale_x_date(date_breaks="1 month", date_labels="%b")+
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+
+bo_spp_monthly
+
+#dev.off()
+ ggsave(here("results", "plots", "bo_all_monthly.png"))
+```
+
+##### Canals
+
+```{r}
+c2_spp_monthly<- master_monthly %>%
+  filter(site %in% "Canals",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_point(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 2)+
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at the Canals",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+  scale_x_date(date_breaks="1 month", date_labels="%b")+ 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+
+c2_spp_monthly
+
+#dev.off()
+ ggsave(here("results", "plots", "c2_all_monthly.png"))
+```
+
+##### Gulf
+
+```{r}
+rd_spp_monthly<- master_monthly %>%
+  filter(site %in% "Gulf",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_point(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 2)+
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at the Gulf",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+  scale_x_date(date_breaks="1 month", date_labels="%b")+ 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+
+rd_spp_monthly
+
+#dev.off()
+ ggsave(here("results", "plots", "rd_all_monthly.png"))
 ```

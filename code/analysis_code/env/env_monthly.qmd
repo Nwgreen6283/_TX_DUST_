@@ -416,51 +416,55 @@ We are taking out 5/20 and 5/24 here.
 avg<- 
   monthly %>%
   filter(!date == as.Date('2022-05-24') & !date == as.Date('2022-05-20'),#Gets ride of extra dates in May
-         hr_cst %in% "01") 
+         hr_cst %in% "01" 
+         | hr_cst %in% "00") 
 
 b_avg<-
   avg %>%
-  filter(site %in% "Blind Oso") 
-b_avg<- 
-  b_avg %>%
-  rbind(b_avg, sapply(b_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>% #Adds a new row with average
-  select(6,9:26) #Select columns of interest
+  filter(site %in% "Blind Oso") %>%
+  select(!c(site, date, Type, hr_cst)) 
+b_avg<-
+  rbind(b_avg, sapply(b_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else ""))
+
 
 
 c_avg<-
   avg %>%
-  filter(site %in% "Canals")
+  filter(site %in% "Canals")%>%
+  select(!c(site, date, Type, hr_cst))
 c_avg<-
-  c_avg %>%
-  rbind(c_avg, sapply(c_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
-  select(6,9:26)
+  rbind(c_avg, sapply(c_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) 
 
 r_avg<-
   avg %>%
-  filter(site %in% "Gulf")
+  filter(site %in% "Gulf")%>%
+  select(!c(site, date, Type, hr_cst))
 r_avg<-
-  r_avg %>%
-  rbind(r_avg, sapply(r_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) %>%
-  select(6,9:26)
+  rbind(r_avg, sapply(r_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else ""))
+
 ```
 
 #### Extract Average Values
 
 ```{r}
-b_nn<- b_avg$nn[89] 
-b_orthop<- b_avg$orthop[89]
+b_nn<- b_avg$nn[12] 
+b_orthop<- b_avg$orthop[12]
+b_amm<- b_avg$amm[12]
 
-c_nn<- c_avg$nn[89]
-c_orthop<- c_avg$orthop[89]
+c_nn<- c_avg$nn[12]
+c_orthop<- c_avg$orthop[12]
+c_amm<- c_avg$amm[12]
 
-r_nn<- r_avg$nn[89]
-r_orthop<- r_avg$orthop[89]
+r_nn<- r_avg$nn[12]
+r_orthop<- r_avg$orthop[12]
+r_amm<- r_avg$amm[12]
 
 #DF
 average_df<- 
   tibble(Site  = c("Blind Oso", "Canals", "Gulf"),
              NN = c(b_nn, c_nn, r_nn),
-             OrthoP = c(b_orthop, c_orthop, r_orthop))
+             OrthoP = c(b_orthop, c_orthop, r_orthop),
+             Amm = c(b_amm, c_amm, r_amm))
 kable(average_df)
 ```
 

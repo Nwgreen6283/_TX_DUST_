@@ -3,6 +3,8 @@ title: "cor"
 format:
   pdf:
     theme: default
+header-includes:
+    - \usepackage{caption}
 ---
 
 **This code creates a correlation matrix to look at relationships between variables. This helps identify specific relationships of interest**
@@ -285,15 +287,72 @@ rd<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
 ```{r}
 bo<- 
   bo %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag")
 
 c2<- 
   c2 %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag")
 
 rd<- 
   rd %>%
-  rename("Vibrio" = "copies_mL")
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "chl",
+         "Salinity" = "sal",
+         "Temperature" = "temp",
+         "Dissolved Oxygen (mg/L)" = "do_mgl",
+         "Dissolved Oxygen (%)" = "do_per",
+         "Secchi" = "secchi",
+         "Ammonium" = "amm",
+         "Nitrate+Nitrite" = "nn",
+         "Orthophosphate" = "orthop",
+         "Silicate" = "sil",
+         "DIN" = "din",
+         "DIN:DIP" = "din_dip",
+         "TDN" = "tdn",
+         "DON" = "don",
+         "DOC" = "doc",
+         "TOC" = "toc",
+         "TN" = "tn",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag")
 ```
 
 #### Create Species Dataframes and Site-Species Dataframes
@@ -363,15 +422,23 @@ r_list<- list(r_vc, r_vv, r_vp, rd)
 
 bo<- 
   b_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1, Vp))
+  select(!c(date, ...1, Vp)) %>%
+  rename("V. cholerae" = "Vc",
+         "V. vulnificus" = "Vv")
 
 c2<- 
   c_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1))
+  select(!c(date, ...1)) %>%
+  rename("V. cholerae" = "Vc",
+         "V. parahaemolyticus" = "Vp",
+         "V. vulnificus" = "Vv")
 
 rd<- 
   r_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, ...1))
+  select(!c(date, ...1)) %>%
+  rename("V. cholerae" = "Vc",
+         "V. parahaemolyticus" = "Vp",
+         "V. vulnificus" = "Vv")
 ```
 
 #### Table: Env, Spp, Total
@@ -379,6 +446,8 @@ rd<-
 This is using Spearman's for all. This [Correlation Function](https://paulvanderlaken.com/2020/07/28/publication-ready-correlation-matrix-significance-r/) uses a df as opposed to a matrix, so it is more user friendly for making tables.
 
 p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
+
+\captionsetup[table]{labelformat=empty}
 
 ```{r}
 bo_table<-
@@ -408,7 +477,7 @@ rd_table
 
 ##### Create Matrix for all environmental parameters, species, and total vibrio
 
-```{r}
+```{r, include = FALSE}
 bo_2<- rcorr(as.matrix(bo))
 flattenCorrMatrix(bo_2$r, bo_2$P)
 
@@ -452,22 +521,25 @@ We get errors but still get the corrplot
 
 Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
 
-```{r}
+```{r, fig.width=9}
+#Single out factors of interst by making them red
+colors<- c("#ba4716", "#ba4716","#ba4716","#ba4716", "#ba4716","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black", "black")
+
 #BLIND OSO
 corrplot(bo_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors,
          p.mat = bo_2$P, sig.level = 0.05, insig = "blank")
 
 #CANALS
 
 corrplot(c2_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors, 
          p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
 
 #GULF
 
 corrplot(rd_2$r, type="upper", 
-         tl.col = "black", tl.srt = 45,
+         tl.col = colors,
          p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
 ```
 
