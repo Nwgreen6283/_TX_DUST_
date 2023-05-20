@@ -5,7 +5,9 @@ format:
     theme: default
 ---
 
-Libraries
+# Intro
+
+#### Libs
 
 ```{r}
 library(tidyverse)
@@ -14,13 +16,15 @@ library(ggpubr)
 library(lubridate)
 ```
 
-Load Data
+#### Data
 
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
-Monthly dataframe
+# Cleaning
+
+#### Monthly DF
 
 ```{r}
 monthly<- d1 %>% 
@@ -29,7 +33,9 @@ monthly<- d1 %>%
   filter(Type %in% "Monthly") 
 ```
 
-Total Monthly Vib
+# Plot
+
+#### ALL
 
 ```{r}
 fig3 <- monthly %>%
@@ -63,4 +69,103 @@ scale_color_manual(values = c("Blind Oso" = "#809C52",
 fig3
 
  ggsave(here("results", "plots", "total_vib__monthly.png"))
+```
+
+#### BLIND OSO
+
+```{r}
+monthly %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot()+geom_point(
+  aes(x = date,
+      y = copies_mL,
+      color = site),
+  size = 2)+ 
+  geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Blind Oso: Total Vibrio Concentrations") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    legend.position = "none")+ #Removes legend
+ scale_x_date(date_breaks="1 month", date_labels="%b")+
+
+scale_color_manual(values = c("Blind Oso" = "#809C52",
+                              "Canals" = "#ba4716",
+                              "Gulf" = "4c848c"))
+```
+
+#### CANALS
+
+```{r}
+monthly %>%
+  filter(site %in% "Canals") %>%
+  ggplot()+geom_point(
+  aes(x = date,
+      y = copies_mL,
+      color = site),
+  size = 2)+ 
+  geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Canals: Total Vibrio Concentrations") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    legend.position = "none")+ #Removes legend
+ scale_x_date(date_breaks="1 month", date_labels="%b")+
+
+scale_color_manual(values = c("Blind Oso" = "#809C52",
+                              "Canals" = "#ba4716",
+                              "Gulf" = "4c848c"))
+```
+
+#### GULF
+
+```{r}
+monthly %>%
+  filter(site %in% "Gulf") %>%
+  ggplot()+geom_point(
+  aes(x = date,
+      y = copies_mL,
+      color = site),
+  size = 2)+ 
+  geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site))+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Gulf: Total Vibrio Concentrations") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),  #center title
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    axis.title.y = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    legend.position = "none")+ #Removes legend
+ scale_x_date(date_breaks="1 month", date_labels="%b")+
+
+scale_color_manual(values = c("Blind Oso" = "#809C52",
+                              "Canals" = "#ba4716",
+                              "Gulf" = "4c848c"))
 ```

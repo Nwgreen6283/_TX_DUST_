@@ -56,7 +56,7 @@ dust_fig<- daily_dust_sum %>% ggplot() +geom_line(
     x = "Date",
     y = "Dust (AOD)")+
   theme(
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 10),
     axis.text.y = element_text(size = 10),
     axis.title.x = element_text(size = 15),
     axis.text.x = element_text(size = 10))
@@ -78,15 +78,15 @@ tot_vib<- copies_d %>%
   theme_bw()+
   labs(
     x = "Date",
-    y = "Copies/mL",
-    title = "Vibrio Growth and Dust AOD over Daily Time Series",
+    y = "Vibrio gene copies/mL",
+    title = "Vibrio Concentrations and Dust AOD",
     color = "  Site") +
   theme(
-    plot.title = element_text(size = 18),  #center title
+    plot.title = element_text(size = 18, hjust = 0.5),  #center title
     axis.text.x = element_blank(),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 10),
     axis.text.y = element_text(size = 10),
     legend.position = c(0.1, 0.63),
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 

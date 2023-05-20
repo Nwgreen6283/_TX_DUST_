@@ -40,12 +40,13 @@ rd_daily %>%
   ggplot() +geom_line(
     aes(x = date,
         y = copies_mL),
-    color = "darkblue") +
+    color = "4c848c",
+    size = 1) +
   theme_bw() +
   labs(
     x = "Date",
-    y = "Copies/mL",
-    title = "Total Daily Vibrio at Gulf Site") +
+    y = "Vibrio gene copies/mL",
+    title = "Total Vibrio Concentrations at the Gulf") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -55,12 +56,13 @@ c2_daily %>%
   ggplot() +geom_line(
     aes(x = date,
         y = copies_mL),
-    color = "#ba4716") +
+    color = "#ba4716",
+    size = 1) +
   theme_bw() +
   labs(
     x = "Date",
-    y = "Copies/mL",
-    title = "Total Daily Vibrio at Canals") +
+    y = "Vibrio gene copies/mL",
+    title = "Total Vibrio Concentration at the Canals") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 Total Daily Vibrio at Blind Oso
@@ -69,12 +71,13 @@ bo_daily %>%
   ggplot() +geom_line(
     aes(x = date,
         y = copies_mL),
-    color = "darkgreen") +
+    color = "#809C52",
+    size = 1) +
   theme_bw() +
   labs(
     x = "Date",
-    y = "Copies/mL",
-    title = "Total Daily Vibrio at Blind Oso") +
+    y = "Vibrio gene copies/mL",
+    title = "Total Vibrio Concentrations at Blind Oso") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 

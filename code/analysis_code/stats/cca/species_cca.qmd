@@ -18,7 +18,9 @@ library(tidyverse)
 
 ```{r}
 sp<- readRDS(file = here("data", "processed_data","qpcr","species_copies.rds"))
+sp_m<- readRDS(file = here("data", "processed_data","qpcr","species_copies_monthly.rds"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
+txmaster<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
 # Cleaning
@@ -26,16 +28,18 @@ dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 #### Combine Data set
 
 ```{r}
-master<- 
+master0<- 
   sp %>%
   full_join(dust)
 ```
+
+## DAILY
 
 #### Filter and Select
 
 ```{r}
 master <- 
-  master %>%
+  master0 %>%
   select(copies_mL, site, type, t7sum, date) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'),
          !date %in% as.Date('2022-07-10')) %>%
@@ -82,7 +86,7 @@ vp_rd<-
 
 <!--# Did not log10 dust since spp-distributions are all non-normal for the most part anyway -->
 
-# CCA
+#### CCA DAILY
 
 ```{r}
 #Vc
@@ -111,3 +115,85 @@ title("RD x Vp", line =0.5)
 ```
 
 **All spp either had no significant lag, 0 lag, or 1 day lag (RD_Vc).**
+
+# MONTHLY
+
+#### Monthly DF
+
+```{r}
+txmaster<-
+  txmaster %>%
+  select(date, Dust)
+
+mon<-
+  txmaster %>%
+  full_join(sp_m)
+```
+
+#### Site/Sp DF
+
+```{r}
+#Vc
+vc_bo<- 
+  mon %>%
+  filter(site == 'Blind Oso' & type =="V. cholerae")
+
+vc_c2<- 
+  mon %>%
+  filter(site %in% "Canals" & type %in% "V. cholerae")
+vc_rd<- 
+  mon %>%
+  filter(site %in% "Gulf" & type %in% "V. cholerae")
+
+#Vv
+vv_bo<- 
+  mon %>%
+  filter(site %in% "Blind Oso" & type %in% "V. vulnificus")
+vv_c2<- 
+  mon %>%
+  filter(site %in% "Canals" & type %in% "V. vulnificus")
+vv_rd<- 
+  mon %>%
+  filter(site %in% "Gulf" & type %in% "V. vulnificus")
+
+#Vp
+vp_bo<- 
+  mon %>%
+  filter(site %in% "Blind Oso" & type %in% "V. parahaemolyticus")
+vp_c2<- 
+  mon %>%
+  filter(site %in% "Canals" & type %in% "V. parahaemolyticus")
+vp_rd<- 
+  mon %>%
+  filter(site %in% "Gulf" & type %in% "V. parahaemolyticus")
+```
+
+#### CCA MONTHLY
+
+```{r}
+#Vc
+ccf(vc_bo$Dust, vc_bo$copies_mL) 
+title("BO x Vc", line =0.5)
+#ccf(vc_c2$Dust, vc_c2$copies_mL) 
+#title("C2 x Vc", line =0.5)
+ccf(vc_rd$Dust, vc_rd$copies_mL) 
+title("RD x Vc", line =0.5)
+
+#Vv
+ccf(vv_bo$Dust, vv_bo$copies_mL) 
+title("BO x Vv", line =0.5)
+#ccf(vv_c2$Dust, vv_c2$copies_mL) 
+#title("C2 x Vv", line =0.5)
+ccf(vv_rd$Dust, vv_rd$copies_mL) 
+title("RD x Vv", line =0.5)
+
+#Vp
+#ccf(vp_bo$Dust, vp_bo$copies_mL)  #THis site had 0
+#title("BO x Vp", line =0.5)
+ccf(vp_c2$Dust, vp_c2$copies_mL) 
+title("C2 x Vp", line =0.5)
+ccf(vp_rd$Dust, vp_rd$copies_mL) 
+title("RD x Vp", line =0.5)
+```
+
+**Zero or nothing here**

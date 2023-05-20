@@ -59,13 +59,13 @@ rd<- master %>%
   filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
 ```
 
-# Uni-variate Models
+# CCA
 
 **From previous literature, we know that Vibrio have responded to dust 24-48 hours after input. This can make analysis tricky, as the dust concentration of a specific day does not necessarily correlate with the Vibrio copies of that same date. We can use cross-correlation analysis to assess a lag in a time series and see where this lag is most significant.**
 
 \*\*Dust (t7sum) was log transformed
 
-## Cross-correlation:
+## DAILY
 
 **For this, we cannot have NAs so we choose the strict daily time series**
 
@@ -99,4 +99,44 @@ title("Gulf DustxCopies CCA", line =1)
 | C2   | 2   |
 | RD   | 1\* |
 
-: \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.
+: \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.\
+
+## MONTHLY
+
+#### DF
+
+```{r}
+bo<- data0 %>%
+  filter(site %in% "Blind Oso",
+         hr_cst %in% "00" | hr_cst %in% "01",
+         Type %in% "Monthly" | date %in% as.Date('2022-07-07'))
+
+c2<- data0 %>%
+  filter(site %in% "Canals",
+         hr_cst %in% "00" | hr_cst %in% "01",
+         Type %in% "Monthly" | date %in% as.Date('2022-07-07'))
+
+
+rd<- data0 %>%
+  filter(site %in% "Gulf",
+         hr_cst %in% "00" | hr_cst %in% "01",
+         Type %in% "Monthly" | date %in% as.Date('2022-07-07'))
+
+```
+
+#### CCA 
+
+```{r}
+ccf(bo$Dust, bo$copies_mL) 
+title("Blind Oso", line =1)
+
+#Canals
+ccf(c2$Dust, c2$copies_mL)
+title("Canals DustxCopies CCA", line=1)
+
+#Gulf
+ccf(rd$Dust, rd$copies_mL) 
+title("Gulf DustxCopies CCA", line =1)
+```
+
+**No real significance in lags for dust and copies here**
