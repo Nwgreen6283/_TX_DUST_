@@ -131,7 +131,7 @@ fig3<-
   stat_poly_eq(aes(x = lag, y = copies_mL),rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
   annotate("text", x = 0.0335, y = 85000, label = "p = 0.02", size = 3.5)+
-  labs(title = "Gulf (1-day lag to dust",
+  labs(title = "Gulf (1-day lag to dust)",
        x = "log10(dust)",
        y = "Copies/mL")+
    theme_bw() +
