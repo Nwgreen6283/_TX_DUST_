@@ -58,14 +58,14 @@ temp<- monthly %>% ggplot() +
     color = site),
   size = 1)+
   theme_bw()+
-  facet_wrap(~site)+
+  #facet_wrap(~site)+
   labs(
     x = "Date",
     y = "Temperature (°C)",
-  #  title = "Monthly Temperatures",
+    title = "Monthly Temperature and Salinity",
     color = "Site")+
   theme(
-    plot.title= element_text(hjust = 0.5, size = 20),
+    plot.title= element_text(hjust = 0.5, size = 15),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
@@ -100,7 +100,7 @@ sal<-  monthly %>% ggplot() +
     color = site),
   size = 1)+
   theme_bw()+
-  facet_wrap(~site)+
+  #facet_wrap(~site)+
   labs(
     x = "Date",
     y = "Salinity",
@@ -109,8 +109,8 @@ sal<-  monthly %>% ggplot() +
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    axis.text.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
     axis.text.y = element_text(size = 7),
     axis.title.y = element_text(size = 10, face = "bold"),
     legend.position = "none",
@@ -804,29 +804,29 @@ tn
 
 # ALL
 
-```{r, fig.width=14, fig.height=7.ß5}
+```{r}
 final<- ggarrange(
                 temp,
                 sal,
-                nn,
-                orthop,
-                amm,
-                din,
+                #nn,
+                #orthop,
+                #amm,
+                #din,
                 #don,
-                doc,
+                #doc,
                # toc,
                 #pH,
                # tn,
-                sil,
+                #sil,
                # cop,
                 #tdn,
-                do_mgl,
+                #do_mgl,
                 #secchi,
                 #din_dip,
-                chl,
+                #chl,
                 #font("x.text", size = 8.5),
-                ncol = 2, 
-                nrow = 5,
+                ncol = 1, 
+                nrow = 2,
                 align = "v")
 
 final

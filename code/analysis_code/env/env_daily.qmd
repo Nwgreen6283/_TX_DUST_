@@ -59,10 +59,10 @@ temp<-
   labs(
     x = "Date",
     y = "Temperature (°C)",
-   #title = "Daily Temperatures",
+   title = "Daily Temperatures",
     color = "Site")+
   theme(
-    plot.title= element_text(hjust = 0.5, size = 20),
+    plot.title= element_text(hjust = 0.5, size = 15),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
@@ -96,10 +96,10 @@ sal<- daily %>%
   labs(
     x = "Date",
     y = "Salinity",
-  #  title = "Daily Salinities",
+    title = "Daily Salinities",
     color = "Site")+
   theme(
-    plot.title= element_text(hjust = 0.5, size = 20),
+    plot.title= element_text(hjust = 0.5, size = 15),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
@@ -623,26 +623,26 @@ cop<-
 
 ```{r, fig.height=2.15}
 fig<- ggarrange(temp,
-                sal,
-                nn,
-                ortho,
-                amm,
-                din,
-                don,
+                sal+
+                #nn,
+                #ortho,
+                #amm,
+                #din,
+                #don,
                 #doc,
                # toc,
                 #pH,
                # tn,
                 #sil,
                # cop,
-                tdn,
-                do,
+                #tdn,
+                #do,
                 #secchi,
                 #din_dip,
-                chl+
+                #chl+
                 font("x.text", size = 8.5),
-                ncol = 2, 
-                nrow = 5,
+                ncol = 1, 
+                nrow = 2,
                 align = "v")
 
 fig

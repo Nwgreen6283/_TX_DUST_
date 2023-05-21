@@ -322,7 +322,7 @@ c2_spp<-
        x = "Date",
        y = "Vibrio gene copies/mL",
        color = "Vibrio spp.") +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+  theme(axis.text.x = element_text(hjust = 1),
         plot.title = element_text(hjust = 0.5),
         legend.position = "none") + 
 scale_color_manual(values = c("V. alginolyticus" = "#F8766D",

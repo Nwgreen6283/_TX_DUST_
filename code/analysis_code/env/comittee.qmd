@@ -22,6 +22,9 @@ library(kableExtra) #Tables
 ```{r, include = FALSE}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 sp<- read_rds(here("data", "processed_data", "qpcr","species_copies_monthly.rds"))
+sp_d<- read_rds(here("data", "processed_data", "qpcr","species_copies.rds"))
+dust_sum<-read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust
+
 ```
 
 # Cleaning
@@ -36,6 +39,13 @@ monthly<- d1 %>%
   mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-22 a monthly value for July
                           d1$Type == "Monthly" ~ "Monthly")) %>%
   filter(Type %in% "Monthly") 
+```
+
+#### Dust
+
+```{r}
+daily_dust_sum<- dust_sum %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
 ```
 
 # Plots
@@ -70,9 +80,9 @@ tot_bo <- monthly %>%
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
-    axis.title.x = element_text(size = 10, face = "bold"),
-   # axis.ticks.x = element_blank(),
-   # axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
     axis.text.y = element_text(size = 7),
     axis.title.y = element_text(size = 10, face = "bold"),
     legend.position = "none",
@@ -111,7 +121,7 @@ tot_c2 <- monthly %>%
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
-    axis.title.x = element_text(size = 10, face = "bold"),
+    axis.title.x = element_blank(),
    # axis.ticks.x = element_blank(),
    # axis.text.x = element_blank(),
     axis.text.y = element_text(size = 7),
@@ -152,7 +162,7 @@ tot_rd <- monthly %>%
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
-    axis.title.x = element_text(size = 10, face = "bold"),
+    axis.title.x = element_blank(),
    # axis.ticks.x = element_blank(),
    # axis.text.x = element_blank(),
     axis.text.y = element_text(size = 7),
@@ -193,7 +203,8 @@ bo_spp_monthly<- sp%>%
        x = "Date",
        y = "Vibrio gene copies/mL",
        color = "Vibrio spp.") +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+  theme(axis.text.x = element_text(hjust = 1),
+        axis.title.x = element_blank(),
         plot.title = element_text(hjust = 0.5, size = 15),
         axis.title.y = element_text(size = 10, face = "bold"),
         legend.position = "none") + 
@@ -204,6 +215,123 @@ scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
                               "V. vulnificus" = "#00BA38"))
 
 bo_spp_monthly
+```
+
+#### Canals
+
+```{r}
+c2_spp_monthly<- sp%>%
+  filter(site %in% "Canals",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_point(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 2)+
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at the Canals",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1),
+        axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 15),
+        axis.title.y = element_text(size = 10, face = "bold"),
+        legend.position = "none") + 
+  scale_x_date(date_breaks="1 month", date_labels="%b")+
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+c2_spp_monthly
+```
+
+#### Gulf
+
+```{r}
+rd_spp_monthly<- sp%>%
+  filter(site %in% "Gulf",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_point(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 2)+
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at the Gulf",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1),
+        axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 15),
+        axis.title.y = element_text(size = 10, face = "bold"),
+        legend.position = "none") + 
+  scale_x_date(date_breaks="1 month", date_labels="%b")+
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+rd_spp_monthly
+```
+
+### N+N
+
+#### Gulf
+
+```{r}
+nn_rd <- monthly %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = nn,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = nn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "N+N (µM)",
+    title = "Gulf: Nitrate+Nitrite",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+nn_rd
 ```
 
 ### Ammonium
@@ -249,6 +377,88 @@ amm_bo <- monthly %>%
 amm_bo
 ```
 
+#### Canals
+
+```{r}
+amm_c2 <- monthly %>%
+  filter(site %in% "Canals") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Ammonium (µM)",
+    title = "Canals: Ammonium",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+amm_c2
+```
+
+#### Gulf
+
+```{r}
+amm_rd <- monthly %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Ammonium (µM)",
+    title = "Gulf: Ammonium",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+amm_rd
+```
+
 ### Silicate
 
 #### Canals
@@ -292,25 +502,705 @@ sil_c2 <- monthly %>%
 sil_c2
 ```
 
+#### Gulf
+
+```{r}
+sil_rd <- monthly %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = sil,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = sil,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Silicate (µM)",
+    title = "Gulf: Silicate",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+   # axis.ticks.x = element_blank(),
+   # axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+sil_rd
+```
+
+### OrthoP
+
+#### Canals
+
+```{r}
+orthop_c2 <- monthly %>%
+  filter(site %in% "Canals") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = orthop,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = orthop,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Orthophsphate (µM)",
+    title = "Canals: Orthophosphate",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+orthop_c2
+```
+
+### DIN
+
+#### Canals
+
+```{r}
+din_c2 <- monthly %>%
+  filter(site %in% "Canals") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN (µM)",
+    title = "Canals: DIN",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+din_c2
+```
+
+#### Gulf
+
+```{r}
+din_rd <- monthly %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN (µM)",
+    title = "Gulf: DIN",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+din_rd
+```
+
 ### Stack
 
-#### BO_Amm_Tot
+#### BO: Amm x Tot
 
 ```{r}
 ggarrange(amm_bo, tot_bo,
           nrow = 2, ncol = 1)
 ```
 
-#### BO_spp_Amm
+#### BO: Amm x Spp
 
 ```{r}
 ggarrange(amm_bo, bo_spp_monthly,
           nrow = 2, ncol = 1)
 ```
 
-#### C2_tot_sil
+#### C2: Sil x Tot
 
 ```{r}
 ggarrange(sil_c2, tot_c2,
           nrow = 2, ncol = 1)
+```
+
+#### C2: DIN x Amm x OrthoP x Species
+
+```{r, fig.height= 6.5, fig.width=5}
+ggarrange(din_c2, amm_c2, orthop_c2, c2_spp_monthly, 
+          nrow = 4 , ncol = 1)
+```
+
+#### RD: NN x Amm x DIN x Spp
+
+```{r, fig.height=3, fig.width=6}
+ggarrange(din_rd, amm_rd, nn_rd, sil_rd,rd_spp_monthly,
+          nrow = 3 , ncol = 2)
+```
+
+## DAILY
+
+## Dust
+
+```{r}
+dust<- 
+  daily_dust_sum %>% 
+  ggplot() +
+geom_line(
+  aes(x = date,
+      y = t7sum),
+  color = "#935d2e",
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Dust (AOD)",
+    title = "Dust AOD")+
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 15),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    axis.text.y = element_text(size = 10),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank())
+  
+
+dust
+```
+
+## Blind Oso
+
+#### Total
+
+```{r}
+tot_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Blind Oso: Total Vibrio Concentrations",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+tot_bo
+```
+
+#### Species
+
+```{r}
+bo_spp_daily<- sp_d%>%
+  filter(site %in% "Blind Oso",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at Blind Oso",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1),
+        axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 15),
+        axis.title.y = element_text(size = 10, face = "bold"),
+        legend.position = "none") + 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+
+bo_spp_daily
+```
+
+#### TDN
+
+```{r}
+tdn_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = tdn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TDN (µM)",
+    title = "Blind Oso: TDN",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none") +
+    #legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+tdn_bo
+```
+
+#### DIN
+
+```{r}
+din_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() +
+  geom_line(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN (µM)",
+    title = "Blind Oso: DIN",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+din_bo
+```
+
+#### Amm
+
+```{r}
+amm_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() +
+  geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Ammonium (µM)",
+    title = "Blind Oso: Ammonium",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+   # axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+amm_bo
+```
+
+#### Temperature
+
+```{r}
+temp_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = temp,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Temperature (°C)",
+    title = "Blind Oso: Temperature",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+temp_bo
+```
+
+#### Salinity
+
+```{r}
+sal_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = sal,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Salinity",
+    title = "Blind Oso: Salinity",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+sal_bo
+```
+
+#### NN
+
+```{r}
+nn_bo <- daily %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = nn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "N+N (µM)",
+    title = "Blind Oso: Nitrate+Nitrite",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+nn_bo
+```
+
+## Canals
+
+#### Total
+
+```{r}
+tot_c2 <- daily %>%
+  filter(site %in% "Canals") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Canals: Total Vibrio Concentrations",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+tot_c2
+```
+
+## Gulf
+
+#### Total
+
+```{r}
+tot_rd <- daily %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Gulf: Total Vibrio Concentrations",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+tot_rd
+```
+
+#### Species
+
+```{r}
+rd_spp_daily<- sp_d %>%
+  filter(site %in% "Gulf",
+         !type %in% "V. alginolyticus") %>% #Take out Va for now
+  ggplot() + 
+  geom_line(
+    aes(
+      x = date,
+      y = copies_mL,
+      color = type),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Vibrio Species Concentrations at the Gulf",
+       x = "Date",
+       y = "Vibrio gene copies/mL",
+       color = "Vibrio spp.") +
+  theme(axis.text.x = element_text(hjust = 1),
+        axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 15),
+        axis.title.y = element_text(size = 10, face = "bold"),
+        legend.position = "none") + 
+scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
+                              "V. cholerae" = "#00BFC4",
+                              "V. parahaemolyticus" = "#C77CFF",
+                              "V. vulnificus" = "#00BA38"))
+rd_spp_daily
+```
+
+#### DIN
+
+```{r}
+din_rd <- daily %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN (µM)",
+    title = "Gulf: DIN",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+din_rd
+```
+
+#### Amm
+
+```{r}
+amm_rd <- daily %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Ammonium (µM)",
+    title = "Gulf: Ammonium",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+
+amm_rd
+```
+
+## Stack
+
+#### BO: DIN x Amm X TDN X NN X Spp
+
+```{r, fig.height=3, fig.width=5}
+ggarrange(temp_bo, sal_bo, tdn_bo, din_bo, nn_bo, dust, amm_bo,bo_spp_daily, 
+          nrow = 4 , ncol = 2)
+```
+
+#### RD: DIN x Dust x Amm x Tot
+
+```{r, fig.height= 7, fig.width=5}
+ggarrange(din_rd, amm_rd, dust, tot_rd, 
+          nrow = 4 , ncol = 1)
+```
+
+#### 
+
+#### RD: Dust x Spp
+
+```{r}
+ggarrange(dust, rd_spp_daily,
+          nrow = 2 , ncol = 1)
+```
+
+#### Total All Sites x Dust
+
+```{r, fig.height=3.3, fig.width=3.5}
+ggarrange(tot_bo, tot_c2, tot_rd, dust,
+          nrow = 4 , ncol = 1)
 ```

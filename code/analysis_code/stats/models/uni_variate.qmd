@@ -37,7 +37,7 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data c
 dust<- dust0 %>%
   filter(!is.na(date),
          date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) %>%
-  mutate(t7sum = log10(t7sum)) #Log transform Dust conc (as it is not normal) 
+  mutate(t7sum = log10(t7sum+ 1)) #Log transform Dust conc (as it is not normal) 
 
 
 data<- data0 %>%
@@ -98,8 +98,8 @@ fig1<-
   stat_poly_eq(aes(x = lag, y = copies_mL),
                rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE,size = 3.5)+
-  annotate("text", x = -1.175, y = 48000, label = "p = 0.01", size =3.5)+
-  labs(title = "Blind Oso",
+  annotate("text", x = 0.0335, y = 55000, label = "p = 0.01", size =3.5)+
+  labs(title = "Blind Oso (1-day lag to dust)",
        x = "log10(dust)",
        y = "Copies/mL")+
   theme_bw() +
@@ -114,8 +114,8 @@ fig1<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL), rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
-  annotate("text", x = -1.17, y = 18000, label = "p = 0.005", size = 3.5)+
-  labs(title = "Canals",
+  annotate("text", x = 0.035, y = 23000, label = "p = 0.005", size = 3.5)+
+  labs(title = "Canals (2-day lag to dust)",
        x = "log10(dust)",
        y = "Copies/mL") +
    theme_bw()+
@@ -130,8 +130,8 @@ fig3<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL),rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
-  annotate("text", x = -1.175, y = 75000, label = "p = 0.02", size = 3.5)+
-  labs(title = "Gulf",
+  annotate("text", x = 0.0335, y = 85000, label = "p = 0.02", size = 3.5)+
+  labs(title = "Gulf (1-day lag to dust",
        x = "log10(dust)",
        y = "Copies/mL")+
    theme_bw() +
@@ -144,7 +144,7 @@ fig3<-
 
 #### Stack
 
-```{r, fig.height=4}
+```{r}
 ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
             ncol = 1, 
             nrow = 3,
