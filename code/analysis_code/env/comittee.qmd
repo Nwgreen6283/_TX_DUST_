@@ -136,6 +136,47 @@ tot_c2 <- monthly %>%
 tot_c2
 ```
 
+#### All on one plot
+
+```{r}
+tot_all <- monthly %>%
+  #filter(site %in% "Canals") %>%
+  ggplot() + 
+  geom_point(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Vibrio gene copies/mL",
+    title = "Monthly Total Vibrio Concentrations",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+   # axis.ticks.x = element_blank(),
+   # axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    legend.position = c(0.1,0.8),
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+   scale_x_date(date_breaks="1 month", date_labels="%b")
+
+tot_all
+```
+
 #### Gulf
 
 ```{r}
@@ -702,6 +743,14 @@ ggarrange(din_c2, amm_c2, orthop_c2, c2_spp_monthly,
 ```{r, fig.height=3, fig.width=6}
 ggarrange(din_rd, amm_rd, nn_rd, sil_rd,rd_spp_monthly,
           nrow = 3 , ncol = 2)
+```
+
+#### Total All sites
+
+```{r, fig.height=3, fig.width=3}
+
+ggarrange(tot_bo, tot_c2, tot_rd,
+          nrow = 3 , ncol = 1)
 ```
 
 ## DAILY

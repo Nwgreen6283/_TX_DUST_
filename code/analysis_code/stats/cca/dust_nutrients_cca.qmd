@@ -1,0 +1,90 @@
+---
+title: "Dust x NUT CCA"
+format:
+  html:
+    theme: default
+---
+
+**This looks at any significant lags between dust and important nutrients to help identify if there is no lag (dust-derived nutrients), or a lag (potentially biologically derived)**
+
+# Intro
+
+#### Library
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include = FALSE}
+txmaster<- read_csv(here("data", "processed_data", "tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
+```
+
+# Cleaning
+
+#### Filter to daily timseries
+
+```{r}
+txmaster<- 
+  txmaster %>%
+  filter(date %in% as.Date('2022-07-07'): as.Date('2022-07-19'),
+         hr_cst %in% '01') %>%
+  select(!c(Dust, SUM))
+```
+
+#### Merge and Clean Dust (t7sum) and Env Variables
+
+```{r}
+crepe<-
+  dust %>%
+  select(date,t7sum) %>%
+  filter(date %in% as.Date('2022-07-07'): as.Date('2022-07-19')) %>%
+  full_join(txmaster) %>%
+  filter(!date %in% as.Date('2022-07-10')) %>%
+  select(date, site, t7sum, din, amm, orthop, tdn,nn, tn, don)
+```
+
+#### Site-specific DF
+
+```{r}
+b<-
+  crepe %>%
+  filter(site %in% "Blind Oso")
+
+c<-
+  crepe %>%
+  filter(site %in% "Canals")
+
+r<-
+  crepe %>%
+  filter(site %in% "Gulf")
+```
+
+# Plot 
+
+#### BLIND OSO
+
+```{r}
+ccf(b$t7sum, b$amm) #Ammonium
+ccf(b$t7sum, b$nn) #Nitrate+Nitrite
+ccf(b$t7sum, b$orthop) #Orthophosphate
+```
+
+#### CANALS
+
+```{r}
+ccf(c$t7sum, c$amm) #Ammonium
+ccf(c$t7sum, c$nn) #Nitrate+Nitrite
+ccf(c$t7sum, c$orthop) #Orthophosphate
+```
+
+#### GULF
+
+```{r}
+ccf(r$t7sum, r$amm) #Ammonium
+ccf(r$t7sum, r$nn) #Nitrate+Nitrite
+ccf(r$t7sum, r$orthop) #Orthophosphate
+```

@@ -124,7 +124,7 @@ rd<- data0 %>%
 
 ```
 
-#### CCA 
+#### CCA
 
 ```{r}
 ccf(bo$Dust, bo$copies_mL) 
@@ -140,3 +140,16 @@ title("Gulf DustxCopies CCA", line =1)
 ```
 
 **No real significance in lags for dust and copies here**
+
+#### DUST
+
+```{r}
+bo<- data %>%
+  filter(site %in% "Blind Oso",
+         hr_cst %in% "00" | hr_cst %in% "01")
+```
+
+```{r}
+ccf(bo$Dust, bo$amm) 
+title("Blind Oso", line =1)
+```
