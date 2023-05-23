@@ -1,0 +1,95 @@
+---
+title: "cfu cleaning"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libraries
+
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include = FALSE}
+cfu<- read_csv(here("data", "raw_data", "cfu.csv"))
+```
+
+# Clean
+
+#### Rename
+
+```{r}
+cfu<-
+  cfu %>%
+  rename("site" = "Location",
+         "date" = "Date of sample collection",
+         "sample" = "Sample name",
+         "yel_col" = "Number of Yellow colony",
+         "gre_col" = "Number of Green colony",
+         "tot_col" = "Total colonies",
+         "dilution_factor" = "Dilution Factor (Final volume/Initial volume)",
+         "vol_plated" = "Volume of sample plated in mL",
+         "cfu_mL" = "Total CFU/mL",
+         "cfu_yel" = "CFU/mL Yellow",
+         "cfu_gre" = "CFU/mL Green") %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                       "Canal 2" = "Canals",
+                       "PCS" = "Gulf",
+                       "RD6" = "Gulf"))
+
+
+  
+```
+
+#### Select
+
+```{r}
+cfu<-
+  cfu %>%
+  select(1:12) %>%
+  select(!`CFU conting date, after 24 hr incubation`)
+```
+
+#### Remove Negatives: MilliQ and DI
+
+```{r}
+cfu<-
+  cfu %>%
+  filter(!site %in% c("1 X PBS", "Milli Q"))
+```
+
+#### Choose Dilution factors w/ least variability
+
+<!--# Need to be careful here. Check with Erin on choosing this. -->
+
+```{r}
+cfu<-
+  cfu %>%
+  filter(variation %in% "g") %>% #Manually added 'g' that denotes dilution with least variation
+  select(!variation)
+```
+
+#### Create Column with average by site and date
+
+```{r}
+avg<-
+  cfu %>% 
+  group_by(site,date) %>% 
+  summarise(mean(cfu_mL)) 
+
+cfu<-
+  avg %>% full_join(cfu) %>%
+  rename("cfu_avg" = "mean(cfu_mL)")
+```
+
+# Save as RDS
+
+```{r}
+saveRDS(cfu, here("data", "processed_data", "cfu", "cfu.rds"))
+```
