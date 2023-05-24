@@ -44,7 +44,7 @@ crepe<-
   filter(date %in% as.Date('2022-07-07'): as.Date('2022-07-19')) %>%
   full_join(txmaster) %>%
   filter(!date %in% as.Date('2022-07-10')) %>%
-  select(date, site, t7sum, din, amm, orthop, tdn,nn, tn, don)
+  select(date, site, t7sum, din, amm, orthop, tdn,nn, tn, don, hf_copies_mL, sal)
 ```
 
 #### Site-specific DF
@@ -63,7 +63,7 @@ r<-
   filter(site %in% "Gulf")
 ```
 
-# Plot 
+# Plot
 
 #### BLIND OSO
 
@@ -87,4 +87,8 @@ ccf(c$t7sum, c$orthop) #Orthophosphate
 ccf(r$t7sum, r$amm) #Ammonium
 ccf(r$t7sum, r$nn) #Nitrate+Nitrite
 ccf(r$t7sum, r$orthop) #Orthophosphate
+```
+
+```{r}
+ccf(b$hf_copies_mL, b$sal) 
 ```

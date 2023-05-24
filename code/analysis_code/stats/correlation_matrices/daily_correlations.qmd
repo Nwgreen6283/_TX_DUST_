@@ -81,7 +81,8 @@ bo<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg")
+         "Avg CFU" = "cfu_avg",
+         "HF183" = "hf_copies_mL")
 
 c2<- 
   c2 %>%
@@ -105,7 +106,8 @@ c2<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg")
+         "Avg CFU" = "cfu_avg",
+         "HF183" = "hf_copies_mL")
 
 rd<- 
   rd %>%
@@ -129,7 +131,8 @@ rd<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg")
+         "Avg CFU" = "cfu_avg",
+         "HF183" = "hf_copies_mL")
 ```
 
 #### Create Species Dataframes and Site-Species Dataframes
@@ -205,14 +208,14 @@ bo<-
 
 c2<- 
   c_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date,)) %>%
+  select(!c(date, HF183)) %>%
   rename("V. cholerae" = "Vc",
          "V. parahaemolyticus" = "Vp",
          "V. vulnificus" = "Vv")
 
 rd<- 
   r_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date)) %>%
+  select(!c(date, HF183)) %>%
   rename("V. cholerae" = "Vc",
          "V. parahaemolyticus" = "Vp",
          "V. vulnificus" = "Vv")
@@ -266,7 +269,7 @@ p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 ```{r}
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
-  select(1:4,22) %>%
+  select(c(`V. cholerae `, `V. vulnificus `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 ` )) %>%
     filter(!row_number() %in% c(1:4)),
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 

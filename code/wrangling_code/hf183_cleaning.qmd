@@ -1,0 +1,152 @@
+---
+title: "hf183 Quantification"
+subtitle: "Nathan Greenslit"
+format:
+  pdf:
+    toc: false
+    number-sections: false
+    colorlinks: true
+---
+
+**This script takes Cq values from HF183 at Blind Oso (Daily/Monthly)**
+
+# Intro
+
+#### Libraries
+
+```{r, include = FALSE}
+library(tidyverse)
+library(here)
+library(kableExtra) #Tables
+```
+
+#### Data
+
+```{r, include  = FALSE}
+b<- read_csv(here("data", "raw_data", "qpcr", "hf183", "hf183_bo_mon_daily.csv"))
+```
+
+# Cleaning
+
+#### Dilution and Filter Columns
+
+```{r}
+b<- 
+  b %>%
+  mutate(dilution = 10,
+         dilution = as.numeric(dilution)) #All samples were dilute 1:10
+
+b<- b %>%
+   mutate(filter_amt = case_when(
+                          Sample == "7"~"100",
+                          Sample == "8"~"100",
+                          Sample == "9"~"100",
+                          Sample == "9"~"100",
+                          Sample == "11"~"100",
+                          Sample == "12"~"50",
+                          Sample == "13"~"50",
+                          Sample == "14"~"50",
+                          Sample == "15"~"50",
+                          Sample == "16"~"30",
+                          Sample == "17"~"30",
+                          Sample == "18"~"30",
+                          Sample == "19"~"30",
+                          Sample == 'Feb' ~"100",
+                          Sample == 'Mar' ~ "100",
+                          Sample == 'Apr' ~ "100",
+                          Sample == 'May_11' ~"100",
+                          Sample == 'May_20' ~ "100",
+                          Sample == 'May_24' ~ "100",
+                          Sample == 'Jun' ~ "100",
+                          Sample =='Aug'~ "30",
+                          Sample == 'Sept'~"45",
+                          Sample == 'Oct' ~ "60",
+                          Sample == 'Nov'~ "30",
+                          Sample == 'Dec'~ "60"),
+          filter_amt = as.numeric(filter_amt)) 
+
+```
+
+#### Date Column
+
+```{r}
+b<- b %>%
+   mutate(date = case_when(
+                          Sample == "7"~"2022-07-07",
+                          Sample == "8"~"2022-07-08",
+                          Sample == "9"~"2022-07-09",
+                          Sample == "11"~"2022-07-11",
+                          Sample == "12"~"2022-07-12",
+                          Sample == "13"~"2022-07-13",
+                          Sample == "14"~"2022-07-14",
+                          Sample == "15"~"2022-07-15",
+                          Sample == "16"~"2022-07-16",
+                          Sample == "17"~"2022-07-17",
+                          Sample == "18"~"2022-07-18",
+                          Sample == "19"~"2022-07-19",
+                          Sample == 'Feb' ~"2022-02-16",
+                          Sample == 'Mar' ~ "2022-03-09",
+                          Sample == 'Apr' ~ "2022-04-20",
+                          Sample == 'May_11' ~"2022-05-11",
+                          Sample == 'May_20' ~ "2022-05-20",
+                          Sample == 'May_24' ~ "2022-05-24",
+                          Sample == 'Jun' ~ "2022-06-14",
+                          Sample =='Aug'~ "2022-08-09",
+                          Sample == 'Sept'~"2022-09-13",
+                          Sample == 'Oct' ~ "2022-10-18",
+                          Sample == 'Nov'~ "2022-11-15",
+                          Sample == 'Dec'~ "2022-12-14"),
+          date = as.Date(date)) 
+```
+
+#### Cq --> Copies per mL
+
+```{r}
+b<- b %>%
+    mutate(
+    log_sq = ((Cq-35.691)/-3.236), #Nina's curve [2/2/23]. E7 to E2. 
+    sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*20, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    hf_copies_mL = copies_uL_extract*concentration_factor) %>%
+  select(date, hf_copies_mL)
+```
+
+#### Replace NaN with 0
+
+```{r}
+b<- 
+  b %>%
+ mutate(hf_copies_mL = ifelse(is.na(hf_copies_mL), 0, hf_copies_mL)) %>%
+filter(!is.na(date))   
+ #Dropping NAs from Pos & NTC
+
+```
+
+#### Take Average
+
+```{r}
+b<- 
+  b %>% 
+  group_by(date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup()  #Ungroup to spit everything back out 
+ 
+```
+
+#### Make a column for Monthly and Daily and Site (so we can add to master)
+
+```{r}
+b<-
+  b %>%
+  mutate(type = if_else(date %in% c(as.Date('2022-07-07') : as.Date('2022-07-19')), "Daily ", "Monthly"),
+         site = "BO")
+```
+
+# Save
+
+```{r}
+write_csv(b, here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv"))
+```

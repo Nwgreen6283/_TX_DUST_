@@ -177,13 +177,13 @@ bo<-
   select(!c(date, ...1, Vp, Type)) %>%
   rename("V. cholerae" = "Vc",
          "V. vulnificus" = "Vv") 
- bo<-bo[, c(4,2,1,5,3,6:22)] #Reorder col
+ bo<-bo[, c(4,2,1,5,3,6:24)] #Reorder col
 
 c2<- 
   c_list %>% reduce(full_join, by = 'date') %>%
   select(!c(date, ...1, Type, Vv, Vc))%>%
   rename("V. parahaemolyticus" = "Vp")
- c2<-c2[, c(3,1,4,2,5:21)]
+ c2<-c2[, c(3,1,4,2,5:23)]
 
 rd<- 
   r_list %>% reduce(full_join, by = 'date') %>%
@@ -191,7 +191,7 @@ rd<-
   rename("V. cholerae" = "Vc",
          "V. parahaemolyticus" = "Vp",
          "V. vulnificus" = "Vv")
-rd<-rd[, c(5,1,2,3,6,4,7:23)]
+rd<-rd[, c(5,1,2,3,6,4,7:25)]
 ```
 
 # Correlation Matrix

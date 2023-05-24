@@ -25,6 +25,7 @@ copies<- read_csv(here("data", "processed_data", "qpcr", "total_clean_copies.csv
 env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Environmental Data
 dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust permutations
 cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
+hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
 ```
 
 # Further Cleaning
@@ -61,6 +62,10 @@ master<-
 master<-
   master %>%
   full_join(cfu)
+
+master<-
+  master %>%
+  full_join(hf)
 ```
 
 #### Clean Data Again
@@ -69,7 +74,7 @@ We will get warnings since we have dust data for the whole year, but Nutrient an
 
 ```{r}
 master<- master %>%
-  select(!...1)  %>% #Gets rid of number column from excel
+  select(!c(...1, type))  %>% #Gets rid of number column from excel
   mutate(
     sal = as.numeric(master$sal), #Set character columns as numeric
     temp = as.numeric(master$temp),
