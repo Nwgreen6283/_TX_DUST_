@@ -45,15 +45,255 @@ sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #spe
 ```{r}
 bo<- 
   bo %>%
-  select(!c(...1))
+  select(!c(date, ...1, sample, yel_col, gre_col, tot_col, vol_plated, dilution_factor))
 
 c2<- 
   c2 %>%
-  select(!c( ...1))
+  select(!c(date, ...1, sample, yel_col, gre_col, tot_col, vol_plated,dilution_factor))
 
 rd<- 
   rd %>%
-  select(!c(...1))
+  select(!c(date, ...1, sample, yel_col, gre_col, tot_col, vol_plated,dilution_factor))
+```
+
+#### Make Datasets for normal and non-normal variables
+
+Variables that are normally distributed across all three sites will be in one df. All others will be in another.
+
+```{r}
+#BLIND OSO
+b_norm<- 
+  bo %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+b_para<- 
+  bo %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+
+#CANALS
+c_norm<- 
+  c2 %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+c_para<- 
+  c2 %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+
+#GULF
+r_norm<- 
+  rd %>%
+  select(!c(sal, secchi, nn, tdn, don, doc, toc, tn))
+r_para<- 
+  rd %>%
+  select(sal, secchi, nn, tdn, don, doc, toc, tn)
+```
+
+#### Log10 Transform non-normally distributed data for Norm df
+
+Distributions can be found in `1_distribution.qmd`
+
+```{r}
+#BLIND OSO
+b_norm<-
+  b_norm %>%
+  mutate(amm = log10(amm), #Log-transforms data
+         din_dip = log10(din_dip),
+         dust = log10(dust),
+         chl = log10(chl),
+         dust_lag = log10(dust_lag)) 
+ 
+#CANALS
+c_norm<- 
+  c_norm %>%
+  mutate(orthop = log10(orthop),
+         dust = log10(dust),
+         dust_lag = log10(dust_lag)) 
+
+
+#GULF
+r_norm<- 
+  r_norm %>%
+  mutate(dust = log10(dust),
+         dust_lag = log10(dust_lag))
+```
+
+# Correlation Matrix
+
+There are different methods for **correlation analysis** : **Pearson parametric correlation test**, **Spearman** and **Kendall** rank-based **correlation analysis**. The default is [pearson correlation coefficient](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) which measures the linear **dependence** between two variables. [kendall and spearman](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) correlation methods are non-parametric **rank-based correlation test**.
+
+#### 1. Compute Correlations
+
+If your data contain missing values, use the following R code to handle missing values by case-wise deletion.
+
+    cor(x, method = "pearson", use = "complete.obs")
+
+```{r, include = FALSE}
+#Normal Data = Pearson's
+b<- cor(b_norm, method = "pearson") #Default method = pearson
+round(b,2) #Round correlation coeff to "x" digits 
+
+c<- cor(c_norm, method = "pearson")
+round(c,2)
+
+r<- cor(r_norm, method = "pearson")
+round(r,2)
+
+#Non-parametric Data  = Spearman's
+b1<- cor(b_para, method = "spearman") 
+round(b,2) #Round correlation coeff to "x" digits 
+
+c1<- cor(c_para, method = "spearman")
+round(c,2)
+
+r1<- cor(r_para, method = "spearman")
+round(r,2)
+
+#All Data = Spearman's
+b2<- cor(bo, method = "spearman") 
+round(b,2) #Round correlation coeff to "x" digits 
+
+c22<- cor(c2, method = "spearman")
+round(c,2)
+
+r2<- cor(rd, method = "spearman")
+round(r,2)
+```
+
+#### 2. Make Function to Format
+
+Simple function for formatting a **correlation matrix** into a table with 4 columns containing : Column 1 : row names (variable 1 for the correlation test), Column 2 : column names (variable 2 for the correlation test), Column 3 : the **correlation coefficients**, Column 4 : the **p-values** of the correlations
+
+```{r}
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut])}
+```
+
+#### 3. Make Matrix
+
+The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **significance levels** for **pearson** and **spearman correlations**. It returns both the correlation coefficients and the p-value of the correlation for all possible pairs of columns in the data table.
+
+**NOTE THIS IS WITH DATA SETS PRIOR TO LOG TRANSFORMATION. SO EVERYTHING SPEARMANS.**
+
+```{r}
+bclean<- rcorr(as.matrix(bo))
+flattenCorrMatrix(bclean$r, bclean$P)
+
+cclean<- rcorr(as.matrix(c2))
+flattenCorrMatrix(cclean$r, cclean$P)
+
+rclean<- rcorr(as.matrix(rd))
+flattenCorrMatrix(rclean$r, rclean$P)
+```
+
+#### Extract cor and p value
+
+#### Visualize with `corrplot()` function
+
+The function **corrplot()** takes the **correlation matrix** as the first argument. The second argument (type="upper") is used to display only the upper triangular of the **correlation matrix**.
+
+#### Just Normal Data
+
+```{r}
+#Normal Data 
+ corrplot(b, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Pearson",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+ corrplot(c, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Pearson", mar=c(0,0,1,0))
+
+ corrplot(r, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Pearson")
+```
+
+#### All Spearman
+
+```{r}
+#Non-Parametric Data
+ corrplot(b2, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman_all",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c22, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman_all", mar=c(0,0,1,0))
+
+corrplot(r2, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman_all" )
+```
+
+#### Everything
+
+```{r, fig.width=6}
+par(mfrow=c(3,3))
+#Normal Data 
+ corrplot(b, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Pearson",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+ corrplot(c, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Pearson", mar=c(0,0,1,0))
+
+ corrplot(r, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Pearson")
+         
+#Non-Parametric Data
+ corrplot(b1, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c1, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman", mar=c(0,0,1,0))
+
+corrplot(r1, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman" )
+         
+#Non-Parametric Data
+ corrplot(b2, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Blind Oso_Spearman_all",  mar=c(0,0,1,0)) #Adds and lowers title 
+
+corrplot(c22, type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Canals_Spearman_all", mar=c(0,0,1,0))
+
+corrplot(r2, type = "upper", 
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0))
+         title(main = "Gulf_Spearman_all" )
+```
+
+# Correlation Tables
+
+#### Load in data again to bypass earlier code
+
+```{r, include = FALSE}
+bo<- read_csv(here("data", "processed_data", "bo_master_daily.csv"))
+c2<- read_csv(here("data", "processed_data", "c2_master_daily.csv"))
+rd<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
+```
+
+```{r}
+bo<- 
+  bo %>%
+  select(!c( ...1, sample, yel_col, gre_col, tot_col, vol_plated, dilution_factor))
+
+c2<- 
+  c2 %>%
+  select(!c( ...1, sample, yel_col, gre_col, tot_col, vol_plated,dilution_factor))
+
+rd<- 
+  rd %>%
+  select(!c( ...1, sample, yel_col, gre_col, tot_col, vol_plated,dilution_factor))
 ```
 
 #### Rename Copies --> Vibrio
@@ -81,7 +321,8 @@ bo<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg")
+         "CFU/mL" = "cfu_mL",
+         "CFU/mL Avg" = "cfu_avg")
 
 c2<- 
   c2 %>%
@@ -105,7 +346,8 @@ c2<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg")
+         "CFU/mL" = "cfu_mL",
+         "CFU/mL Avg" = "cfu_avg")
 
 rd<- 
   rd %>%
@@ -129,6 +371,7 @@ rd<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
+         "CFU/mL" = "cfu_mL",
          "Avg CFU" = "cfu_avg")
 ```
 
@@ -218,43 +461,6 @@ rd<-
          "V. vulnificus" = "Vv")
 ```
 
-# Correlation Matrix
-
-There are different methods for **correlation analysis** : **Pearson parametric correlation test**, **Spearman** and **Kendall** rank-based **correlation analysis**. The default is [pearson correlation coefficient](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) which measures the linear **dependence** between two variables. [kendall and spearman](http://www.sthda.com/english/wiki/correlation-test-between-two-variables) correlation methods are non-parametric **rank-based correlation test**.
-
-#### 1. Make Function to Format
-
-Simple function for formatting a **correlation matrix** into a table with 4 columns containing : Column 1 : row names (variable 1 for the correlation test), Column 2 : column names (variable 2 for the correlation test), Column 3 : the **correlation coefficients**, Column 4 : the **p-values** of the correlations
-
-```{r}
-flattenCorrMatrix <- function(cormat, pmat) {
-  ut <- upper.tri(cormat)
-  data.frame(
-    row = rownames(cormat)[row(cormat)[ut]],
-    column = rownames(cormat)[col(cormat)[ut]],
-    cor  =(cormat)[ut],
-    p = pmat[ut])}
-```
-
-#### 2. Make Matrix
-
-The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **significance levels** for **pearson** and **spearman correlations**. It returns both the correlation coefficients and the p-value of the correlation for all possible pairs of columns in the data table.
-
-**NOTE THIS IS WITH DATA SETS PRIOR TO LOG TRANSFORMATION. SO EVERYTHING SPEARMANS.**
-
-```{r}
-bclean<- rcorr(as.matrix(bo))
-flattenCorrMatrix(bclean$r, bclean$P)
-
-cclean<- rcorr(as.matrix(c2))
-flattenCorrMatrix(cclean$r, cclean$P)
-
-rclean<- rcorr(as.matrix(rd))
-flattenCorrMatrix(rclean$r, rclean$P)
-```
-
-# Tables
-
 #### Table: Env, Spp, Total
 
 This is using Spearman's for all. This [Correlation Function](https://paulvanderlaken.com/2020/07/28/publication-ready-correlation-matrix-significance-r/) uses a df as opposed to a matrix, so it is more user friendly for making tables.
@@ -267,19 +473,19 @@ p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
   select(1:4,22) %>%
-    filter(!row_number() %in% c(1:4)),
+    filter(!row_number() %in% c(1:4, 22:25)),
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 c2_table<-
   kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
   select(1:5,23) %>%
-    filter(!row_number() %in% c(1:5)),
+    filter(!row_number() %in% c(1:5, 23:26)),
   caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 rd_table<-
   kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
   select(1:5,23) %>%
-    filter(!row_number() %in% c(1:5)),
+    filter(!row_number() %in% c(1:5, 23:26)),
   caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 bo_table

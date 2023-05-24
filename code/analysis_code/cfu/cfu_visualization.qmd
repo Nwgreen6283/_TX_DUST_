@@ -1,0 +1,117 @@
+---
+title: "cfu_visualization"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libraries
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include=FALSE}
+#MASTER
+master<- read_csv(here("data", "processed_data", "tx_master.csv"))
+#DAILY
+b_d<- read_csv(here("data", "processed_data", "bo_master_daily.csv"))
+c_d<- read_csv(here("data", "processed_data", "c2_master_daily.csv"))
+r_d<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
+
+#MONTHLY
+b_m<- read_csv(here("data", "processed_data", "bo_master_monthly.csv"))
+c_m<- read_csv(here("data", "processed_data", "c2_master_monthly.csv"))
+r_m<- read_csv(here("data", "processed_data", "rd_master_monthly.csv"))
+```
+
+# Cleaning
+
+#### Create Monthly and Daily DF
+
+```{r}
+daily<- 
+  master %>%
+  filter(Type %in% "Daily",
+         hr_cst %in% "01")
+
+monthly<- 
+  master %>%
+  filter(Type %in% "Monthly"| date %in% as.Date('2022-07-07'),
+         hr_cst %in% c("01", "00"))
+```
+
+# Plot
+
+## Daily
+
+#### CFU per mL (Triplicates)
+
+```{r}
+daily %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = factor(date),
+        y = cfu_mL,
+        color = site)) +
+  facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+```
+
+#### CFU per mL (Average)
+
+```{r}
+daily %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_avg,
+        color = site)) +
+  facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+```
+
+## Monthly
+
+#### CFU per mL (Triplicates)
+
+```{r}
+monthly %>%
+  ggplot() + 
+  geom_boxplot(
+    aes(x = factor(date),
+        y = cfu_mL,
+        color = site)) +
+  facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+```
+
+#### CFU per mL (Average)
+
+```{r}
+monthly %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_avg,
+        color = site)) +
+  facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+```

@@ -38,10 +38,10 @@ cfu<-
          "cfu_mL" = "Total CFU/mL",
          "cfu_yel" = "CFU/mL Yellow",
          "cfu_gre" = "CFU/mL Green") %>%
-  mutate(site = recode(site, "BO" = "Blind Oso",
-                       "Canal 2" = "Canals",
-                       "PCS" = "Gulf",
-                       "RD6" = "Gulf"))
+  mutate(site = recode(site, "BO" = "BO",
+                       "Canal 2" = "C2",
+                       "PCS" = "RD",
+                       "RD6" = "RD"))
 
 
   
@@ -52,7 +52,7 @@ cfu<-
 ```{r}
 cfu<-
   cfu %>%
-  select(1:12) %>%
+  select(1:13) %>%
   select(!`CFU conting date, after 24 hr incubation`)
 ```
 
@@ -85,7 +85,8 @@ avg<-
 
 cfu<-
   avg %>% full_join(cfu) %>%
-  rename("cfu_avg" = "mean(cfu_mL)")
+  rename("cfu_avg" = "mean(cfu_mL)") %>%
+  mutate(date = as.Date(date))
 ```
 
 # Save as RDS

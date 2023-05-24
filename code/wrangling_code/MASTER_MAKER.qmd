@@ -11,9 +11,10 @@ format:
 
 #### Libraries
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 library(here)
+library(Hmisc) #Lag Function
 ```
 
 #### Load Clean Data
@@ -23,6 +24,7 @@ dust<- readRDS(here("data", "processed_data", "dust", "dust_final.rds")) #Clean 
 copies<- read_csv(here("data", "processed_data", "qpcr", "total_clean_copies.csv")) #Clean Copies Data
 env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Environmental Data
 dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust permutations
+cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 ```
 
 # Further Cleaning
@@ -35,7 +37,18 @@ env<- env %>%
   select(1:20) #Removes NA columns
 ```
 
-#### Combine 3 data sets to make a large master data set
+#### Get rid of colony data
+
+<!--# This makes everything in triplicate which messes up stats. So we will get rid of it for now -->
+
+```{r}
+cfu<- 
+  cfu %>%
+  select(c(site, date, cfu_avg))
+cfu<- unique(cfu)
+```
+
+#### Combine data sets: (1) Dust, (2) Total Vib, (3) Environmental, (4) CFU
 
 ```{r}
 master<- #env %>% 
@@ -44,6 +57,10 @@ master<- #env %>%
 master<-
   master %>%
   full_join(env)
+
+master<-
+  master %>%
+  full_join(cfu)
 ```
 
 #### Clean Data Again
@@ -77,7 +94,7 @@ master<- master %>%
 
 #### 
 
-## DAILY Site-specific data frames 
+## DAILY Site-specific data frames
 
 #### Trim Dates
 
@@ -122,9 +139,9 @@ rd<-
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 ```
 
-## MONTHLY Site-specific data frames 
+## MONTHLY Site-specific data frames
 
-#### Select Monthly Dates 
+#### Select Monthly Dates
 
 Also including 7/7/23 to represent July
 
