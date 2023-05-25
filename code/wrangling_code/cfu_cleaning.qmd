@@ -75,7 +75,9 @@ cfu<-
   select(!variation)
 ```
 
-#### Create Column with average by site and date
+#### Create Column with average CFUs by site and date
+
+<!--# If i kept the individual CFU measurements (triplicates by date) then there would be three repeititve measurements per date and this impactgs downstream stats.  -->
 
 ```{r}
 avg<-
@@ -83,10 +85,25 @@ avg<-
   group_by(site,date) %>% 
   summarise(mean(cfu_mL)) 
 
+avg_gre<-
+  cfu %>%
+  group_by(site, date) %>%
+  summarise(mean(cfu_gre))
+
+avg_yel<-
+  cfu %>%
+  group_by(site, date) %>%
+  summarise(mean(cfu_yel))
+
+avg_all<- list(avg, avg_gre, avg_yel)
+
 cfu<-
-  avg %>% full_join(cfu) %>%
-  rename("cfu_avg" = "mean(cfu_mL)") %>%
-  mutate(date = as.Date(date))
+  avg_all %>% reduce(full_join, by = c('site','date')) %>%
+  select(site, date, `mean(cfu_mL)`, `mean(cfu_gre)`, `mean(cfu_yel)`) %>%
+  rename("cfu_tot" = "mean(cfu_mL)",
+         "cfu_gre" = "mean(cfu_gre)",
+         "cfu_yel" = "mean(cfu_yel)")
+
 ```
 
 # Save as RDS

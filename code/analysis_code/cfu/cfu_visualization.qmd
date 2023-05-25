@@ -50,22 +50,6 @@ monthly<-
 
 ## Daily
 
-#### CFU per mL (Triplicates)
-
-```{r}
-daily %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = factor(date),
-        y = cfu_mL,
-        color = site)) +
-  facet_wrap(~site)+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
-```
-
 #### CFU per mL (Average)
 
 ```{r}
@@ -73,33 +57,115 @@ daily %>%
   ggplot() + 
   geom_line(
     aes(x = date,
-        y = cfu_avg,
+        y = cfu_tot,
         color = site)) +
   facet_wrap(~site)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
+                                "Gulf" = "#4c848c")) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average Total CFU/mL",
+       title = "Daily: Avereage Total CFU by Site")+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(here("results", "plots", "cfu", "total_daily.png"))
+```
+
+#### Green and Yellow Growth
+
+##### BLIND OSO
+
+```{r}
+b_d %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Blind Oso") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "bo_all_daily.png"))
+```
+
+##### CANALS
+
+```{r}
+c_d %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Canals") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "c2_all_daily.png"))
+```
+
+##### GULF
+
+```{r}
+r_d %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Gulf") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "gulf_all_daily.png"))
 ```
 
 ## Monthly
 
-#### CFU per mL (Triplicates)
-
-```{r}
-monthly %>%
-  ggplot() + 
-  geom_boxplot(
-    aes(x = factor(date),
-        y = cfu_mL,
-        color = site)) +
-  facet_wrap(~site)+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
-```
-
 #### CFU per mL (Average)
 
 ```{r}
@@ -107,11 +173,151 @@ monthly %>%
   ggplot() + 
   geom_line(
     aes(x = date,
-        y = cfu_avg,
+        y = cfu_tot,
         color = site)) +
   facet_wrap(~site)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))
+                                "Gulf" = "#4c848c")) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average Total CFU/mL",
+       title = "Monthly: Avereage Total CFU by Site")+
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(here("results", "plots", "cfu", "total_monthly.png"))
+```
+
+#### Green and Yellow Growth
+
+##### BLIND OSO
+
+```{r}
+b_m %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  geom_point(
+    aes(x = date,
+        y = cfu_tot),
+    size = 2) +
+   geom_point(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 2) +
+  geom_point(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 2) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Blind Oso") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "bo_all_monthly.png"))
+```
+
+##### CANALS
+
+```{r}
+c_m %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  geom_point(
+    aes(x = date,
+        y = cfu_tot),
+    size = 2) +
+   geom_point(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 2) +
+  geom_point(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 2) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Canals") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "c2_all_monthly.png"))
+```
+
+##### GULF
+
+```{r}
+r_m %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot),
+    size = 1) +
+   geom_line(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 1) +
+  geom_line(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 1) +
+  geom_point(
+    aes(x = date,
+        y = cfu_tot),
+    size = 2) +
+   geom_point(
+    aes(x = date,
+        y = cfu_gre),
+    color = "#50C878",
+    size = 2) +
+  geom_point(
+    aes(x = date,
+        y = cfu_yel),
+    color = "#FFBF00",
+    size = 2) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Average CFU/mL",
+       title = "Gulf") +
+  theme(axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "cfu", "rd_all_monthly.png"))
 ```

@@ -19,111 +19,10 @@ library(ggpubr) #Stacking Plots
 #### DATA
 
 ```{r, include=FALSE}
-vp<- read_csv(here("data", "processed_data","qpcr", "vp_clean_copies.csv"))
-vp_m<- read_csv(here("data", "processed_data","qpcr","vp_mon_clean_copies.csv")) 
-
-vv<- read_csv(here("data", "processed_data","qpcr","vv_clean_copies_redo.csv")) #Trial two is best. Other trials exist too. 
-vv_m<- read_csv(here("data", "processed_data","qpcr","vv_clean_copies_mon.csv"))
-
-vc<- read_csv(here("data", "processed_data","qpcr", "vc_clean_copies_daily.csv")) #Daily
-vc_m<- read_csv(here("data", "processed_data", "qpcr","vc_clean_copies_mon.csv"))#Monthly
-vc_bo<- read_csv(here("data", "processed_data","qpcr","vc_clean_copies_dail_1_50.csv")) #Ran 1:50. with 5 reps (run with 2 reps + run with 3 reps)
-#vc_bo_50<- read_csv(here("data", "processed_data","vc_clean_copies_daily_1_50_2reps.csv"))#Just reps 4 and 5 to compare. This looks fine, but I removed the code so as to clean up this script.
-
-va<- read_csv(here("data", "processed_data","qpcr", "va_clean_copies_daily.csv"))
-va_m<-  read_csv(here("data", "processed_data","qpcr", "va_clean_copies_monthly.csv"))
+master<- read_csv(here("data", "processed_data","tx_master.csv"))
 ```
 
-# CLEANING
-
-#### Clean Daily data sets
-
-```{r}
-vv<- vv %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-
-vp<- vp %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-
-vc<- vc %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-vc_bo<- vc_bo %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-#vc_bo_50<- vc_bo_50 %>%
- # mutate(site = recode(site, "BO" = "Blind Oso")) %>%
- # mutate(site = recode(site, "C2" = "Canals")) %>%
- # mutate(site = recode(site, "RD" = "Gulf"))
-
-va<- va %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-```
-
-#### Combine 5 rep Vc BO Daily to Canals and Gulf
-
-```{r}
-vc<- 
-  vc %>%
-  filter(!site %in% "Blind Oso")  #Gets rid of old BO 
-  
-vc_d<- rbind(vc, vc_bo) #Adds new BO to C2 and RD
-```
-
-#### Add July to Monthly Data
-
-```{r}
-#Vp Mon
-vp_m<- vp_m %>%
-  select(!...1) 
-jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
-jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
-jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
-vp_m = rbind(jul_bo, jul_c2, jul_rd, vp_m) %>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-                     
-
-#Vv Mon
-vv_m<- vv_m %>%
-  select(!...1) 
-jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
-jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
-jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=7.49310194, site = "RD")
-vv_m = rbind(jul_bo, jul_c2, jul_rd, vv_m)%>%
-  mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-  mutate(site = recode(site, "C2" = "Canals")) %>%
-  mutate(site = recode(site, "RD" = "Gulf"))
-
-vc_m<- vc_m %>%
-  select(!...1) 
-  jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=263.208407, site = "BO")
-  jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "C2")
-  jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "RD")
-  vc_m = rbind(jul_bo, jul_c2, jul_rd, vc_m)%>%
-    mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-    mutate(site = recode(site, "C2" = "Canals")) %>%
-    mutate(site = recode(site, "RD" = "Gulf"))
-  
- va_m<- va_m %>%
-  select(!...1) 
-  jul_bo = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "BO")
-  jul_c2 = data.frame(date = as.Date("2022-07-07"), copies_mL=5.494766, site = "C2")
-  jul_rd = data.frame(date = as.Date("2022-07-07"), copies_mL=0, site = "RD")
-  va_m = rbind(jul_bo, jul_c2, jul_rd, va_m)%>%
-    mutate(site = recode(site, "BO" = "Blind Oso")) %>%
-    mutate(site = recode(site, "C2" = "Canals")) %>%
-    mutate(site = recode(site, "RD" = "Gulf")) 
-```
+#### 
 
 # DAILY PLOTS
 
@@ -131,10 +30,11 @@ vc_m<- vc_m %>%
 
 ```{r}
 #png(file = here("results", "plots", "species_specific", "vp_daily.png"))
- vp %>%
+ master %>%
+   filter(Type %in% "Daily") %>%
   ggplot() + geom_line(
     aes(x = date,
-        y = copies_mL,
+        y = Vp,
         color = site))+ 
   facet_wrap(~site)  +
   labs(x = "Date",
@@ -159,11 +59,11 @@ vc_m<- vc_m %>%
 ```{r}
 #png(file = here("results", "plots", "species_specific", "vv_daily.png"))
 
-vv %>%
-  #filter(!site %in% "Blind Oso") %>%
+ master %>%
+   filter(Type %in% "Daily") %>%
   ggplot() + geom_line(
     aes(x = date,
-        y = copies_mL,
+        y = Vv,
         color = site))+ 
   facet_wrap(~site)  +
   labs(x = "Date",
@@ -187,11 +87,11 @@ vv %>%
 For Vc, we ran it initial with all three sites. Then tested BO for INH, and it looked inhibited. So we ran 1:50 (still inh), 1:100 (too dilute), and 1:50 one more time. For the 1:50 trials we had a total of 5 reps (which is what we see below for BO). We have the data (raw/processed) for the other trials, but they have been removed here so as to clear up space.
 
 ```{r}
-vc_d %>%
-#filter(!site %in% "Blind Oso") %>%
+ master %>%
+   filter(Type %in% "Daily") %>%
   ggplot() + geom_line(
     aes(x = date,
-        y = copies_mL,
+        y = Vc,
         color = site))+ 
   facet_wrap(~site)  +
   labs(x = "Date",
@@ -214,89 +114,73 @@ vc_d %>%
 
 ## Va
 
+<!--# Melt curves inidicated multiple targets amplified. So ignore Va for now. Will troubleshoot other assays -->
+
 ```{r}
 #png(file = here("results", "plots", "species_specific", "va_daily.png"))
 
-va %>%
+#va %>%
  #filter(!site %in% "Blind Oso") %>%
-  ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Daily Vibrio alginolyticus",
-       caption = "gyrB. Will Re-do with groEL")+
-  theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+ 
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+  #ggplot() + geom_line(
+  #  aes(x = date,
+      #  y = copies_mL,
+        #color = site))+ 
+  #facet_wrap(~site)  +
+ # labs(x = "Date",
+      # title = "Daily Vibrio alginolyticus",
+       #caption = "gyrB. Will Re-do with groEL")+
+  #theme_bw()+
+  #theme(
+    #plot.title = element_text(hjust = 0.5),
+    #axis.text.x = element_text(hjust = 1, angle = 45),
+    #legend.position = "none")+ 
+ # scale_color_manual(values = c("Blind Oso" = "#809C52",
+                               # "Canals" = "#ba4716",
+                                #"Gulf" = "4c848c"))
 #dev.off()
 
- ggsave(here("results", "plots", "va_daily.png"))
+ #ggsave(here("results", "plots", "va_daily.png"))
 ```
 
 ## Combine all species
 
 #### Combine dataset
 
-DAILY
-
-```{r}
-#Make new columns with species 
-type = "vc"
-vc1<- cbind(vc_d, type)
-
-type = "vv"
-vv1<- cbind(vv, type)
-
-type = "vp"
-vp1<- cbind(vp, type)
-
-type = "va"
-va1<- cbind(va,type)
-
-#Combine datasets
-master<- rbind(vc1,vp1,vv1, va1) %>%
-  mutate(type = recode(type, "va" = "V. alginolyticus",
-                       "vc" = "V. cholerae",
-                       "vp" = "V. parahaemolyticus",
-                       "vv" = "V. vulnificus"))
-# Save this
-saveRDS(master, file = here("data", "processed_data", "qpcr","species_copies.rds"))
-```
-
 #### Plot
 
 ##### Blind Oso
 
 ```{r}
-bo_spp<- master %>%
-  filter(site %in% "Blind Oso",
-         !type %in% "V. alginolyticus") %>% #Take out Va for now
-  ggplot() + geom_line(
+bo_spp<- 
+  master %>%
+  filter(Type %in% "Daily",
+         site %in% "Blind Oso") %>%
+  ggplot() +
+  geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
      labs(title = "Vibrio Species at Blind Oso",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
+       y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 bo_spp
 
@@ -309,26 +193,34 @@ bo_spp
 ```{r}
 c2_spp<-
   master %>%
-  filter(site %in% "Canals",
-         !type %in% "V. alginolyticus") %>%
-  ggplot() + geom_line(
+  filter(Type %in% "Daily",
+         site %in% "Canals") %>%
+  ggplot() +
+  geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
-     labs(title = "Vibrio Species at the Canals",
+     labs(title = "Vibrio Species at Canals",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
-  theme(axis.text.x = element_text(hjust = 1),
+       y = "Vibrio gene copies/mL") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 c2_spp
 
@@ -339,27 +231,35 @@ c2_spp
 
 ```{r}
 rd_spp<-
- master %>%
-  filter(site %in% "Gulf",
-         !type %in% "V. alginolyticus") %>%
-  ggplot() + geom_line(
+  master %>%
+  filter(Type %in% "Daily",
+         site %in% "Gulf") %>%
+  ggplot() +
+  geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
-     labs(title = "Vibrio Species at the Gulf",
+     labs(title = "Vibrio Species at Gulf",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
+       y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 rd_spp
 
@@ -383,24 +283,23 @@ all_spp
 ```{r}
 #png(file = here("results", "plots", "species_specific", "vp_mon.png"))
 
-vp_m %>%
-ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  geom_point(
-     aes(x = date,
-        y = copies_mL,
-        color = site))+
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Monthly Vibrio parahaemolyticus")+
+  master %>%
+  filter(Type %in% "Monthly") %>%
+  ggplot() +
+    geom_line(
+    aes(
+      x = date,
+      y = Vp,
+      color = site),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+
+     labs(title = "Vp",
+       x = "Date",
+       y = "Vibrio gene copies/mL") +
+    facet_wrap(~site) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
@@ -415,25 +314,23 @@ ggplot() + geom_line(
 
 ```{r}
 #png(file = here("results", "plots", "species_specific", "vv_mon.png"))
- vv_m %>%
-  filter(!site %in% c("E3", "NT")) %>%
- ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  geom_point(
-     aes(x = date,
-        y = copies_mL,
-        color = site))+
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Monthly Vibrio vulnificus")+
+  master %>%
+  filter(Type %in% "Monthly") %>%
+  ggplot() +
+    geom_line(
+    aes(
+      x = date,
+      y = Vv,
+      color = site),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+
+     labs(title = "Vv",
+       x = "Date",
+       y = "Vibrio gene copies/mL") +
+    facet_wrap(~site) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
@@ -447,25 +344,23 @@ ggplot() + geom_line(
 
 ```{r}
 #png(file = here("results", "plots", "species_specific", "vc_mon.png"))
-vc_m %>%
-  #filter(!site %in% "Blind Oso") %>%
- ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  geom_point(
-     aes(x = date,
-        y = copies_mL,
-        color = site))+
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Monthly Vibrio cholerae")+
+  master %>%
+  filter(Type %in% "Monthly") %>%
+  ggplot() +
+    geom_line(
+    aes(
+      x = date,
+      y = Vc,
+      color = site),
+    size = 1)+ 
   theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+
+     labs(title = "Vc",
+       x = "Date",
+       y = "Vibrio gene copies/mL") +
+    facet_wrap(~site) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))+
@@ -473,73 +368,7 @@ vc_m %>%
 #dev.off()
 
  ggsave(here("results", "plots", "vc_monthly.png"))
-```
-
-#### Va
-
-```{r}
-
-va_m %>%
-  #filter(!site %in% "Blind Oso") %>%
- ggplot() + geom_line(
-    aes(x = date,
-        y = copies_mL,
-        color = site))+ 
-  geom_point(
-     aes(x = date,
-        y = copies_mL,
-        color = site))+
-  facet_wrap(~site)  +
-  labs(x = "Date",
-       y = "Copies/mL",
-       title = "Monthly Vibrio alginolyticus")+
-  theme_bw()+
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(hjust = 1, angle = 45),
-    legend.position = "none")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))+
-  scale_x_date(date_breaks = "1 month", date_labels = "%b")
-
- ggsave(here("results", "plots", "va_monthly.png"))
-```
-
-#### Combine all species
-
-I was dumb and have 6/13 for some DF and 6/14 for others. Below, I changed to be the correct 6/14.
-
-```{r}
-#Make new columns with species 
-type = "vc"
-vc2<- cbind(vc_m, type)
-
-type = "vv"
-vv2<- cbind(vv_m, type)
-
-type = "vp"
-vp2<- cbind(vp_m, type)
-
-type = "va"
-va2<- cbind(va_m,type)
-
-#Combine datasets
-master_monthly<- rbind(vc2,vp2,vv2, va2) %>%
-  mutate(type = recode(type, "va" = "V. alginolyticus",
-                       "vc" = "V. cholerae",
-                       "vp" = "V. parahaemolyticus",
-                       "vv" = "V. vulnificus")) %>%
-  #Fix date mislabeling
-  mutate(date = as.character(date))
-  master_monthly$date <- recode_factor(master_monthly$date, '2022-06-13' = "2022-06-14") 
-master_monthly<- 
-    master_monthly %>%
-    mutate(date = as.Date(date))
-
-
-# Save this
-saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_copies_monthly.rds"))
+ 
 ```
 
 #### Plot
@@ -547,35 +376,36 @@ saveRDS(master_monthly, file = here("data", "processed_data", "qpcr","species_co
 ##### Blind Oso
 
 ```{r}
-bo_spp_monthly<- master_monthly %>%
-  filter(site %in% "Blind Oso",
-         !type %in% "V. alginolyticus") %>% #Take out Va for now
-  ggplot() + 
-  geom_point(
-    aes(
-      x = date,
-      y = copies_mL,
-      color = type),
-    size = 2)+
+bo_spp_monthly<-
+  master %>%
+  filter(Type %in% "Monthly",
+         site %in% "Blind Oso") %>%
+  ggplot() +
   geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
-     labs(title = "Vibrio Species Concentrations at Blind Oso",
+     labs(title = "Vibrio Species at Blind Oso",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
+       y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-  scale_x_date(date_breaks="1 month", date_labels="%b")+
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 bo_spp_monthly
 
@@ -586,35 +416,36 @@ bo_spp_monthly
 ##### Canals
 
 ```{r}
-c2_spp_monthly<- master_monthly %>%
-  filter(site %in% "Canals",
-         !type %in% "V. alginolyticus") %>% #Take out Va for now
-  ggplot() + 
-  geom_point(
-    aes(
-      x = date,
-      y = copies_mL,
-      color = type),
-    size = 2)+
+c2_spp_monthly<-
+  master %>%
+  filter(Type %in% "Monthly",
+         site %in% "Canals") %>%
+  ggplot() +
   geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
-     labs(title = "Vibrio Species Concentrations at the Canals",
+     labs(title = "Vibrio Species at Canals",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
+       y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-  scale_x_date(date_breaks="1 month", date_labels="%b")+ 
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 c2_spp_monthly
 
@@ -625,35 +456,36 @@ c2_spp_monthly
 ##### Gulf
 
 ```{r}
-rd_spp_monthly<- master_monthly %>%
-  filter(site %in% "Gulf",
-         !type %in% "V. alginolyticus") %>% #Take out Va for now
-  ggplot() + 
-  geom_point(
-    aes(
-      x = date,
-      y = copies_mL,
-      color = type),
-    size = 2)+
+rd_spp_monthly<- 
+  master %>%
+  filter(Type %in% "Monthly",
+         site %in% "Gulf") %>%
+  ggplot() +
   geom_line(
     aes(
       x = date,
-      y = copies_mL,
-      color = type),
+      y = Vc),
+      color = "#00BFC4",
+    size = 1)+ 
+  geom_line(
+    aes(
+      x = date,
+      y = Vv),
+      color = "#00BA38",
+    size = 1)+ 
+    geom_line(
+    aes(
+      x = date,
+      y = Vp),
+      color = "#C77CFF",
     size = 1)+ 
   theme_bw()+
-     labs(title = "Vibrio Species Concentrations at the Gulf",
+     labs(title = "Vibrio Species at Gulf",
        x = "Date",
-       y = "Vibrio gene copies/mL",
-       color = "Vibrio spp.") +
+       y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         plot.title = element_text(hjust = 0.5),
-        legend.position = "none") + 
-  scale_x_date(date_breaks="1 month", date_labels="%b")+ 
-scale_color_manual(values = c("V. alginolyticus" = "#F8766D",
-                              "V. cholerae" = "#00BFC4",
-                              "V. parahaemolyticus" = "#C77CFF",
-                              "V. vulnificus" = "#00BA38"))
+        legend.position = "none") 
 
 rd_spp_monthly
 

@@ -45,15 +45,15 @@ sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #spe
 ```{r}
 bo<- 
   bo %>%
-  select(!c(...1))
+  select(!c(...1, date, Vp))
 
 c2<- 
   c2 %>%
-  select(!c( ...1))
+  select(!c( ...1, date, hf_copies_mL))
 
 rd<- 
   rd %>%
-  select(!c(...1))
+  select(!c(...1, date, hf_copies_mL))
 ```
 
 #### Rename Copies --> Vibrio
@@ -81,7 +81,7 @@ bo<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg",
+         "Avg CFU" = "cfu_tot",
          "HF183" = "hf_copies_mL")
 
 c2<- 
@@ -106,8 +106,7 @@ c2<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg",
-         "HF183" = "hf_copies_mL")
+         "Avg CFU" = "cfu_tot")
 
 rd<- 
   rd %>%
@@ -131,95 +130,10 @@ rd<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_avg",
-         "HF183" = "hf_copies_mL")
+         "Avg CFU" = "cfu_tot")
 ```
 
-#### Create Species Dataframes and Site-Species Dataframes
-
-```{r}
-#SPECIES DF
-vc<-
-  sp %>%
-  filter(type %in% "V. cholerae") %>%
-  rename("Vc" = "copies_mL")
-vp<-
-  sp %>%
-  filter(type %in% "V. parahaemolyticus") %>%
-  rename("Vp" = "copies_mL")
-vv<-
-  sp %>%
-  filter(type %in% "V. vulnificus") %>%
-  rename("Vv" = "copies_mL")
-
-#SITE_SPECIES DF
-b_vc <- 
-  vc %>%
-  filter(site %in% "Blind Oso") %>% 
-  select(Vc, date)
-b_vv <- 
-  vv %>%
-  filter(site %in% "Blind Oso") %>%
-  select(Vv, date)
-b_vp <- 
-  vp %>%
-  filter(site %in% "Blind Oso") %>%
-  select(Vp, date)
-
-c_vc <- 
-  vc %>%
-  filter(site %in% "Canals") %>% 
-  select(Vc, date)
-c_vv <- 
-  vv %>%
-  filter(site %in% "Canals") %>%
-  select(Vv, date)
-c_vp <- 
-  vp %>%
-  filter(site %in% "Canals") %>%
-  select(Vp, date)
-
-r_vc <- 
-  vc %>%
-  filter(site %in% "Gulf") %>% 
-  select(Vc, date)
-r_vv <- 
-  vv %>%
-  filter(site %in% "Gulf") %>%
-  select(Vv, date)
-r_vp <- 
-  vp %>%
-  filter(site %in% "Gulf") %>%
-  select(Vp, date)
-```
-
-#### Combine Species with Site Masters
-
-```{r}
-b_list<- list(b_vc, b_vv, b_vp, bo)
-c_list<- list(c_vc, c_vv, c_vp, c2)
-r_list<- list(r_vc, r_vv, r_vp, rd)
-
-bo<- 
-  b_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, Vp)) %>%
-  rename("V. cholerae" = "Vc",
-         "V. vulnificus" = "Vv")
-
-c2<- 
-  c_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, HF183)) %>%
-  rename("V. cholerae" = "Vc",
-         "V. parahaemolyticus" = "Vp",
-         "V. vulnificus" = "Vv")
-
-rd<- 
-  r_list %>% reduce(full_join, by = 'date') %>%
-  select(!c(date, HF183)) %>%
-  rename("V. cholerae" = "Vc",
-         "V. parahaemolyticus" = "Vp",
-         "V. vulnificus" = "Vv")
-```
+#### 
 
 # Correlation Matrix
 
@@ -269,7 +183,7 @@ p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 ```{r}
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
-  select(c(`V. cholerae `, `V. vulnificus `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 ` )) %>%
+  select(c(`Vc `, `Vv `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 ` )) %>%
     filter(!row_number() %in% c(1:4)),
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 

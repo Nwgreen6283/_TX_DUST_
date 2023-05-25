@@ -26,6 +26,7 @@ env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Enviro
 dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust permutations
 cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
+sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv")) #Species
 ```
 
 # Further Cleaning
@@ -38,18 +39,9 @@ env<- env %>%
   select(1:20) #Removes NA columns
 ```
 
-#### Get rid of colony data
+#### Clean Species DF
 
-<!--# This makes everything in triplicate which messes up stats. So we will get rid of it for now -->
-
-```{r}
-cfu<- 
-  cfu %>%
-  select(c(site, date, cfu_avg))
-cfu<- unique(cfu)
-```
-
-#### Combine data sets: (1) Dust, (2) Total Vib, (3) Environmental, (4) CFU
+#### Combine data sets: (1) Dust, (2) Total Vib, (3) Environmental, (4) CFU, (5) Species
 
 ```{r}
 master<- #env %>% 
@@ -66,6 +58,11 @@ master<-
 master<-
   master %>%
   full_join(hf)
+
+master<- 
+  master %>%
+  full_join(sp)
+
 ```
 
 #### Clean Data Again
