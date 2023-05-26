@@ -189,13 +189,13 @@ bo_table<-
 
 c2_table<-
   kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
-  select(1:5,23) %>%
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `)) %>%
     filter(!row_number() %in% c(1:5)),
   caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 rd_table<-
   kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
-  select(1:5,23) %>%
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `)) %>%
     filter(!row_number() %in% c(1:5)),
   caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
