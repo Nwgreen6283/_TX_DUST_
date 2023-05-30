@@ -1,0 +1,46 @@
+---
+title: "VAI"
+format:
+  html:
+    theme: default
+---
+
+**Viz VAI**
+
+# Intro
+
+#### LIbrary
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include = FALSE}
+master<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+# Cleaning
+
+#### Daily DF
+
+```{r}
+daily<-
+  master %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'),
+         hr_cst %in% "01",
+         !date %in% as.Date('2022-07-10'))
+```
+
+# Plot
+
+```{r}
+daily %>%
+  ggplot() + geom_bar(
+    aes(x = date,
+        y = VAI),
+    stat = "identity") +
+  facet_wrap(~site)
+```

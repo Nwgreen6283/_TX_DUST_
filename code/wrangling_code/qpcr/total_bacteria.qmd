@@ -1,0 +1,149 @@
+---
+title: "Total Bacteria"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r, include=FALSE}
+library(here)
+library(tidyverse)
+library(ggpubr)
+```
+
+#### Data
+
+```{r}
+r<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "rd_vai_daily.csv")) #Gulf
+c<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "c2_vai_daily.csv")) #Canals
+b<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bo_vai_daily.csv")) #Blind Oso
+```
+
+# Cleaning
+
+#### Select and Filter
+
+```{r}
+r<-
+  r %>%
+ # filter(!Well %in% "I07") %>%
+  filter(!Sample %in% c("e4", "e3", "NTC")) %>%
+    select(Cq, Sample) %>%
+  mutate(site = "RD")
+
+c<- 
+  c %>%
+  filter(!Sample %in% c("Pos", "NTC")) %>%
+  select(Cq, Sample) %>%
+  mutate(site = "C2")
+
+b<- 
+  b %>%
+  filter(!Sample %in% "Pos",
+         !Content %in% "NTC") %>%
+  select(Cq, Sample) %>%
+  mutate(site = "BO")
+```
+
+#### Make into one DF
+
+```{r}
+master<- 
+  rbind(b,c,r)
+```
+
+#### Dilution/Filter Column
+
+```{r}
+master<- master%>%
+  mutate(dilution = case_when(site == "BO"~"10",#BO was 1:10
+                              site  == "C2"~ "1",
+                              site == "RD"~"1"),
+         dilution = as.numeric(dilution))
+
+
+
+master<- master %>%
+   mutate(filter_amt = case_when(
+                          Sample == "B7"~"100",
+                          Sample == "B8"~"100",
+                          Sample == "B9"~"100",
+                          Sample == "B9"~"100",
+                          Sample == "B11"~"100",
+                          Sample == "B12"~"50",
+                          Sample == "B13"~"50",
+                          Sample == "B14"~"50",
+                          Sample == "B15"~"50",
+                          Sample == "B16"~"30",
+                          Sample == "B17"~"30",
+                          Sample == "B18"~"30",
+                          Sample == "B19"~"30",
+                              site  == "C2"~ "100",
+                              site == "RD"~"100"),
+          filter_amt = as.numeric(filter_amt)) 
+```
+
+#### Cq to copies per mL
+
+![](images/tot_bact_gblock.JPG){width="297"}
+
+<!--# May need to go from e8 to e0 -->
+
+```{r}
+master<- master %>%
+    mutate(
+    log_sq = ((Cq-38.705)/-3.542), #Equation of the line to get log(SQ). Equation is 5/30/23. e6--> e1
+    sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*10, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor) %>%
+select(Sample,copies_mL, site)
+```
+
+#### NAN --> 0
+
+<!--# No Nan -->
+
+#### Make Day Column and Date Column
+
+```{r}
+master<-
+  master %>%
+  mutate(day = substr(master$Sample, 2,3),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  select(date, site, copies_mL)
+
+```
+
+#### Average qPCR Triplicates
+
+```{r}
+master<- master %>% 
+  group_by(site,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  rename("tot_bacteria"= "copies_mL")
+```
+
+# Save
+
+```{r}
+write_csv(master, here("data", "processed_data", "qpcr", "total_bacteria.csv"))
+```

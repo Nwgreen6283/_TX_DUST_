@@ -27,6 +27,7 @@ dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) 
 cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
 sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv")) #Species
+tot_bac<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria.csv")) #Total Bacteria
 ```
 
 # Further Cleaning
@@ -38,8 +39,6 @@ env<- env %>%
   filter(!date == as.Date('2022-02-16') | !site == "RD") %>% #Gets rid of NA
   select(1:20) #Removes NA columns
 ```
-
-#### Clean Species DF
 
 #### Combine data sets: (1) Dust, (2) Total Vib, (3) Environmental, (4) CFU, (5) Species
 
@@ -63,6 +62,23 @@ master<-
   master %>%
   full_join(sp)
 
+master<-
+  master %>%
+  full_join(tot_bac)
+
+```
+
+#### Create VAI
+
+Create Cell Equivalents by dividing sample copies per mL by average 16S rDNA for Total Vibrio (9 copies) and Total Bacteria (3.5)
+
+```{r}
+# Total Vibrio CE
+master <- 
+  master %>%
+  mutate(
+    VAI = ((copies_mL / 9) / (tot_bacteria / 3.5)))
+  
 ```
 
 #### Clean Data Again
