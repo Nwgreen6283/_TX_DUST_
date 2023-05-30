@@ -22,6 +22,7 @@ library(factoextra)
 library(scatterplot3d)
 library(here)
 library(tidyverse)
+library(lubridate)
 ```
 
 #### Data
@@ -56,8 +57,18 @@ rd_d<-
   select(!X)
 
 master<- rbind(bo_d, c2_d, rd_d) %>%
-  select(!c(hf_copies_mL,date)) %>%#Remove Non-numerics and HF183 (not run on all sites)
-  mutate(site = as.factor(site))
+  select(!c(hf_copies_mL)) %>%#Remove Non-numerics and HF183 (not run on all sites)
+  mutate(site = as.factor(site),
+         date = as.Date(date),
+         date = format(date, format = "%d"))
+```
+
+#### Select only significant columns
+
+```{r}
+master<-
+  master %>%
+  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel))
 ```
 
 # PCA
@@ -67,8 +78,16 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 We will perform a PCA for all selected variables except for the [factor variable](https://www.stata.com/features/overview/factor-variables/) (`site`)
 
 ```{r}
-daily_pca <- prcomp(master[,-28], #28 is site column
+daily_pca <- prcomp(master[,c(-21,-1)], #28 is site column
                    scale=TRUE)
+```
+
+We have specified `scale = TRUE` inside the function to conduct a PCA using a [correlation matrix](https://statisticsglobe.com/pca-correlation-covariance-matrix), which ensures that [the sensitivity to larger variable variations](https://statisticsglobe.com/pca-correlation-covariance-matrix) is taken into account.
+
+## Extract Explained Variance
+
+```{r}
+summary(daily_pca)
 ```
 
 ## Visualize Observations
@@ -86,6 +105,7 @@ In addition to that, if the user has a factor variable, like in this case, he mi
 
 ```{r}
 PC$site<-master$site
+PC$date<-master$date
 ```
 
 ## 2D Scatterplot
@@ -164,9 +184,19 @@ fviz_pca_biplot(daily_pca,
                 repel = TRUE,
                 col.var = "deepskyblue",
                 habillage  = PC$site,
-                title = "Figure 4: Biplot", geom="point")
+                title = "Biplot of all Sites", geom="point") +
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+  scale_color_manual(values = c("BO" = "#809C52",
+                                "C2" = "#ba4716",
+                                "RD" = "4c848c")) +
+  geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
+  stat_ellipse(aes(color = PC$site))
 
+ggsave(here("results", "plots", "pca", "pca_all.png"))
 ```
+
+**Larger points are group means.**
 
 ## Visualization of Explained Variance
 
@@ -182,3 +212,101 @@ fviz_eig(daily_pca,
 ```
 
 <!--# If i broke this up by site, I think that these would be higher -->
+
+# Other PCAs
+
+## PCA By site and date
+
+### Cleaning
+
+```{r}
+bo_d<- read.csv(here("data", "processed_data", "bo_master_daily.csv"))
+c2_d<- read.csv(here("data", "processed_data", "c2_master_daily.csv"))
+rd_d<- read.csv(here("data", "processed_data", "rd_master_daily.csv"))
+```
+
+```{r}
+bo_d<-
+  bo_d %>%
+  mutate(site = "BO",
+         date = as.Date(date),
+         date = format(date, format = "%d")) %>%
+  select(!c(X, site, Vp)) 
+
+c2_d<-
+  c2_d %>%
+  mutate(site = "C2",
+         date = as.Date(date),
+         date = format(date, format = "%d")) %>%
+  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel, hf_copies_mL, X, site))
+
+rd_d<-
+  rd_d %>%
+  mutate(site = "RD",
+         date = as.Date(date),
+         date = format(date, format = "%d")) %>%
+  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel, hf_copies_mL, X, site))
+
+```
+
+### PCA
+
+```{r}
+bo_pca <- prcomp(bo_d[,-1], #Exclude Date column
+                   scale=TRUE)
+bo_PC<- as.data.frame(bo_pca$x)
+bo_PC$date<-bo_d$date
+
+c2_pca <- prcomp(c2_d[,-1], #Exclude Date column
+                   scale=TRUE)
+c2_PC<- as.data.frame(c2_pca$x)
+c2_PC$date<-c2_d$date
+
+rd_pca <- prcomp(rd_d[,-1], #Exclude Date column
+                   scale=TRUE)
+rd_PC<- as.data.frame(rd_pca$x)
+rd_PC$date<-rd_d$date
+
+```
+
+#### Visualize
+
+```{r}
+#BLIND OSO
+fviz_pca_biplot(bo_pca, 
+                repel = TRUE,
+                col.var = "#809C52",
+                #habillage  = bo_PC$date,
+                title = "Blind Oso Biplot", geom="null")  +
+  geom_text(aes(label =  bo_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_bo.png"))
+```
+
+```{r}
+#CANALS
+fviz_pca_biplot(c2_pca, 
+                repel = TRUE,
+                col.var = "#ba4716",
+                #habillage  = bo_PC$date,
+                title = "Canals Biplot", geom="null") +
+  geom_text(aes(label =  c2_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_c2.png"))
+
+```
+
+```{r}
+#GULF
+fviz_pca_biplot(rd_pca, 
+                repel = TRUE,
+                col.var = "4c848c",
+                #habillage  = bo_PC$date,
+                title = "Gulf Biplot", geom="null") +
+  geom_text(aes(label =  rd_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_rd.png"))
+```

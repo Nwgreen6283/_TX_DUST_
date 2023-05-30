@@ -29,70 +29,28 @@ library(factoextra)#PCA Plots
 
 #### Data
 
-```{r}
-dust<- read_csv(here("data", "processed_data", "dust_conc", "dust_master.csv"))#Dust Permutations
-env<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```{r, include = FALSE}
+b<- read_csv(here("data", "processed_data", "bo_master_daily.csv"))
+c<- read_csv(here("data", "processed_data", "c2_master_daily.csv"))
+r<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
 ```
 
 # Cleaning
 
-#### Filter for Daily Time Series
+#### Remove Non-numerics
 
 ```{r}
-dust<- 
-  dust %>%
-  filter(date %in% as.Date('2022-07-05') : as.Date('2022-07-19')) %>% #Need days prior for lag
-  select(date, t7sum)
+b<- 
+  b %>%
+  select(!c(date, ...1, Vp))
 
-env<- 
-  env %>%
-  filter(date %in% as.Date('2022-07-05') : as.Date('2022-07-19'),
-         hr_cst %in% "01") #gets rid of duplicates for each hour
-```
+c<-
+  c %>%
+  select(!c(date, ...1, hf_copies_mL))
 
-#### Combine Data sets
-
-```{r}
-master<- 
-  dust %>%
-  full_join(env) %>%
-  select(!c(...1, Type, type, dust, SUM, hr_cst)) %>%
-  rename("dust" = "t7sum")
-```
-
-#### Site Specific Data Frames For Env
-
-```{r}
-bo<- 
-  master %>%
-    filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
-
-c2<- 
-  master %>%
-    filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
-
-rd<- 
-  master %>%
-    filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
-```
-
-#### Add Lags
-
-```{r}
-b<- bo%>% mutate(
-  dust =Lag(bo$dust, shift  = 1)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
-  select(!c(date, site))
-
-c<- c2%>% mutate(
-  dust =Lag(c2$dust, shift  = 2)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
-  select(!c(date, site))
-
-r<- rd%>% mutate(
-  dust =Lag(rd$dust, shift  = 1)) %>% #Make lag from ccf
-filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
-  select(!c(date, site))
+r<- 
+  r %>%
+  select(!c(date, ...1, hf_copies_mL))
 ```
 
 # PCA Setup
@@ -170,7 +128,7 @@ This plot shows the eigenvalues in a downward curve, from highest to lowest.
 
 With the biplot, it is possible to visualize the similarities and dissimilarities between the samples, and further shows the impact of each attribute on each of the principal components.
 
-```{r, fig.width=3, fig.height=3}
+```{r}
 fviz_pca_var(b_pca, col.var = "#809C52")
 fviz_pca_var(c_pca, col.var = "#ba4716")
 fviz_pca_var(r_pca, col.var = "4c848c")
@@ -220,11 +178,9 @@ fviz_pca_var(r_pca, col.var = "cos2",
             title = "Gulf")
 ```
 
-### Bi-plot
-
 ```{r}
 fviz_pca_biplot(b_pca, repel = TRUE,
                 col.var = "#2E9FDF", # Variables color
-                col.ind = bo$copies_mL,"#696969"  # Individuals color
+                col.ind = b$copies_mL,"#696969"  # Individuals color
                 )
 ```

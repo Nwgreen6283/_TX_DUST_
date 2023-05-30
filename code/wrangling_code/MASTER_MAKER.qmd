@@ -88,7 +88,8 @@ master<- master %>%
     don = as.numeric(master$don),
     doc = as.numeric(master$doc),
     toc = as.numeric(master$toc),
-    tn = as.numeric(master$tn)) %>%
+    tn = as.numeric(master$tn),
+    date = as.Date(date)) %>%
     mutate(site = recode(site, "BO" = "Blind Oso", #Rename Site Columns
                              "C2" = "Canals",
                             "RD" = "Gulf"))
