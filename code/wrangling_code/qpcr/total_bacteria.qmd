@@ -33,19 +33,19 @@ r<-
  # filter(!Well %in% "I07") %>%
   filter(!Sample %in% c("e4", "e3")) %>%
     select(Cq, Sample) %>%
-  mutate(site = "RD")
+  mutate(site = if_else(Sample == "NTC", "NTC", "RD"))
 
 c<- 
   c %>%
   filter(!Sample %in% c("Pos")) %>%
   select(Cq, Sample) %>%
-  mutate(site = "C2")
+  mutate(site = if_else(Sample == "NTC", "NTC", "C2"))
 
 b<- 
   b %>%
   filter(!Sample %in% "Pos") %>%
   select(Cq, Sample) %>%
-  mutate(site = "BO")
+  mutate(site = if_else(Sample == "NTC", "NTC", "BO"))
 ```
 
 #### Make into one DF
@@ -55,23 +55,14 @@ master<-
   rbind(b,c,r)
 ```
 
-#### Find NTC Contamination Mean
-
-All NTC amplified so we will find the average and subtract it out of all samples
-
-<!--# How do I do this? -->
-
-```{r}
-ntc_mean<-40- mean(master[master$Sample == 'NTC', 'Cq'])
-```
-
 #### Dilution/Filter Column
 
 ```{r}
 master<- master%>%
   mutate(dilution = case_when(site == "BO"~"10",#BO was 1:10
                               site  == "C2"~ "1",
-                              site == "RD"~"1"),
+                              site == "RD"~"1",
+                              Sample == "NTC" ~ "1"),
          dilution = as.numeric(dilution))
 
 
@@ -92,7 +83,8 @@ master<- master %>%
                           Sample == "B18"~"30",
                           Sample == "B19"~"30",
                               site  == "C2"~ "100",
-                              site == "RD"~"100"),
+                              site == "RD"~"100",
+                          Sample == "NTC" ~ "100"),
           filter_amt = as.numeric(filter_amt)) 
 ```
 
@@ -136,8 +128,10 @@ master<-
                          day ==  "16"~"2022-07-16",
                          day == "17"~"2022-07-17",
                          day ==  "18"~"2022-07-18",
-                         day == "19"~"2022-07-19")) %>%
-  select(date, site, copies_mL)
+                         day == "19"~"2022-07-19",
+                         Sample == "NTC" ~ "NTC")) %>%
+  select(date, site, copies_mL) %>%
+  mutate(date = as.Date(date))
 
 ```
 
@@ -149,6 +143,21 @@ master<- master %>%
   summarize_if(is.numeric, mean) %>%
   ungroup() %>%
   rename("tot_bacteria"= "copies_mL")
+```
+
+#### Subtract NTC Contamination Mean
+
+```{r}
+ntc_mean<- master$tot_bacteria[25]
+```
+
+All NTC amplified so we will find the average and subtract it out of all samples
+
+```{r}
+master<-
+  master %>%
+  mutate(tot_bacteria = tot_bacteria - ntc_mean) %>%
+  filter(!site %in% "NTC")
 ```
 
 # Save

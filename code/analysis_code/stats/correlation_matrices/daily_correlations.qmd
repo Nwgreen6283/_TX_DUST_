@@ -183,19 +183,19 @@ p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 ```{r}
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 ` )) %>%
+  select(c(`Vc `, `Vv `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 `, `VAI ` )) %>%
     filter(!row_number() %in% c(1:4)),
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 c2_table<-
   kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `)) %>%
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)) %>%
     filter(!row_number() %in% c(1:5)),
   caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 rd_table<-
   kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `)) %>%
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)) %>%
     filter(!row_number() %in% c(1:5)),
   caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
@@ -211,12 +211,15 @@ rd_table
 ```{r, include = FALSE}
 bo_2<- rcorr(as.matrix(bo))
 flattenCorrMatrix(bo_2$r, bo_2$P)
+diag(bo_2$P) <- 0
 
 c2_2<- rcorr(as.matrix(c2))
 flattenCorrMatrix(c2_2$r, c2_2$P)
+diag(c2_2$P) <- 0
 
 rd_2<- rcorr(as.matrix(rd))
 flattenCorrMatrix(rd_2$r, rd_2$P)
+diag(rd_2$P) <- 0
 ```
 
 #### Table: Species, Total, Chl
@@ -254,23 +257,23 @@ Stack overflow: In the vignette for package 'corrplot' it says "We can get p-val
 
 ```{r, fig.width=9}
 #Single out factors of interst by making them red
-colors<- c("#ba4716", "#ba4716","#ba4716","#ba4716", "#ba4716","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black", "black")
+#colors<- c("#ba4716", "#ba4716","#ba4716","#ba4716", "#ba4716","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black", "black")
 
 #BLIND OSO
 corrplot(bo_2$r, type="upper", 
-         tl.col = colors,
-         p.mat = bo_2$P, sig.level = 0.05, insig = "blank")
+         tl.col = "black",
+         p.mat = bo_2$P, sig.level = 0.05, insig = "blank") 
 
 #CANALS
 
 corrplot(c2_2$r, type="upper", 
-         tl.col = colors, 
+         tl.col = "black", 
          p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
 
 #GULF
 
 corrplot(rd_2$r, type="upper", 
-         tl.col = colors,
+         tl.col = "black",
          p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
 ```
 

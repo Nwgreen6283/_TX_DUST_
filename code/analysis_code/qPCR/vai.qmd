@@ -40,11 +40,23 @@ daily<-
 daily %>%
   ggplot() + geom_bar(
     aes(x = date,
-        y = VAI),
+        y = VAI,
+        fill = site),
+    color = "black",
     stat = "identity") +
   facet_wrap(~site) +
   theme_bw() + 
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
+  labs(title = "Daily VAI",
+       fill = "Site",
+       x = "Date")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+                                "Gulf" = "4c848c")) +
+  scale_x_date(date_breaks = "2 day", date_labels = "%b%d")
+
+  ggsave(here("results", "plots", "qpcr", "vai.png"))
 ```
