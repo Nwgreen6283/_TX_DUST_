@@ -42,5 +42,9 @@ daily %>%
     aes(x = date,
         y = VAI),
     stat = "identity") +
-  facet_wrap(~site)
+  facet_wrap(~site) +
+  theme_bw() + 
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
 ```

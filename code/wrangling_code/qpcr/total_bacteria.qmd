@@ -31,20 +31,19 @@ b<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bo_vai_daily.cs
 r<-
   r %>%
  # filter(!Well %in% "I07") %>%
-  filter(!Sample %in% c("e4", "e3", "NTC")) %>%
+  filter(!Sample %in% c("e4", "e3")) %>%
     select(Cq, Sample) %>%
   mutate(site = "RD")
 
 c<- 
   c %>%
-  filter(!Sample %in% c("Pos", "NTC")) %>%
+  filter(!Sample %in% c("Pos")) %>%
   select(Cq, Sample) %>%
   mutate(site = "C2")
 
 b<- 
   b %>%
-  filter(!Sample %in% "Pos",
-         !Content %in% "NTC") %>%
+  filter(!Sample %in% "Pos") %>%
   select(Cq, Sample) %>%
   mutate(site = "BO")
 ```
@@ -54,6 +53,16 @@ b<-
 ```{r}
 master<- 
   rbind(b,c,r)
+```
+
+#### Find NTC Contamination Mean
+
+All NTC amplified so we will find the average and subtract it out of all samples
+
+<!--# How do I do this? -->
+
+```{r}
+ntc_mean<-40- mean(master[master$Sample == 'NTC', 'Cq'])
 ```
 
 #### Dilution/Filter Column
