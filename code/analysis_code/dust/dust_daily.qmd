@@ -57,7 +57,7 @@ dust %>% ggplot()+ geom_line(
   scale_x_date(date_breaks = "1 day", date_labels = "%b%d") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(here("results", "plots", "dust_daily.png"))
+ggsave(here("results", "plots", "dust", "dust_daily.png"))
 ```
 
 # Make Pretty Dust Table

@@ -51,7 +51,7 @@ master<- read_csv(here("data", "processed_data","tx_master.csv"))
                                 "Gulf" = "4c848c"))
 # dev.off()
 
- ggsave(here("results", "plots", "vp_daily.png"))
+ ggsave(here("results", "plots", "qpcr", "vp_daily.png"))
 ```
 
 ## Vv
@@ -79,7 +79,7 @@ master<- read_csv(here("data", "processed_data","tx_master.csv"))
                                 "Gulf" = "4c848c"))
 #dev.off()
 
- ggsave(here("results", "plots", "vv_daily.png"))
+ ggsave(here("results", "plots","qpcr", "vv_daily.png"))
 ```
 
 ## Vc
@@ -107,7 +107,7 @@ For Vc, we ran it initial with all three sites. Then tested BO for INH, and it l
                                 "Canals" = "#ba4716",#3
                                 "Gulf" = "4c848c"))#3
 
- ggsave(here("results", "plots", "vc_daily.png"))
+ ggsave(here("results", "plots", "qpcr","vc_daily.png"))
 ```
 
 #### 
@@ -179,13 +179,12 @@ bo_spp<-
        x = "Date",
        y = "Vibrio gene copies/mL") +
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
-        plot.title = element_text(hjust = 0.5),
-        legend.position = "none") 
+        plot.title = element_text(hjust = 0.5)) 
 
 bo_spp
 
 #dev.off()
- ggsave(here("results", "plots", "bo_all_daily.png"))
+ ggsave(here("results", "plots", "qpcr","bo_all_daily.png"))
 ```
 
 ##### Canals
@@ -224,7 +223,7 @@ c2_spp<-
 
 c2_spp
 
- ggsave(here("results", "plots", "c2_all_daily.png"))
+ ggsave(here("results", "plots","qpcr", "c2_all_daily.png"))
 ```
 
 ##### Gulf
@@ -263,12 +262,12 @@ rd_spp<-
 
 rd_spp
 
- ggsave(here("results", "plots", "rd_all_daily.png"))
+ ggsave(here("results", "plots","qpcr", "rd_all_daily.png"))
 ```
 
 #### Combine
 
-```{r, fig.width= 4}
+```{r, fig.width=10}
 all_spp<-
   ggarrange(bo_spp, c2_spp, rd_spp,
             nrow = 1,
@@ -307,7 +306,7 @@ all_spp
 
 #dev.off()
 
- ggsave(here("results", "plots", "vp_monthly.png"))
+ ggsave(here("results", "plots", "qpcr","vp_monthly.png"))
 ```
 
 #### Vv
@@ -337,7 +336,7 @@ all_spp
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 #dev.off()
 
-  ggsave(here("results", "plots", "vv_monthly.png"))
+  ggsave(here("results", "plots", "qpcr","vv_monthly.png"))
 ```
 
 #### Vc
@@ -367,7 +366,7 @@ all_spp
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 #dev.off()
 
- ggsave(here("results", "plots", "vc_monthly.png"))
+ ggsave(here("results", "plots","qpcr", "vc_monthly.png"))
  
 ```
 
@@ -410,7 +409,7 @@ bo_spp_monthly<-
 bo_spp_monthly
 
 #dev.off()
- ggsave(here("results", "plots", "bo_all_monthly.png"))
+ ggsave(here("results", "plots","qpcr", "bo_all_monthly.png"))
 ```
 
 ##### Canals
@@ -450,7 +449,7 @@ c2_spp_monthly<-
 c2_spp_monthly
 
 #dev.off()
- ggsave(here("results", "plots", "c2_all_monthly.png"))
+ ggsave(here("results", "plots","qpcr", "c2_all_monthly.png"))
 ```
 
 ##### Gulf
@@ -490,5 +489,5 @@ rd_spp_monthly<-
 rd_spp_monthly
 
 #dev.off()
- ggsave(here("results", "plots", "rd_all_monthly.png"))
+ ggsave(here("results", "plots", "qpcr","rd_all_monthly.png"))
 ```

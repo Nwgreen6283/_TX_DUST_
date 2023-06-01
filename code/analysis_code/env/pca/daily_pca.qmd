@@ -78,7 +78,7 @@ master<-
 We will perform a PCA for all selected variables except for the [factor variable](https://www.stata.com/features/overview/factor-variables/) (`site`)
 
 ```{r}
-daily_pca <- prcomp(master[,c(-21,-1)], #28 is site column
+daily_pca <- prcomp(master[,c(-23,-1)], #283 is site column
                    scale=TRUE)
 ```
 

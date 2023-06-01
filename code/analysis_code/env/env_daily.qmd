@@ -59,7 +59,7 @@ temp<-
   labs(
     x = "Date",
     y = "Temperature (°C)",
-   title = "Daily Temperatures",
+   # title = "Daily Temperatures",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
@@ -96,7 +96,7 @@ sal<- daily %>%
   labs(
     x = "Date",
     y = "Salinity",
-    title = "Daily Salinities",
+    #title = "Daily Salinities",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
@@ -132,8 +132,8 @@ do<-
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -254,10 +254,10 @@ doc<-
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
-    #axis.title.x = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    #axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -284,10 +284,10 @@ toc<-
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
-    #axis.title.x = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    #axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -316,9 +316,9 @@ pH<-
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
-  #  axis.text.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -380,7 +380,7 @@ tn<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -411,7 +411,7 @@ sil<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -471,7 +471,7 @@ din_dip<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
@@ -530,8 +530,8 @@ secchi<-
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
-   # axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 15),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
@@ -598,17 +598,17 @@ cop<-
   labs(
     x = "Date",
     y = "Copies/mL",
-    title = "Daily Total Vibrio",
+   # title = "Daily Total Vibrio",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
-  #  axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 15),
-    axis.text.y = element_text(size = 15),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.5,'cm'),
-    legend.position = c(0.09,0.7),
+    legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
     legend.text = element_text(size = 10)) + #Moves legend onto plot 
     scale_color_manual(values = c("Blind Oso" = "#809C52",
@@ -621,7 +621,7 @@ cop<-
 
 #### ALL
 
-```{r, fig.height=2.15}
+```{r, fig.width= 10, fig.height= 11}
 fig<- ggarrange(temp,
                 sal,
                 nn,
@@ -641,8 +641,8 @@ fig<- ggarrange(temp,
                 din_dip,
                 chl+
                 font("x.text", size = 8.5),
-                ncol = 1, 
-                nrow = 2,
+                ncol = 2, 
+                nrow = 9,
                 align = "v")
 
 fig

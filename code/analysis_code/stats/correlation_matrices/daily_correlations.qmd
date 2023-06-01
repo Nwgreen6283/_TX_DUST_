@@ -82,7 +82,10 @@ bo<-
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
          "Avg CFU" = "cfu_tot",
-         "HF183" = "hf_copies_mL")
+         "HF183" = "hf_copies_mL",
+         "Total Bacteria" = "tot_bacteria",
+         "Yellow CFU"  = "cfu_yel",
+         "Green CFU" = "cfu_gre")
 
 c2<- 
   c2 %>%
@@ -106,7 +109,10 @@ c2<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_tot")
+         "Avg CFU" = "cfu_tot",
+         "Total Bacteria" = "tot_bacteria",
+         "Yellow CFU"  = "cfu_yel",
+         "Green CFU" = "cfu_gre")
 
 rd<- 
   rd %>%
@@ -130,7 +136,10 @@ rd<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_tot")
+         "Avg CFU" = "cfu_tot",
+         "Total Bacteria" = "tot_bacteria",
+         "Yellow CFU"  = "cfu_yel",
+         "Green CFU" = "cfu_gre")
 ```
 
 #### 
@@ -183,20 +192,20 @@ p\* = \< 0.05 // \*\* = \< 0.01 // \*\*\* = \<0.001
 ```{r}
 bo_table<-
   kable(as.data.frame(correlation_matrix(bo, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 `, `VAI ` )) %>%
-    filter(!row_number() %in% c(1:4)),
+  select(c(`Vc `, `Vv `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `HF183 `, `VAI ` )),
+   # filter(!row_number() %in% c(1:4)),
   caption = "Blind Oso: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 c2_table<-
   kable(as.data.frame(correlation_matrix(c2, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)) %>%
-    filter(!row_number() %in% c(1:5)),
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)),
+  #  filter(!row_number() %in% c(1:5)),
   caption = "Canals: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 rd_table<-
   kable(as.data.frame(correlation_matrix(rd, type = "spearman", digits = 2)) %>%
-  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)) %>%
-    filter(!row_number() %in% c(1:5)),
+  select(c(`Vc `, `Vv `, `Vp `, `Total Vibrio `, `Chlorophyl a `, `Avg CFU `, `VAI `)),
+    #filter(!row_number() %in% c(1:5)),
   caption = "Gulf: Correlations between Environmental and Biological Variables using Spearman's Rank correlations")
 
 bo_table
@@ -255,26 +264,31 @@ We get errors but still get the corrplot
 
 Stack overflow: In the vignette for package 'corrplot' it says "We can get p-value matrix...by cor.mtest()...". The output of that function produces a p-values matrix with zeroes on the diagonal. The output of rcorr produces a matrix of p-values with NA on the diagonal. Maybe you can just replace your NA diagonal values with zeroes. If you switch to cor.mtest() you'll need to be sure and understand all of its parameters.
 
-```{r, fig.width=9}
+<!--# If you get error about row ot matching, just switch out of Visual Editor and back in-->
+
+```{r, fig.width=9, fig.height=9}
 #Single out factors of interst by making them red
 #colors<- c("#ba4716", "#ba4716","#ba4716","#ba4716", "#ba4716","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black", "black")
 
 #BLIND OSO
 corrplot(bo_2$r, type="upper", 
          tl.col = "black",
-         p.mat = bo_2$P, sig.level = 0.05, insig = "blank") 
+         p.mat = bo_2$P, sig.level = 0.05, insig = "blank",
+         title = "Blind Oso", mar = c(0,0,1,0)) 
 
 #CANALS
 
 corrplot(c2_2$r, type="upper", 
          tl.col = "black", 
-         p.mat = c2_2$P, sig.level = 0.05, insig = "blank")
+         p.mat = c2_2$P, sig.level = 0.05, insig = "blank",
+         title = "Canals", mar = c(0,0,1,0))
 
 #GULF
 
 corrplot(rd_2$r, type="upper", 
          tl.col = "black",
-         p.mat = rd_2$P, sig.level = 0.05, insig = "blank")
+         p.mat = rd_2$P, sig.level = 0.05, insig = "blank",
+         title = "Gulf", mar = c(0,0,1,0))
 ```
 
 #### 

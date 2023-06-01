@@ -54,6 +54,8 @@ daily %>%
        title = "HF183 Concentrations at Blind Oso",
        caption = "Samples diluted 1:10")+
   theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(here("results", "plots", "qpcr", "hf183_daily.png"))
 ```
 
 #### Monthly

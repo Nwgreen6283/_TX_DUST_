@@ -36,6 +36,35 @@ daily<-
 
 # Plot
 
+#### Total Bacteria
+
+```{r}
+daily %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = log10(tot_bacteria),
+        color = site),
+    size = 1)+
+  facet_wrap(~site) +
+  theme_bw() + 
+  labs(title = "Daily Total Bacteria",
+       x = "Date",
+       y = "Log10(Total Bacteria copies/mL)",
+       color = "Site")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c")) +
+  scale_x_date(date_breaks = "2 day", date_labels = "%b%d")
+  
+ggsave(here("results", "plots", "qpcr", "total_bacteria.png"))
+```
+
+#### VAI
+
 ```{r}
 daily %>%
   ggplot() + geom_bar(

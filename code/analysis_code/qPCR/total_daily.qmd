@@ -95,14 +95,14 @@ tot_vib<- daily %>% ggplot()+geom_line(
     title = "Total Daily Vibrio at all Sites") +
   theme(plot.title = element_text(hjust = 0.5)) + #center title
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #Tilt x axis labels 
-  theme(legend.position = "none") + #Removes legend 
+ # theme(legend.position = "none") + #Removes legend 
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c"))
 
 tot_vib
 
-ggsave(here("results", "plots", "total_vib.png"))
+ggsave(here("results", "plots", "qpcr", "total_vib_daily.png"))
 ```
 
 
