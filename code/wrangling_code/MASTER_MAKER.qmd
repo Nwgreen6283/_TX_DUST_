@@ -28,6 +28,7 @@ cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
 sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv")) #Species
 tot_bac<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria.csv")) #Total Bacteria
+tss<- read_csv(here("data", "processed_data", "env", "tss.csv"))
 ```
 
 # Further Cleaning
@@ -65,6 +66,10 @@ master<-
 master<-
   master %>%
   full_join(tot_bac)
+
+master<- 
+  master %>%
+  full_join(tss)
 
 ```
 
@@ -162,12 +167,12 @@ rd<-
 
 #### Select Monthly Dates
 
-Also including 7/7/23 to represent July
+Also including 7/18/23 to represent July
 
 ```{r}
 monthly<-
   master %>%
-  filter(Type %in% "Monthly" | date %in% as.Date('2022-07-07'),
+  filter(Type %in% "Monthly" | date %in% as.Date('2022-07-18'),
          hr_cst %in% c("00","01")) #Gets rid of duplicates
 ```
 

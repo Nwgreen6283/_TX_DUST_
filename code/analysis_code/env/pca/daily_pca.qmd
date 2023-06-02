@@ -49,7 +49,7 @@ bo_d<-
 c2_d<-
   c2_d %>%
   mutate(site = "C2") %>%
-  select(!X)
+  select(!X) 
 
 rd_d<-
   rd_d %>%
@@ -68,7 +68,22 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 master<-
   master %>%
-  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel))
+  select(temp, sal, doc, don, pH, chl, orthop, tss, nn, do_mgl, dust_lag, copies_mL, cfu_tot, amm, date, site, Vc, Vv)
+
+master<-
+  master %>%
+  rename("Temperature" = "temp",
+         "Salinity" = "sal",
+         "DOC" = "doc", 
+         "DON" = "don",
+         "Chl_a" = "chl",
+         "PO4-" = "orthop",
+         "TSS" = "tss",
+         "NO2-NO3" = "nn",
+         "DO" = "do_mgl",
+         "Total_Vibrio" = "copies_mL",
+         "CFU" = "cfu_tot",
+         "NH4+" = "amm")
 ```
 
 # PCA
@@ -78,7 +93,7 @@ master<-
 We will perform a PCA for all selected variables except for the [factor variable](https://www.stata.com/features/overview/factor-variables/) (`site`)
 
 ```{r}
-daily_pca <- prcomp(master[,c(-23,-1)], #283 is site column
+daily_pca <- prcomp(master %>% select(!c(date, site)), 
                    scale=TRUE)
 ```
 
@@ -177,21 +192,19 @@ In order to understand the relation between the principal components and the ori
 
 The fviz_pca_biplot() function from the factoextra package can help us to build a biplot. We will specify the deep sky blue color for the variables, or more specifically, for the [loading vectors](http://www.statistics4u.com/fundstat_eng/cc_pca_loadscore.html). Besides, the observation points will be colored in black by default. To find out different ways of plotting biplots in R please see our [Biplot in R](https://statisticsglobe.com/biplot-pca-r) tutorial.
 
-\
-
 ```{r}
 fviz_pca_biplot(daily_pca, 
                 repel = TRUE,
-                col.var = "deepskyblue",
+                col.var = "black",
                 habillage  = PC$site,
-                title = "Biplot of all Sites", geom="point") +
+                title = "Biplot of all Sites", geom="point", pointsize = 3) +
   theme_bw()+
   theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
   scale_color_manual(values = c("BO" = "#809C52",
                                 "C2" = "#ba4716",
-                                "RD" = "4c848c")) +
-  geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
-  stat_ellipse(aes(color = PC$site))
+                                "RD" = "4c848c")) 
+  #geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
+#  stat_ellipse(aes(color = PC$site))
 
 ggsave(here("results", "plots", "pca", "pca_all.png"))
 ```
@@ -225,44 +238,46 @@ c2_d<- read.csv(here("data", "processed_data", "c2_master_daily.csv"))
 rd_d<- read.csv(here("data", "processed_data", "rd_master_daily.csv"))
 ```
 
+#### Based on corrplots, lets select important varibles by site
+
 ```{r}
 bo_d<-
   bo_d %>%
   mutate(site = "BO",
          date = as.Date(date),
          date = format(date, format = "%d")) %>%
-  select(!c(X, site, Vp)) 
+  select(temp, sal, copies_mL, Vc, Vv, amm, nn, tdn, dust, dust_lag, date) 
 
 c2_d<-
   c2_d %>%
   mutate(site = "C2",
          date = as.Date(date),
          date = format(date, format = "%d")) %>%
-  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel, hf_copies_mL, X, site))
+  select(temp, sal, dust_lag, copies_mL, date, amm, tdn, din, date)
 
 rd_d<-
   rd_d %>%
   mutate(site = "RD",
          date = as.Date(date),
          date = format(date, format = "%d")) %>%
-  select(!c(do_per, do_mgl, pH, secchi, din_dip, toc, cfu_gre, cfu_yel, hf_copies_mL, X, site))
+  select(temp, sal, dust_lag, copies_mL, Vc, chl, amm, din, date)
 
 ```
 
 ### PCA
 
 ```{r}
-bo_pca <- prcomp(bo_d[,-1], #Exclude Date column
+bo_pca <- prcomp(bo_d %>% select(-date), #Exclude Date column
                    scale=TRUE)
 bo_PC<- as.data.frame(bo_pca$x)
 bo_PC$date<-bo_d$date
 
-c2_pca <- prcomp(c2_d[,-1], #Exclude Date column
+c2_pca <- prcomp(c2_d %>% select(-date), #Exclude Date column
                    scale=TRUE)
 c2_PC<- as.data.frame(c2_pca$x)
 c2_PC$date<-c2_d$date
 
-rd_pca <- prcomp(rd_d[,-1], #Exclude Date column
+rd_pca <- prcomp(rd_d %>% select(-date), #Exclude Date column
                    scale=TRUE)
 rd_PC<- as.data.frame(rd_pca$x)
 rd_PC$date<-rd_d$date

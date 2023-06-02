@@ -1,0 +1,81 @@
+---
+title: "TSS Cleaning"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Library
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r}
+data<- read_csv(here("data", "raw_data", "tss.csv"))
+```
+
+# Cleaning
+
+#### Select Columns
+
+```{r}
+data<- 
+  data %>%
+  select(`Sample collection date`, `Weight (Aluminium boat+clean filter (g))`, `Dry weight of sample filter in Aluminium boat (g)`, `Saample Name`, `Volume of the sample filtered (mL)`)
+```
+
+#### Rename
+
+```{r}
+data<-
+  data %>%
+  rename(
+    "date" = "Sample collection date",
+    "clean_weight" = "Weight (Aluminium boat+clean filter (g))",
+    "sample_weight" = "Dry weight of sample filter in Aluminium boat (g)",
+    "sample" = "Saample Name",
+    "volume" = "Volume of the sample filtered (mL)")
+```
+
+#### Site Column
+
+```{r}
+data<-
+  data %>%
+  mutate(site = substr(sample, 1,2),
+         site = recode(site, "CC" = "C2")) %>%
+  filter(!site %in% "Bl") #Remove blanks
+```
+
+#### Calculate TSS
+
+```{r}
+#Filter Difference
+data<-
+  data %>%
+  mutate(difference = sample_weight - clean_weight,
+#TSS         
+         tss = (difference / volume)*1000000)
+```
+
+#### Average TSS Reps A & B by site and date
+
+```{r}
+avg<-
+  data %>% 
+  group_by(date, site) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarise(mean(tss)) %>%
+  rename("tss" = "mean(tss)")
+```
+
+# Save
+
+```{r}
+write_csv(avg, here("data", "processed_data", "env", "tss.csv"))
+```

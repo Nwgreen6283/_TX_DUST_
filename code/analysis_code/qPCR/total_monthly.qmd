@@ -28,7 +28,7 @@ d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 
 ```{r}
 monthly<- d1 %>% 
-  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
+  mutate(Type = case_when(d1$date == "2022-07-18"  ~ "Monthly", #This makes 7-7-23 a monthly value for July
                           d1$Type == "Monthly" ~ "Monthly")) %>%
   filter(Type %in% "Monthly") 
 ```
