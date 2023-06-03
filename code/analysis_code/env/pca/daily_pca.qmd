@@ -211,6 +211,18 @@ ggsave(here("results", "plots", "pca", "pca_all.png"))
 
 **Larger points are group means.**
 
+From Sankar:
+
+We observe distinct clusters among different sites, which are primarily influenced by physical water quality parameters such as salinity and temperature, as well as nutrient levels (DOC, DON, PO4, NO3-NO2), TSS, dissolved oxygen (DO), and pH. 
+
+Specifically, the BO samples are separated from the C2 and RD6 samples along the PC1 axis. The BO samples exhibit higher levels of DOC, DON, PO4, NO3-NO2, TSS, DO, and pH, whereas C2 and RD6 show higher salinity, temperature, and NH4 concentrations. Furthermore, there is a significant daily variation in the water quality of the BO site compared to C2 and RD6. As a result, the sample scores of BO are more spread out as compared to DR6 and C2.
+
+Regarding Vibrio presence, RD6 exhibits higher levels compared to BO and C2, influenced by dust input (dust_lag). On the other hand, BO shows higher levels of Vv and Vc, influenced by both dust and inorganic nutrients (PO4, NO3-NO2), TSS, Chal a.
+
+Salinity has an inverse relationship with TSS, PO4, NO3-NO2, Vv, Vc, and DO, suggesting that the influx of freshwater may introduce most of these inorganic nutrients into the BO system. Additionally, as the bay is shallow, freshwater influx can stir up sediments at the bay bottom, resulting in higher TSS levels. 
+
+[Each point represents one date of sampling. The position of each sample score (point) in the PCA biplot represents its relationship against all of the input variables (loadings) such as TSS, PO4, NO3-NO2, Vv, Vc etc.]{.ul}
+
 ## Visualization of Explained Variance
 
 Visualizing the [explained variance per principal component](https://statisticsglobe.com/principal-component-analysis-pca) is useful for deciding on the [ideal number of components to retain in the analysis](https://statisticsglobe.com/choose-optimal-number-components-pca). The [scree plots](https://statisticsglobe.com/scree-plot-pca) are specialized for this kind of visualization in [factor analyses](https://www.statisticssolutions.com/free-resources/directory-of-statistical-analyses/factor-analysis/?__cf_chl_tk=v.QRFngUvCfPZDX1hF.b9wX5.uP_5AkheKQUfcWHxZ0-1676557863-0-gaNycGzNCpA).
@@ -224,9 +236,7 @@ fviz_eig(daily_pca,
          main="Figure 5: Scree Plot")
 ```
 
-<!--# If i broke this up by site, I think that these would be higher -->
-
-# Other PCAs
+# Site PCAs
 
 ## PCA By site and date
 
@@ -325,3 +335,7 @@ fviz_pca_biplot(rd_pca,
 
 ggsave(here("results", "plots", "pca", "pca_rd.png"))
 ```
+
+**From Sankar:**
+
+Personal opinion: I'm uncertain about the viability of creating separate PCA plots for each location. Since we only have 12 sample scores, it's apparent that each sample will correlate with a variable (or variables) that have the highest value on a particular date. This approach may introduce biased statistics, as we already have prior knowledge of which variables are higher on specific dates before conducting the PCA. However, your PCA plot showcasing all sites already encompasses this information found in the Gulf Site PCA. Therefore, generating additional PCA plots for individual sites would be redundant
