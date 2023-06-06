@@ -1,0 +1,169 @@
+---
+title: "Stepwise Regression"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+[LINK](https://www.statology.org/stepwise-regression-r/)
+
+#### Libraries
+
+```{r, inlclude = FALSE}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r}
+master<- read.csv(here("data", "processed_data", "tx_master.csv"))
+b<- read.csv(here("data", "processed_data", "bo_master_daily.csv"))
+c<- read.csv(here("data", "processed_data", "c2_master_daily.csv"))
+r<- read.csv(here("data", "processed_data", "rd_master_daily.csv"))
+```
+
+# Cleaning
+
+#### Select Columns
+
+<!--# Can come back through here to change what we want to keep (species, or VAI) -->
+
+```{r}
+b<-
+  b %>%
+  select(!c(X, dust, cfu_yel, cfu_gre, hf_copies_mL, Vc, Vv, Vp, tot_bacteria, tss, VAI, cfu_tot, date))
+
+c<-
+  c %>%
+  select(!c(X, dust, cfu_yel, cfu_gre, hf_copies_mL, Vc, Vv, Vp, tot_bacteria, tss, VAI, cfu_tot, date))
+
+r<-
+  r %>%
+  select(!c(X, dust, cfu_yel, cfu_gre, hf_copies_mL, Vc, Vv, Vp, tot_bacteria, tss, VAI, cfu_tot, date))
+```
+
+# Stepwise Regression
+
+Response variable is **copies_mL (Total Vibrio)** and predictor variables are all else.
+
+## 1. Forward Stepwise Regression
+
+### BLIND OSO
+
+```{r}
+#Define Intercept-only (null) Model
+intercept_only <- lm(copies_mL ~ 1, data=b)
+
+#Define Model with All Predictors
+all <- lm(copies_mL ~ ., data=b)
+
+#Perform FSR
+forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
+```
+
+**Note**: The argument trace=0 tells R not to display the full results of the stepwise selection. This can take up quite a bit of space if there are a large number of predictor variables.
+
+#### View Results of FSR
+
+```{r}
+forward$anova
+```
+
+-   First, we fit the intercept-only model. This model had an AIC of **239.8795**
+
+-   Next, we fit every possible one-predictor model. The model that produced the lowest AIC and also had a statistically significant reduction in AIC compared to the intercept-only model used the predictor *dust_lag*. This model had an AIC of **235.19**.
+
+-   Next, we fit every possible two-predictor model. The model that produced the lowest AIC and also had a statistically significant reduction in AIC compared to the single-predictor model added the predictor *do_per.* This model had an AIC of **229**.
+
+-   Next, we fit every possible three-predictor model. The model that produced the lowest AIC and also had a statistically significant reduction in AIC compared to the two-predictor model added the predictor *temp*. This model had an AIC of **225.52**.
+
+-   Next, we fit every possible four-predictor model. This keeps going until none of these models produced a significant reduction in AIC, thus we stopped the procedure.
+
+#### View Final Model
+
+```{r}
+b_model<- forward$coefficients
+b_model
+```
+
+The final model turns out to be:
+
+**copies_mL \~ 854100.56 + 88753\*dust_lag - 1364\*do_per - 24819\*temp + 26386\*amm +25\*doc - 1101\*din_dip**
+
+### CANALS
+
+```{r}
+#Define Intercept-only (null) Model
+intercept_only <- lm(copies_mL ~ 1, data=c)
+
+#Define Model with All Predictors
+all <- lm(copies_mL ~ ., data=c)
+
+#Perform FSR
+forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
+
+#View Results of FSR
+forward$anova
+
+#View Final Model
+c_model<- forward$coefficients
+c_model
+```
+
+### GULF
+
+```{r}
+#Define Intercept-only (null) Model
+intercept_only <- lm(copies_mL ~ 1, data=r)
+
+#Define Model with All Predictors
+all <- lm(copies_mL ~ ., data=r)
+
+#Perform FSR
+forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
+
+#View Results of FSR
+forward$anova
+
+#View Final Model
+r_model<- forward$coefficients
+r_model
+```
+
+<!--# Should also check out Regularization Section in MADA Module 10 -->
+
+## 2. Backwards Stepwise Regression
+
+### BLIND OSO
+
+```{r}
+
+```
+
+### CANALS
+
+```{r}
+#define intercept-only model
+intercept_only <- lm(copies_mL ~ 1, data=c)
+
+#define model with all predictors
+all <- lm(copies_mL ~ ., data=c)
+
+#perform backward stepwise regression
+backward <- step(all, direction='backward', scope=formula(all), trace=0)
+
+#view results of backward stepwise regression
+backward$anova
+
+#view final model
+backward$coefficients
+```
+
+### GULF
+
+```{r}
+
+```

@@ -43,17 +43,17 @@ rd_d<- read.csv(here("data", "processed_data", "rd_master_daily.csv"))
 ```{r}
 bo_d<-
   bo_d %>%
-  mutate(site = "BO") %>%
-  select(!X)
+  mutate(site = "Blind Oso") %>%
+  select(!X) 
 
 c2_d<-
   c2_d %>%
-  mutate(site = "C2") %>%
+  mutate(site = "Canals") %>%
   select(!X) 
 
 rd_d<-
   rd_d %>%
-  mutate(site = "RD") %>%
+  mutate(site = "Gulf") %>%
   select(!X)
 
 master<- rbind(bo_d, c2_d, rd_d) %>%
@@ -200,9 +200,9 @@ fviz_pca_biplot(daily_pca,
                 title = "Biplot of all Sites", geom="point", pointsize = 3) +
   theme_bw()+
   theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-  scale_color_manual(values = c("BO" = "#809C52",
-                                "C2" = "#ba4716",
-                                "RD" = "4c848c")) 
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c")) 
   #geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
 #  stat_ellipse(aes(color = PC$site))
 
