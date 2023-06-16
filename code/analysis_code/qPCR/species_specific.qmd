@@ -114,39 +114,29 @@ For Vc, we ran it initial with all three sites. Then tested BO for INH, and it l
 
 ## Va
 
-<!--# Melt curves inidicated multiple targets amplified. So ignore Va for now. Will troubleshoot other assays -->
-
 ```{r}
-#png(file = here("results", "plots", "species_specific", "va_daily.png"))
+ master %>%
+   filter(Type %in% "Daily") %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = Va,
+        color = site))+ 
+  facet_wrap(~site)  +
+  labs(x = "Date",
+       y = "Copies/mL",
+       title = "Daily Vibrio alginolyticus ",
+       caption = "Blind Oso was 1:50")+
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(hjust = 1, angle = 45),
+    legend.position = "none")+ 
+  scale_color_manual(values = c("Blind Oso" = "#809C52", #5 replicates
+                                "Canals" = "#ba4716",#3
+                                "Gulf" = "4c848c"))#3
 
-#va %>%
- #filter(!site %in% "Blind Oso") %>%
-  #ggplot() + geom_line(
-  #  aes(x = date,
-      #  y = copies_mL,
-        #color = site))+ 
-  #facet_wrap(~site)  +
- # labs(x = "Date",
-      # title = "Daily Vibrio alginolyticus",
-       #caption = "gyrB. Will Re-do with groEL")+
-  #theme_bw()+
-  #theme(
-    #plot.title = element_text(hjust = 0.5),
-    #axis.text.x = element_text(hjust = 1, angle = 45),
-    #legend.position = "none")+ 
- # scale_color_manual(values = c("Blind Oso" = "#809C52",
-                               # "Canals" = "#ba4716",
-                                #"Gulf" = "4c848c"))
-#dev.off()
-
- #ggsave(here("results", "plots", "va_daily.png"))
+ ggsave(here("results", "plots", "qpcr","va_daily.png"))
 ```
-
-## Combine all species
-
-#### Combine dataset
-
-#### Plot
 
 ##### Blind Oso
 
