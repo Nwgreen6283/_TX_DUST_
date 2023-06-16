@@ -6,6 +6,31 @@ format:
 ---
 
 ```{r}
-
+library(tidyverse)
+library(here)
 ```
 
+```{r}
+va_d<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_daily.csv"))
+va_m<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_monthly.csv"))
+sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv"))
+```
+
+```{r}
+va<-
+  rbind(va_d, va_m) %>%
+  select(date, site, copies_mL) 
+
+va$date[va$date == "2022-06-13"] <- "2022-06-14" 
+```
+
+```{r}
+sp<-
+  sp %>%
+  full_join(va) %>%
+  rename("Va" = "copies_mL")
+```
+
+```{r}
+write_csv(sp, here("data", "processed_data", "qpcr", "species_all.csv"))
+```

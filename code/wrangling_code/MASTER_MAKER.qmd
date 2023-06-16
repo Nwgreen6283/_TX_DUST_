@@ -140,8 +140,6 @@ master2<-
 
 #### Site-specific Dataframes + Lag
 
-This cleans out non-numeric values, creates site lag from CCA, and produces a final daily plot
-
 ```{r}
 bo<- 
   master2 %>%

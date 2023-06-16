@@ -18,9 +18,9 @@ library(ggpubr)
 Load data
 
 ```{r}
-d<- read_csv(here("data", "raw_data", "va_daily.csv"))
+d<- read_csv(here("data", "raw_data", "qpcr", "va", "va_daily.csv"))
 
-m<- read_csv(here("data", "raw_data", "va_mon.csv"))
+m<- read_csv(here("data", "raw_data", "qpcr", "va", "va_mon.csv"))
 ```
 
 One sample was very contaminated(?) Cq = 1???
