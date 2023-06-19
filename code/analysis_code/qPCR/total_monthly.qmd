@@ -68,7 +68,7 @@ scale_color_manual(values = c("Blind Oso" = "#809C52",
                               "Gulf" = "4c848c"))
 fig3
 
- ggsave(here("results", "plots", "total_vib__monthly.png"))
+ ggsave(here("results", "plots", "qpcr","total_vib__monthly.png"))
 ```
 
 #### BLIND OSO

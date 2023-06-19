@@ -21,6 +21,7 @@ library(ggpubr)
 r<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "rd_vai_daily.csv")) #Gulf
 c<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "c2_vai_daily.csv")) #Canals
 b<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bo_vai_daily.csv")) #Blind Oso
+mon<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bact_monthly.csv")) #Monthly
 ```
 
 # Cleaning
@@ -46,6 +47,12 @@ b<-
   filter(!Sample %in% "Pos") %>%
   select(Cq, Sample) %>%
   mutate(site = if_else(Sample == "NTC", "NTC", "BO"))
+
+mon<- 
+  mon %>%
+  filter(!Sample %in% "pos") %>%
+  select(Cq, Sample) #%>%
+  #mutate(site = if_else(Sample == "NTC", "NTC", "BO"))
 ```
 
 #### Make into one DF
@@ -53,6 +60,14 @@ b<-
 ```{r}
 master<- 
   rbind(b,c,r)
+```
+
+#### Site Column
+
+```{r}
+mon<-
+  mon %>%
+  mutate(site = substr(Sample, 1,2))
 ```
 
 #### Dilution/Filter Column
@@ -86,6 +101,37 @@ master<- master %>%
                               site == "RD"~"100",
                           Sample == "NTC" ~ "100"),
           filter_amt = as.numeric(filter_amt)) 
+
+#MONTHLY
+mon<- mon %>%
+  mutate(dilution = case_when(site == "BO"~"1",#BO was 1:1
+                              site  == "C2"~ "1",
+                              site == "RD"~"1",
+                              Sample == "NTC" ~ "1"),
+         dilution = as.numeric(dilution))
+
+
+
+mon<- mon %>%
+   mutate(
+     day = substr(mon$Sample, 4,7),
+     filter_amt = case_when(
+                          site == "BO" & day == 2 ~"100",
+                          site == "BO" & day == 3 ~ "100",
+                          site == "BO" & day == 4 ~ "100",
+                          site == "BO" & day == '5_11' ~"100",
+                          site == "BO" & day == '5_20' ~ "100",
+                          site == "BO" & day == '5_24' ~ "100",
+                          site == "BO" & day == 6 ~"100",
+                          site == "BO" & day == 8~ "30",
+                          site == "BO" & day == 9~"45",
+                          site == "BO" & day == 10 ~ "60",
+                          site == "BO" & day == 11~ "30",
+                          site == "BO" & day == 12~ "60",
+                          site  == "C2"~ "100",
+                          site == "RD"~"100",
+                          Sample == "NTC" ~ "100"),
+        filter_amt = as.numeric(filter_amt))
 ```
 
 #### Cq to copies per mL
@@ -105,6 +151,17 @@ master<- master %>%
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site)
+
+mon<- mon %>%
+    mutate(
+    log_sq = ((Cq-38.705)/-3.542), #Equation of the line to get log(SQ). Equation is 5/30/23. e6--> e1
+    sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*10, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor) %>%
+select(Sample,copies_mL, site,day)
 ```
 
 #### NAN --> 0
@@ -133,6 +190,22 @@ master<-
   select(date, site, copies_mL) %>%
   mutate(date = as.Date(date))
 
+mon<- mon %>%
+ mutate(date = case_when(day == "2"~"2022-02-16",
+                         day ==  "3"~"2022-03-09",
+                         day ==  "4"~"2022-04-20",
+                         day ==  "5_11"~"2022-05-11",
+                         day == "5_20"~"2022-05-20",
+                         day ==  "5_24"~"2022-05-24",
+                         day ==  "6"~"2022-06-14",
+                         day ==  "8"~"2022-08-09",
+                         day ==  "9"~"2022-09-13",
+                         day == "10"~"2022-10-18",
+                         day ==  "11"~"2022-11-15",
+                         day == "12"~"2022-12-14",
+                         Sample == "NTC" ~ "NTC")) %>%
+  select(date, site, copies_mL) %>%
+  mutate(date = as.Date(date))
 ```
 
 #### Average qPCR Triplicates
@@ -143,12 +216,19 @@ master<- master %>%
   summarize_if(is.numeric, mean) %>%
   ungroup() %>%
   rename("tot_bacteria"= "copies_mL")
+
+mon<- mon %>% 
+  group_by(site,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  rename("tot_bacteria"= "copies_mL")
 ```
 
 #### Subtract NTC Contamination Mean
 
 ```{r}
 ntc_mean<- master$tot_bacteria[25]
+ntc_mean_mon<- mon$tot_bacteria[25]
 ```
 
 All NTC amplified so we will find the average and subtract it out of all samples
@@ -158,10 +238,16 @@ master<-
   master %>%
   mutate(tot_bacteria = tot_bacteria - ntc_mean) %>%
   filter(!site %in% "NTC")
+
+mon<-
+  mon %>%
+  mutate(tot_bacteria = tot_bacteria - ntc_mean_mon) %>%
+  filter(!site %in% "NT")
 ```
 
 # Save
 
 ```{r}
 write_csv(master, here("data", "processed_data", "qpcr", "total_bacteria.csv"))
+write_csv(mon, here("data", "processed_data", "qpcr", "total_bacteria_monthly.csv"))
 ```
