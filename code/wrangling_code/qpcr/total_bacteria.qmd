@@ -18,7 +18,8 @@ library(ggpubr)
 #### Data
 
 ```{r}
-r<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "rd_vai_daily.csv")) #Gulf
+#r<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "rd_vai_daily.csv")) #Gulf
+r<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "rd_total_bacteria_1_10.csv")) #Gulf samples re-run 1:10. These actually had cleaner curves, so use this. 
 c<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "c2_vai_daily.csv")) #Canals
 b<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bo_vai_daily.csv")) #Blind Oso
 mon<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bact_monthly.csv")) #Monthly
@@ -32,7 +33,7 @@ mon<- read.csv(here("data", "raw_data", "qpcr", "total_bacteria", "bact_monthly.
 r<-
   r %>%
  # filter(!Well %in% "I07") %>%
-  filter(!Sample %in% c("e4", "e3")) %>%
+  filter(!Sample %in% "Pos") %>%
     select(Cq, Sample) %>%
   mutate(site = if_else(Sample == "NTC", "NTC", "RD"))
 
@@ -76,7 +77,7 @@ mon<-
 master<- master%>%
   mutate(dilution = case_when(site == "BO"~"10",#BO was 1:10
                               site  == "C2"~ "1",
-                              site == "RD"~"1",
+                              site == "RD"~"10", #RD was 1:10
                               Sample == "NTC" ~ "1"),
          dilution = as.numeric(dilution))
 
