@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r}
+d<- read_csv(here("data", "raw_data", "qpcr", "va","va_diluted_down_strains.csv"))
+```
+
+# Cleaning
+
+```{r}
+d<-
+  d %>%
+  select(Sample, Cq)
+```
+
+```{r}
+d<-
+  d %>%
+  mutate(strain = substr(Sample, 1,3),
+         dilution = substr(Sample, 4,5)) 
+```
+
+```{r}
+d$strain<- gsub('_', '', d$strain)
+d$dilution<- gsub('_', '', d$dilution)
+
+d<-
+  d %>%
+  mutate(concentration = case_when(dilution == "1" ~ "10^4",
+                                   dilution == "2" ~ "10^3",
+                                   dilution == "3" ~ "10^2",
+                                   dilution == "4" ~ "10^1")) %>%
+  select(!c(Sample, dilution))
+```
+
+# Plot
+
+```{r}
+d %>%
+  ggplot() + geom_boxplot(
+    aes(x = concentration,
+        y = Cq,
+        color = strain)) +
+  theme_bw() +
+  labs(x = "Estimated Concentration (CFU/µL)",
+       title = "V. alginolyticus strains diluted down",
+       color = "Strain") +
+  scale_x_discrete(limits = c("10^4", "10^3", "10^2", "10^1"))
+
+```
