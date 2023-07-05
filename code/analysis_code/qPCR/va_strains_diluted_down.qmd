@@ -18,6 +18,8 @@ library(tidyverse)
 
 ```{r}
 d<- read_csv(here("data", "raw_data", "qpcr", "va","va_diluted_down_strains.csv"))
+g<- read_csv(here("data", "raw_data", "qpcr", "va","va_gblock.csv"))
+grad<- read_csv(here("data", "raw_data", "qpcr", "va","va_gradient.csv"))
 ```
 
 # Cleaning
@@ -26,6 +28,14 @@ d<- read_csv(here("data", "raw_data", "qpcr", "va","va_diluted_down_strains.csv"
 d<-
   d %>%
   select(Sample, Cq)
+
+g<-
+  g %>%
+  select(concentration, Cq)
+
+grad<-
+  grad %>%
+  select(Well, Sample, Cq)
 ```
 
 ```{r}
@@ -33,6 +43,29 @@ d<-
   d %>%
   mutate(strain = substr(Sample, 1,3),
          dilution = substr(Sample, 4,5)) 
+
+g<-
+  g %>%
+  mutate(strain = "Gblock") %>%
+  filter(!is.na(Cq))
+
+grad<-
+  grad %>%
+  mutate(temp = case_when(grepl("A", Well) ~ "65",
+         grepl("D", Well) ~ "64.1",
+         grepl("F", Well) ~ "62.7",
+         grepl("H", Well) ~ "60.6",
+         grepl("J", Well) ~ "58.4",
+         grepl("L", Well) ~ "56.8",
+         grepl("P", Well) ~ "55"),
+         Sample = recode(Sample, "e4" = "10^4"),
+         Sample = recode(Sample, "e3" = "10^3"),
+         Sample = recode(Sample, "e2" = "10^2"),
+         Sample = recode(Sample, "e1" = "10^1"),
+         Sample = recode(Sample, "e0" = "10^0"),
+         Sample = recode(Sample, "Raw" = "10^5"),
+         Sample = recode(Sample, "Raw_e5" = "10^5")) %>%
+  filter(!Sample %in% "NTC") 
 ```
 
 ```{r}
@@ -48,10 +81,19 @@ d<-
   select(!c(Sample, dilution))
 ```
 
+```{r}
+df_line <- grad %>% group_by(Sample) %>% summarise(mean_y = mean(Cq))
+```
+
+```{r}
+master<-
+  rbind(d,g)
+```
+
 # Plot
 
 ```{r}
-d %>%
+master %>%
   ggplot() + geom_boxplot(
     aes(x = concentration,
         y = Cq,
@@ -60,6 +102,21 @@ d %>%
   labs(x = "Estimated Concentration (CFU/µL)",
        title = "V. alginolyticus strains diluted down",
        color = "Strain") +
-  scale_x_discrete(limits = c("10^4", "10^3", "10^2", "10^1"))
+  scale_x_discrete(limits = c("10^6", "10^5", "10^4", "10^3", "10^2", "10^1", "10^0", "10^-1"))
 
+```
+
+```{r}
+grad %>%
+  ggplot() +
+  geom_boxplot(
+    aes(x = Sample,
+        y = Cq,
+        color = temp),
+    size = 0.75) + 
+  theme_bw() +
+  labs(x = "Estimated Concentration (CFU/µL)",
+       title = "EKL99 Temperature Gradient Experiment",
+       color = "Temperature") +
+  scale_x_discrete(limits = c("10^4", "10^3", "10^2", "10^1", "10^0"))
 ```

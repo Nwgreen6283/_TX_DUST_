@@ -72,7 +72,7 @@ dust_fig
 
 ```{r, include = FALSE}
 tot_vib<- copies_d %>% 
-  filter(site %in% "Gulf") %>%
+ # filter(site %in% "Gulf") %>%
   ggplot()+geom_line(
   aes(x = date,
       y = copies_mL,
@@ -82,7 +82,7 @@ tot_vib<- copies_d %>%
   labs(
     x = "Date",
     y = "Vibrio gene copies/mL",
-    title = "Gulf: Vibrio Concentrations and Dust AOD",
+    title = "Vibrio Concentrations and Dust AOD",
     color = "  Site") +
   theme(
     plot.title = element_text(size = 18, hjust = 0.5),  #center title
@@ -91,8 +91,8 @@ tot_vib<- copies_d %>%
     axis.ticks.x = element_blank(),
     axis.title.y = element_text(size = 10),
     axis.text.y = element_text(size = 10),
-    legend.position = "none",
-   # legend.position = c(0.1, 0.63),
+    #legend.position = "none",
+    legend.position = c(0.1, 0.63),
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
