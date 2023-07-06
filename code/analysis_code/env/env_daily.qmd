@@ -195,8 +195,8 @@ ortho<-
     color = "Site")+
   theme(
     axis.title.x = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank(),
+   # axis.text.x = element_blank(),
+   # axis.ticks.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -621,28 +621,28 @@ cop<-
 
 #### ALL
 
-```{r, fig.width= 10, fig.height= 11}
+```{r}
 fig<- ggarrange(temp,
                 sal,
                 nn,
                 ortho,
-                amm,
-                din,
-                don,
-                doc,
-                toc,
-                pH,
-                tn,
-                sil,
-                cop,
-                tdn,
-                do,
-                secchi,
-                din_dip,
-                chl+
+                amm +
+                #din,
+                #don,
+                #doc,
+                #toc,
+                #pH,
+                #tn,
+                #sil,
+                #cop,
+                #tdn,
+                #do,
+                #secchi,
+                #din_dip,
+                #chl+
                 font("x.text", size = 8.5),
                 ncol = 2, 
-                nrow = 9,
+                nrow = 3,
                 align = "v")
 
 fig

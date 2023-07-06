@@ -27,6 +27,7 @@ dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) 
 cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
 sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv")) #Species
+va_d<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_daily.csv")) #Species
 tot_bac<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria.csv")) #Total Daily Bacteria
 tot_bac_mon<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria_monthly.csv")) #Total Monthly Bacteria
 tss<- read_csv(here("data", "processed_data", "env", "tss.csv"))
@@ -47,6 +48,23 @@ env<- env %>%
 ```{r}
 tot_bac<-
   rbind(tot_bac, tot_bac_mon)
+```
+
+#### Rename Va column 
+
+```{r}
+va_d<-
+  va_d %>%
+  rename("Va" = "copies_mL") %>%
+  select(date, site, Va)
+```
+
+#### Cut Va out of old species DF
+
+```{r}
+sp<-
+  sp %>%
+  select(!Va)
 ```
 
 #### Combine data sets: (1) Dust, (2) Total Vib, (3) Environmental, (4) CFU, (5) Species
@@ -70,6 +88,10 @@ master<-
 master<- 
   master %>%
   full_join(sp)
+
+master<-
+  master %>%
+  full_join(va_d)
 
 master<-
   master %>%

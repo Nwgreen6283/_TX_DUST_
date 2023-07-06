@@ -1,0 +1,161 @@
+---
+title: "Va copies calc"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+**FOR DAILY AND MONTHLY VA WRANGLING**
+
+#### Libs
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+```
+
+#### Data
+
+```{r}
+g<- read_csv(here("data", "raw_data", "qpcr", "va", "va_gulf_daily_57.csv"))
+g2<- read_csv(here("data", "raw_data", "qpcr", "va", "va_c2_bo_daily_57.csv"))
+
+```
+
+# Cleaning
+
+#### Clean and combine daily df
+
+```{r}
+g<-
+  g %>% 
+  select(Sample, Cq) %>%
+  mutate(site = "RD") %>%
+  filter(grepl("R", Sample))
+```
+
+```{r}
+g2 <-
+  g2 %>%
+  select(Sample, Cq) %>%
+  mutate(site = case_when(grepl("B", Sample) ~ "BO",
+                          (grepl("C", Sample) ~ "C2"))) %>%
+  filter(!is.na(site),
+         !Sample %in% "NTC")
+```
+
+```{r}
+d<-
+  rbind(g,g2)
+```
+
+#### Add Dilution Column and Filter column
+
+```{r}
+d<- d%>%
+  mutate(dilution = case_when(site == "BO"~"1",#BO was 1:1
+                              site  == "C2"~ "1",
+                              site == "RD"~"1"),
+         dilution = as.numeric(dilution))
+
+
+
+d<- d %>%
+   mutate(filter_amt = case_when(
+                          Sample == "B7"~"100",
+                          Sample == "B8"~"100",
+                          Sample == "B9"~"100",
+                          Sample == "B9"~"100",
+                          Sample == "B11"~"100",
+                          Sample == "B12"~"50",
+                          Sample == "B13"~"50",
+                          Sample == "B14"~"50",
+                          Sample == "B15"~"50",
+                          Sample == "B16"~"30",
+                          Sample == "B17"~"30",
+                          Sample == "B18"~"30",
+                          Sample == "B19"~"30",
+                              site  == "C2"~ "100",
+                              site == "RD"~"100"),
+          filter_amt = as.numeric(filter_amt)) 
+```
+
+Cq --> Copies/mL
+
+```{r}
+d<- d %>%
+    mutate(
+    log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
+    sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*15, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor) %>%
+select(Sample,copies_mL, site)
+
+```
+
+Replace NaN with 0 for copies/mL
+
+```{r}
+d<- d %>%
+ mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL))
+```
+
+Date Column
+
+```{r}
+d<- d %>%
+ mutate(day = substr(Sample, 2,3),
+   date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  filter(!is.na(date)) %>%
+  select(date, copies_mL, site)
+
+```
+
+Take the average of qPCR triplicates
+
+```{r}
+d<- d %>% 
+  group_by(date,site) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(date = as.Date(date))
+```
+
+Save as RDS and manually add date in excel
+
+```{r}
+#stop() #Write error so it wont overwrite
+write.csv(d, file= here("data","processed_data","qpcr", "va_clean_copies_daily.csv"))
+```
+
+# Plot
+
+```{r}
+d %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "gyrB copies per mL",
+       title = "Va at the Gulf (57°C Annealing Temperature)",
+       caption = "Note: Standard Curve with 57°C annealing temperature needs to be run")
+```

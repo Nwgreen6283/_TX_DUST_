@@ -124,8 +124,7 @@ For Vc, we ran it initial with all three sites. Then tested BO for INH, and it l
   facet_wrap(~site)  +
   labs(x = "Date",
        y = "Copies/mL",
-       title = "Daily Vibrio alginolyticus ",
-       caption = "Blind Oso was 1:50")+
+       title = "Daily Vibrio alginolyticus ")+
   theme_bw()+
   theme(
     plot.title = element_text(hjust = 0.5),

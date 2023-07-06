@@ -19,6 +19,7 @@ Load data
 
 ```{r}
 d<- read_csv(here("data", "raw_data", "qpcr", "va", "va_daily.csv"))
+g<- read_csv(here("data", "raw_data", "qpcr", "va", "va_gulf_daily_57.csv"))
 
 m<- read_csv(here("data", "raw_data", "qpcr", "va", "va_mon.csv"))
 ```
@@ -62,6 +63,7 @@ m<- m %>%
 Add Dilution Column and Filter column
 
 ```{r}
+#DAILY
 dilution<- d%>%
   mutate(dilution = case_when(site == "BO"~"1",
                               site  == "C2"~ "1",
@@ -89,6 +91,7 @@ filter<- dilution %>%
                               site == "RD"~"100"),
           filter_amt = as.numeric(filter_amt)) 
 
+#MONTHLY
 dilution_m<- m%>%
   mutate(dilution = case_when(site == "BO"~"1", #BO was 1:1
                               site  == "C2"~ "1",
@@ -116,6 +119,13 @@ filter_m<- dilution_m %>%
                           site  == "C2"~ "100",
                           site == "RD"~"100"),
        filter_amt = as.numeric(filter_amt))
+
+#GULF 57
+g<- g %>%
+  mutate(dilution = 1, #Gulf was 1:1
+         dilution = as.numeric(dilution),
+         filter_amt = 100,
+         filter_amt = as.numeric(filter_amt))
 ```
 
 Cq --> Copies/mL
@@ -144,7 +154,20 @@ copies_m<- filter_m %>%
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
 select(Sample,copies_mL, site,day)
+
+#GULF 57
+g<- g%>%
+   mutate(
+    log_sq = ((Cq-42.928)/-3.254), #Equation of the line to get log(SQ). Equation is 3/20/23
+   sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*15, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor)
 ```
+
+<!--# WILL NEED TO UPDATE STD CURVE -->
 
 Replace NaN with 0 for copies/mL
 
@@ -158,6 +181,9 @@ replace_m<- copies_m %>%
  mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
 filter(!is.na(Sample))   
  #Dropping NAs from STD Curve
+
+g<- g %>%
+ mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL))
 ```
 
 Date Column
@@ -191,6 +217,24 @@ date_m<- replace_m %>%
                          day == "10i"~"2022-10-18",
                          day ==  "11i"~"2022-11-15",
                          day == "12i"~"2022-12-14"))
+
+g<- g %>%
+ mutate(day = substr(Sample, 2,3),
+   date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  filter(!is.na(date)) %>%
+  select(date, copies_mL)
+
 ```
 
 Take the average of qPCR triplicates
@@ -207,6 +251,12 @@ final_m<- date_m %>%
   summarize_if(is.numeric, mean) %>%
   ungroup() %>% #Ungroup to spit everything back out 
  select(date,copies_mL,site)
+
+g<- g %>% 
+  group_by(date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(date = as.Date(date))
 ```
 
 Save as RDS and manually add date in excel
@@ -216,4 +266,19 @@ Save as RDS and manually add date in excel
 write.csv(final, file= here("data","processed_data","va_clean_copies_daily.csv"))
 
 write.csv(final_m, file= here("data","processed_data","va_clean_copies_monthly.csv"))
+```
+
+# Plot
+
+```{r}
+g %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL),
+        color = "4c848c") +
+  theme_bw()+
+  labs(x = "Date",
+       y = "gyrB copies per mL",
+       title = "Va at the Gulf (57°C Annealing Temperature)",
+       caption = "Note: Standard Curve with 57°C annealing temperature needs to be run")
 ```
