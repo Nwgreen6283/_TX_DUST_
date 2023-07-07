@@ -137,131 +137,123 @@ For Vc, we ran it initial with all three sites. Then tested BO for INH, and it l
  ggsave(here("results", "plots", "qpcr","va_daily.png"))
 ```
 
-##### Blind Oso
+## All Species
+
+<!--# Make new df to have species legend -->
 
 ```{r}
-bo_spp<- 
+spp<-
   master %>%
-  filter(Type %in% "Daily",
-         site %in% "Blind Oso") %>%
-  ggplot() +
-  geom_line(
-    aes(
-      x = date,
-      y = Vc),
-      color = "#00BFC4",
-    size = 1)+ 
-  geom_line(
-    aes(
-      x = date,
-      y = Vv),
-      color = "#00BA38",
-    size = 1)+ 
-    geom_line(
-    aes(
-      x = date,
-      y = Vp),
-      color = "#C77CFF",
-    size = 1)+ 
-  theme_bw()+
-     labs(title = "Vibrio Species at Blind Oso",
-       x = "Date",
-       y = "Vibrio gene copies/mL") +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45),
-        plot.title = element_text(hjust = 0.5)) 
+  filter(hr_cst %in% "01",
+         date %in% as.Date('2022-07-07') : as.Date('2022-07-19'))%>%
+  select(date, Va, Vc, Vp, Vv, site)
 
-bo_spp
+va<-
+  spp %>%
+  select(site, date, Va) %>%
+  mutate(species = "Va") %>% 
+  rename("copies_mL" = "Va")
 
-#dev.off()
- ggsave(here("results", "plots", "qpcr","bo_all_daily.png"))
+vc<-
+  spp %>%
+  select(site, date, Vc) %>%
+  mutate(species = "Vc") %>% 
+  rename("copies_mL" = "Vc")
+
+vp<-
+  spp %>%
+  select(site, date, Vp) %>%
+  mutate(species = "Vp") %>% 
+  rename("copies_mL" = "Vp")
+
+vv<-
+  spp %>%
+  select(site, date, Vv) %>%
+  mutate(species = "Vv") %>% 
+  rename("copies_mL" = "Vv")
+
+spp<-
+  rbind(va,vc,vv,vp)
 ```
 
-##### Canals
+#### Blind Oso Species
+
+```{r}
+bo_spp<-
+  spp %>%
+  filter(site %in% "Blind Oso") %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = species)) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Gene Copies per mL",
+       title = "Blind Oso",
+       color = "Species") +
+  theme(legend.position = c(0.25, 0.8),
+        legend.background = element_blank(),
+        legend.box.background = element_rect(colour = "black"),
+        axis.text.x = element_text(hjust = 1, angle = 45))
+bo_spp
+  
+ggsave(here("results", "plots", "qpcr","bo_all_daily.png"))
+```
+
+#### Canals
 
 ```{r}
 c2_spp<-
-  master %>%
-  filter(Type %in% "Daily",
-         site %in% "Canals") %>%
-  ggplot() +
-  geom_line(
-    aes(
-      x = date,
-      y = Vc),
-      color = "#00BFC4",
-    size = 1)+ 
-  geom_line(
-    aes(
-      x = date,
-      y = Vv),
-      color = "#00BA38",
-    size = 1)+ 
-    geom_line(
-    aes(
-      x = date,
-      y = Vp),
-      color = "#C77CFF",
-    size = 1)+ 
-  theme_bw()+
-     labs(title = "Vibrio Species at Canals",
-       x = "Date",
-       y = "Vibrio gene copies/mL") +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45),
-        plot.title = element_text(hjust = 0.5),
-        legend.position = "none") 
-
+  spp %>%
+  filter(site %in% "Canals") %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = species)) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Gene Copies per mL",
+       title = "Canals",
+       color = "Species") +
+  theme(legend.position = "none",
+         axis.text.x = element_text(hjust = 1, angle = 45))
 c2_spp
-
- ggsave(here("results", "plots","qpcr", "c2_all_daily.png"))
+  
+ggsave(here("results", "plots", "qpcr","c2_all_daily.png"))
 ```
 
-##### Gulf
+#### Gulf
 
 ```{r}
 rd_spp<-
-  master %>%
-  filter(Type %in% "Daily",
-         site %in% "Gulf") %>%
-  ggplot() +
-  geom_line(
-    aes(
-      x = date,
-      y = Vc),
-      color = "#00BFC4",
-    size = 1)+ 
-  geom_line(
-    aes(
-      x = date,
-      y = Vv),
-      color = "#00BA38",
-    size = 1)+ 
-    geom_line(
-    aes(
-      x = date,
-      y = Vp),
-      color = "#C77CFF",
-    size = 1)+ 
-  theme_bw()+
-     labs(title = "Vibrio Species at Gulf",
-       x = "Date",
-       y = "Vibrio gene copies/mL") +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45),
-        plot.title = element_text(hjust = 0.5),
-        legend.position = "none") 
-
+  spp %>%
+  filter(site %in% "Gulf") %>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = species))+
+  theme_bw() +
+  labs(x = "Date",
+       y = "Gene Copies per mL",
+       title = "Gulf",
+       color = "Species") +
+  theme(legend.position = "none",
+         axis.text.x = element_text(hjust = 1, angle = 45))
 rd_spp
-
- ggsave(here("results", "plots","qpcr", "rd_all_daily.png"))
+  
+ggsave(here("results", "plots", "qpcr","rd_all_daily.png"))
 ```
 
-#### Combine
+## Combine
 
-```{r, fig.width=10}
+```{r}
 all_spp<-
   ggarrange(bo_spp, c2_spp, rd_spp,
             nrow = 1,
             ncol = 3)
 all_spp
+
+ggsave(here("results", "plots", "qpcr","species_all_daily.png"))
 ```
 
 # MONTHLY PLOTS

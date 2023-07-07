@@ -197,8 +197,10 @@ fviz_pca_biplot(daily_pca,
                 repel = TRUE,
                 col.var = "black",
                 habillage  = PC$site,
-                title = "Biplot of all Sites", geom="point", pointsize = 3) +
+                title = "Biplot of all Sites", geom="point", pointsize = master$dust_lag,
+                mean.point = F) +
   theme_bw()+
+  labs(pointsize= "Site")+
   theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
