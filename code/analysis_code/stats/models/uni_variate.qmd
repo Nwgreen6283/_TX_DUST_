@@ -50,7 +50,7 @@ data<- data0 %>%
 master<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") %>% #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
-    select(t7sum, copies_mL, site, date) #Select columns of interest
+    select(t7sum, copies_mL, site, date, cfu_tot) #Select columns of interest
 
 ```
 
@@ -71,6 +71,8 @@ rd<- master %>%
 
 # DUST
 
+## qPCR Data
+
 #### Add Lag from `2_cca.qmd`
 
 ```{r}
@@ -87,7 +89,7 @@ rd2<- rd%>% mutate(
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
-#### Plot
+#### Plot Gene Copies/mL
 
 ```{r, fig.width= 4, fig.height=4}
 #BLIND OSO
@@ -151,6 +153,83 @@ ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
           heights = c(1,1,1.25)) 
 
 ggsave(here("results", "plots", "uni.png"))
+```
+
+## CFU Data
+
+#### Add Lag from CCA
+
+```{r}
+bo2<- bo %>% mutate(
+  cfu_lag =Lag(bo$t7sum, shift  = 0)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+c22<- c2%>% mutate(
+  cfu_lag =Lag(c2$t7sum, shift  = 0)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+rd2<- rd%>% mutate(
+  cfu_lag =Lag(rd$t7sum, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
+```{r}
+#BLIND OSO
+fig1<-
+  bo2 %>% ggplot(aes(x = cfu_lag, y = cfu_tot)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = cfu_lag, y = cfu_tot),
+               rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE,size = 3.5)+
+  #annotate("text", x = 0.0335, y = 900, label = "p = 0.01", size =3.5)+
+  labs(title = "Blind Oso (0-day lag to dust)",
+       x = "log10(dust)",
+       y = "CFU/mL")+
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+#CANALS
+ fig2<-
+   c22 %>% ggplot(aes(x = cfu_lag, y = cfu_tot)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = cfu_lag, y = cfu_tot), rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
+ # annotate("text", x = 0.035, y = 2000, label = "p = 0.005", size = 3.5)+
+  labs(title = "Canals (0-day lag to dust)",
+       x = "log10(dust)",
+       y = "CFU/mL") +
+   theme_bw()+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+#GULF  
+fig3<-
+  rd2 %>% ggplot(aes(cfu_lag, cfu_tot)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = cfu_lag, y = cfu_tot),rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
+  #annotate("text", x = 0.0335, y = 1000, label = "p = 0.02", size = 3.5)+
+  labs(title = "Gulf (1-day lag to dust)",
+       x = "log10(dust)",
+       y = "CFU/mL")+
+   theme_bw() +
+
+  theme(axis.text.x = element_blank(),
+        #axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+```
+
+```{r}
+ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
+            ncol = 1, 
+            nrow = 3,
+          heights = c(1,1,1.25)) 
 ```
 
 ## Null Model:

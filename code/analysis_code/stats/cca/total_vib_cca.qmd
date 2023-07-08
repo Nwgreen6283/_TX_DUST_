@@ -40,7 +40,7 @@ data<- data0 %>%
 master0<- 
   dust %>% full_join(data) %>%
   filter(hr_cst %in% "01") #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
-master<- master0[c(1:9,14,16)]
+master<- master0[c(1:9,14,16, 35)]
 
 ```
 
@@ -101,6 +101,24 @@ title("Gulf DustxCopies CCA", line =1)
 
 : \*[**One important thing to note**]{.ul}: Our data set contains dust data for all of 2022. Our copies_mL data only contains values from 7/7/22 --> 7/19/22. Therefore, these CCA were made with only this time series. This limits our analysis, as we have dust data prior that can explain copies_mL on the earlier dates 7/7 or 7/8. But we cannot incorporate this into the CCA as we have NA for copies_mL for those early days. Below we will run linear models that DO contain these prior dust days. And since we have identified a lag, we can shift the dust data to line up with the copies_mL that it corresponds with directly - and we no longer have NAs. But this ultiamtely means that the lag identified above may not be the best fit for our model below, so some additional work is needed that tests other lags in the code. Using a combination of visual and CCA would be helpful.\
 
+#### CFU
+
+```{r}
+#Blind Oso
+ccf(bo_ccf$t7sum, bo_ccf$cfu_tot) 
+title("Blind Oso", line =1)
+
+#Canals
+ccf(c2_ccf$t7sum, c2_ccf$cfu_tot)
+title("Canals DustxCopies CCA", line=1)
+
+#Gulf
+ccf(rd_ccf$t7sum, rd_ccf$cfu_tot) 
+title("Gulf Dus$txCopies CCA", line =1)
+```
+
+**BO is 0, C2 is NA, Gulf is 1**
+
 ## MONTHLY
 
 #### DF
@@ -153,3 +171,5 @@ bo<- data %>%
 ccf(bo$Dust, bo$amm) 
 title("Blind Oso", line =1)
 ```
+
+#### 
