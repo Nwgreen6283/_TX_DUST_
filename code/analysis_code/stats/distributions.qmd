@@ -115,6 +115,14 @@ ggqqplot(rd$copies_mL) +
 
     A p-value > 0.05 implies that the distribution of the data is **not significantly differen**t from normal distribution. In other words, **we can assume the normality for the copies_mL data.**
 
+### \[CFU\]
+
+```{r}
+shapiro.test(bo$cfu_tot)
+shapiro.test(c2$cfu_tot)
+shapiro.test(rd$cfu_tot)
+```
+
 ## \[Dust\]
 
 **Q-Q plot**

@@ -169,13 +169,13 @@ The function **rcorr()** \[in **Hmisc** package\] can be used to compute the **s
 **NOTE THIS IS WITH DATA SETS PRIOR TO LOG TRANSFORMATION. SO EVERYTHING SPEARMANS.**
 
 ```{r}
-bclean<- rcorr(as.matrix(bo))
+bclean<- rcorr(as.matrix(bo), type = "spearman")
 flattenCorrMatrix(bclean$r, bclean$P)
 
-cclean<- rcorr(as.matrix(c2))
+cclean<- rcorr(as.matrix(c2), type = "spearman")
 flattenCorrMatrix(cclean$r, cclean$P)
 
-rclean<- rcorr(as.matrix(rd))
+rclean<- rcorr(as.matrix(rd), type = "spearman")
 flattenCorrMatrix(rclean$r, rclean$P)
 ```
 
@@ -290,5 +290,7 @@ corrplot(rd_2$r, type="upper",
          p.mat = rd_2$P, sig.level = 0.05, insig = "blank",
          title = "Gulf", mar = c(0,0,1,0))
 ```
+
+#### 
 
 #### 

@@ -31,7 +31,7 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data c
 
 # Cleaning
 
-### Clean and Trim
+### Clean and Trim. Log-Transform Dust 
 
 ```{r}
 dust<- dust0 %>%
@@ -89,6 +89,16 @@ rd2<- rd%>% mutate(
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
+#### Get Pearson's P-value to put on graph
+
+```{r}
+cor.test(bo2$lag, bo2$copies_mL)
+
+cor.test(c22$lag, c22$copies_mL)
+
+cor.test(rd2$lag, rd2$copies_mL)
+```
+
 #### Plot Gene Copies/mL
 
 ```{r, fig.width= 4, fig.height=4}
@@ -116,7 +126,7 @@ fig1<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = lag, y = copies_mL), rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
-  annotate("text", x = 0.035, y = 23000, label = "p = 0.005", size = 3.5)+
+  annotate("text", x = 0.035, y = 23000, label = "p = 0.003", size = 3.5)+
   labs(title = "Canals (2-day lag to dust)",
        x = "log10(dust)",
        y = "Copies/mL") +
@@ -173,6 +183,18 @@ rd2<- rd%>% mutate(
 filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
 ```
 
+#### Get Pearson's correlation p-value to put on plot
+
+**Also: CFU distribution is normal, so that is why I am using Pearson's here.**
+
+```{r}
+cor.test(bo2$cfu_lag, bo2$cfu_tot)
+
+cor.test(c22$cfu_lag, c22$cfu_tot)
+
+cor.test(rd2$cfu_lag, rd2$cfu_tot)
+```
+
 ```{r}
 #BLIND OSO
 fig1<-
@@ -182,7 +204,7 @@ fig1<-
   stat_poly_eq(aes(x = cfu_lag, y = cfu_tot),
                rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE,size = 3.5)+
-  #annotate("text", x = 0.0335, y = 900, label = "p = 0.01", size =3.5)+
+  annotate("text", x = 0.032, y = 500, label = "p = 0.02", size =3.5)+
   labs(title = "Blind Oso (0-day lag to dust)",
        x = "log10(dust)",
        y = "CFU/mL")+
@@ -198,7 +220,7 @@ fig1<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = cfu_lag, y = cfu_tot), rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
- # annotate("text", x = 0.035, y = 2000, label = "p = 0.005", size = 3.5)+
+  annotate("text", x = 0.032, y = 600, label = "p = 0.47", size = 3.5)+
   labs(title = "Canals (0-day lag to dust)",
        x = "log10(dust)",
        y = "CFU/mL") +
@@ -214,7 +236,7 @@ fig3<-
   stat_smooth(method = "lm")+
   stat_poly_eq(aes(x = cfu_lag, y = cfu_tot),rr.digits = 4, size = 3.5)+
   stat_correlation(method = "pearson",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
-  #annotate("text", x = 0.0335, y = 1000, label = "p = 0.02", size = 3.5)+
+  annotate("text", x = 0.032, y = 1000, label = "p = 0.02", size = 3.5)+
   labs(title = "Gulf (1-day lag to dust)",
        x = "log10(dust)",
        y = "CFU/mL")+
@@ -225,7 +247,7 @@ fig3<-
         axis.ticks.x = element_blank())
 ```
 
-```{r}
+```{r, fig.height=2.5}
 ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
             ncol = 1, 
             nrow = 3,

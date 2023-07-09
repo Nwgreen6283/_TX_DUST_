@@ -27,7 +27,7 @@ data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data
 dust<- dust0 %>%
   filter(!is.na(date),
          date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) %>%
-  mutate(t7sum = log10(t7sum)) #Log transform Dust conc (as it is not normal) 
+  mutate(t7sum = log10(t7sum+1)) #Log transform Dust conc (as it is not normal) 
 
 
 data<- data0 %>%
