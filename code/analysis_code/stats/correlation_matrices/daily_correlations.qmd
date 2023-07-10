@@ -258,6 +258,10 @@ rd_table2
 
 ```
 
+# Plot
+
+#### By site
+
 It's also possible to **combine correlogram with the significance test**. We'll use the result *res.cor2* generated in the previous section with **rcorr**() function \[in **Hmisc** package\]:
 
 We get errors but still get the corrplot
@@ -291,6 +295,28 @@ corrplot(rd_2$r, type="upper",
          title = "Gulf", mar = c(0,0,1,0))
 ```
 
-#### 
+#### Sites Combined
+
+```{r}
+bo<-bo %>%
+  mutate(Vp = "0",
+         Vp = as.numeric(Vp)) %>%
+  select(!HF183)
+
+all<- 
+  rbind(c2, rd, bo)
+
+all_cor<- rcorr(as.matrix(all))
+flattenCorrMatrix(all_cor$r, all_cor$P)
+diag(all_cor$P) <- 0
+
+```
 
 #### 
+
+```{r, fig.height=9, fig.width=9}
+corrplot(all_cor$r, type="upper", 
+         tl.col = "black",
+         p.mat = bo_2$P, sig.level = 0.05, insig = "blank",
+         title = "All", mar = c(0,0,1,0)) 
+```
