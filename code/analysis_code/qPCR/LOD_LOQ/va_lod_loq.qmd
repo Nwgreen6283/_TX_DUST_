@@ -18,10 +18,18 @@ library(ggpubr) #Regression Eq
 #### Data
 
 ```{r}
-va<- read.csv(here("data", "raw_data", "va_gblock.csv" ))
+va<- read.csv(here("data", "raw_data","qpcr", "va",  "va_c2_bo_daily_57.csv" ))
 ```
 
 # Cleaning
+
+#### Select Standard Curve
+
+```{r}
+va<-
+  va %>%
+  filter(Content %in% "Std")
+```
 
 #### Log SQ
 
@@ -45,6 +53,7 @@ va %>%
     aes(x = log,
         y = Cq),
     method = "lm") +
+  theme_bw()+
   stat_regline_equation(
     aes(x = log,
         y = Cq),
@@ -62,10 +71,12 @@ relation<- lm(Cq~log, va)
 print(summary(relation))
 ```
 
+<!--# So is S = 0.23699? -->
+
 # LOD / LOQ![](images/Screen%20Shot%202023-04-17%20at%209.31.37%20PM.png)
 
 ```{r}
-S<- 0.15977
+S<- 0.23699
 b<- -3.74
 
 LOD_cop<- 10^((3*S) / b) #Unlog to go form logSQ --> SQ

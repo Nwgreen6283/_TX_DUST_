@@ -50,7 +50,7 @@ tot_bac<-
   rbind(tot_bac, tot_bac_mon)
 ```
 
-#### Rename Va column 
+#### Rename Va column
 
 ```{r}
 va_d<-

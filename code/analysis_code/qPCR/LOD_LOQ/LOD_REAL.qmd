@@ -1,0 +1,99 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+# Intro
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+library(ggpubr)
+```
+
+#### Data
+
+```{r, include = FALSE}
+va<- read_csv(here("data", "raw_data", "qpcr", "va", "va_c2_bo_daily_57.csv"))
+```
+
+# Clean
+
+#### Isolate Standard Curve Data
+
+```{r}
+va<-
+  va %>%
+  filter(Content %in% "Std")
+```
+
+# Plot
+
+#### Va
+
+```{r}
+va %>%
+  ggplot() + 
+  geom_point(
+    aes(x = log10(SQ),
+        y = Cq)) +
+  theme_bw()+
+  labs(title = "Va Standard Curve",
+       caption = "10^6 to 10^-1R") + 
+  stat_regline_equation(
+    aes(x = log10(SQ),
+        y = Cq),
+    label.x = 0,
+    label.y = 30)
+```
+
+![](images/IMG_2767%202.JPG)
+
+# LOD
+
+#### Create Percent Positive Column
+
+```{r}
+lod_va <- va %>% 
+  dplyr::select(Cq, SQ) %>%
+  group_by(SQ) %>%
+  na.omit() %>% 
+  tally() %>%
+  mutate(percentage = n / 5) %>%
+  full_join(va) %>%
+  dplyr::select(percentage, Cq, SQ)
+```
+
+#### Plot
+
+```{r}
+ggplot(lod_va,aes(x = log10(SQ), y = percentage)) + 
+  geom_point() + 
+  geom_smooth(span = 0.3) +
+  #stat_regline_equation(label.y = 1, aes(label = ..eq.label..)) +
+  #stat_regline_equation(label.y = 0.6, aes(label = ..rr.label..)) +
+    theme_bw()+
+  labs(y = "Percent Positive")
+```
+
+<!--# NEED TO FIT A GAUSSIAN MODEL TO THIS. Then I can calcaulte where y = 95% to get LOD -->
+
+**From this graph, an estimation of y = 95% is x = \~1.2 so**
+
+```{r}
+LOD<- 10^1.2
+```
+
+**Which is 15 SQ or**
+
+```{r}
+LOD_Cq<- (-3.528*1.2) + 38.863
+```
+
+**So anything over a CQ value of 34.63, we can not say that we are 95% condifident that these are accurately detected.**
+
+<!--# So what happens to those that were greater than this Cq? Do we make them xx% of LOD. Same with current NA to 0 values -->
