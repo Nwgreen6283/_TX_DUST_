@@ -19,9 +19,10 @@ library(ggpubr)
 
 #### Data
 
-```{r}
+```{r, include = FALSE}
 g<- read_csv(here("data", "raw_data", "qpcr", "va", "va_gulf_daily_57.csv"))
 g2<- read_csv(here("data", "raw_data", "qpcr", "va", "va_c2_bo_daily_57.csv"))
+m<- read_csv(here("data", "raw_data", "qpcr", "va", "va_mon.csv")) #This is 57*C anneal
 
 ```
 
@@ -52,9 +53,19 @@ d<-
   rbind(g,g2)
 ```
 
+#### Site Column and Remove + and NTC
+
+```{r}
+m<-
+  m %>%
+  mutate(site = substr(Sample, 1,2)) %>%
+  filter(!Sample %in% c("NTC", "Pos_e4"))
+```
+
 #### Add Dilution Column and Filter column
 
 ```{r}
+#DAILY
 d<- d%>%
   mutate(dilution = case_when(site == "BO"~"1",#BO was 1:1
                               site  == "C2"~ "1",
@@ -81,11 +92,42 @@ d<- d %>%
                               site  == "C2"~ "100",
                               site == "RD"~"100"),
           filter_amt = as.numeric(filter_amt)) 
+
+#MONTHLY
+m<- m %>%
+  mutate(dilution = case_when(site == "BO"~"1",#BO was 1:1
+                              site  == "C2"~ "1",
+                              site == "RD"~"1"),
+         dilution = as.numeric(dilution))
+
+
+
+m<- m %>%
+   mutate(
+     day = substr(Sample, 4,7),
+     filter_amt = case_when(
+                          site == "BO" & day == 2 ~"100",
+                          site == "BO" & day == 3 ~ "100",
+                          site == "BO" & day == 4 ~ "100",
+                          site == "BO" & day == '5_11' ~"100",
+                          site == "BO" & day == '5_20' ~ "100",
+                          site == "BO" & day == '5_24' ~ "100",
+                          site == "BO" & day == 6 ~"100",
+                          site == "BO" & day == 8~ "30",
+                          site == "BO" & day == 9~"45",
+                          site == "BO" & day == 10 ~ "60",
+                          site == "BO" & day == 11~ "30",
+                          site == "BO" & day == 12~ "60",
+                          site  == "C2"~ "100",
+                          site == "RD"~"100"),
+        filter_amt = as.numeric(filter_amt))
 ```
 
 Cq --> Copies/mL
 
 ```{r}
+
+#DAILY
 d<- d %>%
     mutate(
     log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
@@ -97,12 +139,26 @@ d<- d %>%
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site)
 
+#MONTHLY
+m<- m %>%
+    mutate(
+    log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
+    sq = 10^log_sq, #Unlog 
+    copies_rxn = sq*15, #SQ*Reaction Volume
+    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
+    copies_mL = copies_uL_extract*concentration_factor) %>%
+select(Sample,copies_mL, site, day)
 ```
 
 Replace NaN with 0 for copies/mL
 
 ```{r}
 d<- d %>%
+ mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL))
+
+m<- m %>%
  mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL))
 ```
 
@@ -126,12 +182,33 @@ d<- d %>%
   filter(!is.na(date)) %>%
   select(date, copies_mL, site)
 
+
+m<- m %>%
+ mutate(date = case_when(day == "2"~"2022-02-16",
+                         day ==  "3"~"2022-03-09",
+                         day ==  "4"~"2022-04-20",
+                         day ==  "5_11"~"2022-05-11",
+                         day == "5_20"~"2022-05-20",
+                         day ==  "5_24"~"2022-05-24",
+                         day ==  "6"~"2022-06-14",
+                         day ==  "8"~"2022-08-09",
+                         day ==  "9"~"2022-09-13",
+                         day == "10"~"2022-10-18",
+                         day ==  "11"~"2022-11-15",
+                         day == "12"~"2022-12-14",
+                         Sample == "RD_ 2" ~ "2022-02-16"))
 ```
 
 Take the average of qPCR triplicates
 
 ```{r}
 d<- d %>% 
+  group_by(date,site) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(date = as.Date(date))
+
+m<- m %>% 
   group_by(date,site) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
   summarize_if(is.numeric, mean) %>%
   ungroup() %>%
@@ -143,6 +220,7 @@ Save as RDS and manually add date in excel
 ```{r}
 #stop() #Write error so it wont overwrite
 write.csv(d, file= here("data","processed_data","qpcr", "va_clean_copies_daily.csv"))
+write.csv(m, file= here("data","processed_data","qpcr", "va_clean_copies_monthly.csv"))
 ```
 
 # Plot

@@ -83,7 +83,8 @@ bo<-
          "HF183" = "hf_copies_mL",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
-         "Green CFU" = "cfu_gre")
+         "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
 
 c2<- 
   c2 %>%
@@ -110,7 +111,8 @@ c2<-
          "Avg CFU" = "cfu_tot",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
-         "Green CFU" = "cfu_gre")
+         "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
 
 rd<- 
   rd %>%
@@ -137,7 +139,8 @@ rd<-
          "Avg CFU" = "cfu_tot",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
-         "Green CFU" = "cfu_gre")
+         "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
 ```
 
 # Correlation Matrix
@@ -181,7 +184,7 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 
 <!--# FYI: WE CAN USE PEARSON FOR LOG10(DUST) X VIBRIO -->
 
-```{r, fig.width= 4, fig.height=4}
+```{r, fig.width= 7, fig.height=7}
 corrplot(bo_cor$r, type="upper",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
@@ -215,7 +218,7 @@ flattenCorrMatrix(all_cor$r, all_cor$P)
 diag(all_cor$P) <- 0
 ```
 
-```{r, fig.width=4, fig.height=4}
+```{r, fig.width=7, fig.height=7}
 corrplot(all_cor$r, type="upper", 
          tl.col = "black",
          p.mat = all_cor$P, sig.level = 0.05, insig = "blank",

@@ -1,0 +1,156 @@
+---
+title: "Univariate"
+format:
+  html:
+    theme: default
+---
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc) #For lag function
+library(tidymodels) #For modeling
+library(ggpmisc) #For R2 equation on graph
+library(dotwhisker) #Fpr visualization
+library(ggpubr) #For plot stacking
+library(kableExtra) #Tables
+```
+
+#### Data
+
+```{r}
+dust0<- read_csv(here("data", "processed_data","dust","dust_master.csv")) #Different Dust permutations
+data0<- read_csv(here("data", "processed_data", "tx_master.csv")) #Master Data containing copies_mL and nutrients 
+```
+
+# Cleaning
+
+### Clean and Trim
+
+```{r}
+dust<- dust0 %>%
+  filter(!is.na(date),
+         date %in% as.Date("2022-07-04"):as.Date("2022-07-19")) 
+ # mutate(t7sum = log10(t7sum+ 1)) #Log transform Dust conc (as it is not normal) 
+
+
+data<- data0 %>%
+  filter(date %in% as.Date("2022-07-04"):as.Date("2022-07-19"))
+```
+
+### Combine into one big data set
+
+```{r}
+master<- 
+  dust %>% full_join(data) %>%
+  filter(hr_cst %in% "01") %>% #While this is technically not for hour 1, this gets ride of all duplicates for the sake of analysis.
+    select(t7sum, copies_mL, site, date, cfu_tot) #Select columns of interest
+
+```
+
+### Make Site DF
+
+**Need to include 7/5 and 7/6 for previous dust data (will be used for lag analysis)**
+
+```{r}
+bo<- master %>%
+  filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+c2<- master %>%
+  filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06")))
+
+rd<- master %>%
+  filter(site %in% "Gulf"| date %in% c(as.Date("2022-07-05"), as.Date("2022-07-06")))
+```
+
+```{r}
+bo2<- bo %>% mutate(
+  lag =Lag(bo$t7sum, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+c22<- c2%>% mutate(
+  lag =Lag(c2$t7sum, shift  = 2)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+
+rd2<- rd%>% mutate(
+  lag =Lag(rd$t7sum, shift  = 1)) %>% #Make lag from ccf
+filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
+#### Get Pearson's P-value to put on graph
+
+```{r}
+cor.test(bo2$lag, bo2$copies_mL, method = "spearman", exact = FALSE)
+
+cor.test(c22$lag, c22$copies_mL, method = "spearman", exact = FALSE)
+
+cor.test(rd2$lag, rd2$copies_mL, method = "spearman", exact = FALSE)
+```
+
+# Plot
+
+**SPEARMAN**
+
+```{r}
+#BLIND OSO
+fig1<-
+  bo2 %>% ggplot(aes(x = lag, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),
+               rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "spearman",label.x = 0.05,label.y = 0.75, small.r = TRUE,size = 3.5)+
+  annotate("text", x = 0.088, y = 55000, label = "p = 0.003", size =3.5)+
+  labs(title = "Blind Oso (1-day lag to dust)",
+       x = "Dust",
+       y = "Copies/mL")+
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+#CANALS
+ fig2<-
+   c22 %>% ggplot(aes(x = lag, y = copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL), rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "spearman", label.x = 0.05,label.y = 0.75,small.r = TRUE, size = 3.5)+
+  annotate("text", x = 0.088, y = 23000, label = "p = 0.091", size = 3.5)+
+  labs(title = "Canals (2-day lag to dust)",
+       x = "Dust",
+       y = "Copies/mL") +
+   theme_bw()+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+#GULF  
+fig3<-
+  rd2 %>% ggplot(aes(lag, copies_mL)) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  stat_poly_eq(aes(x = lag, y = copies_mL),rr.digits = 4, size = 3.5)+
+  stat_correlation(method = "spearman",label.x = 0.05,label.y = 0.75, small.r = TRUE, size = 3.5)+
+  annotate("text", x = 0.088, y = 85000, label = "p = 0.03", size = 3.5)+
+  labs(title = "Gulf (1-day lag to dust)",
+       x = "Dust",
+       y = "Copies/mL")+
+   theme_bw() +
+
+  theme(axis.text.x = element_blank(),
+        #axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+```
+
+```{r}
+ggarrange(fig1, fig2, fig3 + font("x.text", size = 10),
+            ncol = 1, 
+            nrow = 3,
+          heights = c(1,1,1.25)) 
+
+ggsave(here("results", "plots", "uni.png"))
+```
