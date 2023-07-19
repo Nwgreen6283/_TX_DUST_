@@ -28,6 +28,7 @@ cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
 sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv")) #Species
 va_d<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_daily.csv")) #Species
+va_mon<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_monthly.csv")) 
 tot_bac<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria.csv")) #Total Daily Bacteria
 tot_bac_mon<- read_csv(here("data", "processed_data", "qpcr", "total_bacteria_monthly.csv")) #Total Monthly Bacteria
 tss<- read_csv(here("data", "processed_data", "env", "tss.csv"))
@@ -57,6 +58,19 @@ va_d<-
   va_d %>%
   rename("Va" = "copies_mL") %>%
   select(date, site, Va)
+
+va_mon<-
+  va_mon %>%
+  rename("Va" = "copies_mL") %>%
+  select(date, site, Va)
+```
+
+#### Combine Va Monthly and Daily
+
+```{r}
+va<- 
+  va_d %>% 
+  full_join(va_mon)
 ```
 
 #### Cut Va out of old species DF
@@ -91,7 +105,7 @@ master<-
 
 master<-
   master %>%
-  full_join(va_d)
+  full_join(va)
 
 master<-
   master %>%

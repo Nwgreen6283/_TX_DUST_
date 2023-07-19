@@ -323,13 +323,35 @@ ggsave(here("results", "plots", "qpcr","species_all_daily.png"))
 #### Va
 
 ```{r}
+  master %>%
+  filter(Type %in% "Monthly") %>%
+  ggplot() +
+    geom_line(
+    aes(
+      x = date,
+      y = Va,
+      color = site),
+    size = 1)+ 
+  theme_bw()+
+     labs(title = "Va",
+       x = "Date",
+       y = "Vibrio gene copies/mL") +
+    facet_wrap(~site) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+#dev.off()
 
+ ggsave(here("results", "plots","qpcr", "va_monthly.png"))
 ```
 
 #### Vc
 
 ```{r}
-#png(file = here("results", "plots", "species_specific", "vc_mon.png"))
   master %>%
   filter(Type %in% "Monthly") %>%
   ggplot() +
