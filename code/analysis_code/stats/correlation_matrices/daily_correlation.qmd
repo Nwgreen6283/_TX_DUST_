@@ -211,16 +211,20 @@ bo<-bo %>%
   select(!HF183)
 
 all<- 
-  rbind(c2, rd, bo)
+  rbind(c2, rd, bo) %>%
+  #Remove Non-interesting variables
+  select(!c("Dissolved Oxygen (%)", "Secchi", "VAI", "DIN:DIP", "Green CFU", "Yellow CFU"))
 
 all_cor<- rcorr(as.matrix(all), type = "spearman")
 flattenCorrMatrix(all_cor$r, all_cor$P)
 diag(all_cor$P) <- 0
 ```
 
-```{r, fig.width=7, fig.height=7}
+```{r, fig.width=9, fig.height=9}
 corrplot(all_cor$r, type="upper", 
          tl.col = "black",
          p.mat = all_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
          title = "All Sites", mar = c(0,0,1,0)) 
 ```
