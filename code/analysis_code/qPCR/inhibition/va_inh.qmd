@@ -1,0 +1,43 @@
+---
+title: "va inh mon"
+format:
+  html:
+    theme: default
+---
+
+Lib
+
+```{r}
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+va<- read_csv(here("data", "raw_data", "qpcr", "va", "va_daily_monthly_inh.csv"))
+```
+
+# Clean
+
+#### Remove NTC
+
+```{r}
+va<-
+  va %>%
+  filter(!Sample %in% "NTC")
+```
+
+# Plot
+
+```{r}
+va %>%
+  ggplot() + geom_boxplot(
+    aes(x = Sample,
+        y = Cq))+
+  geom_hline(yintercept = 26.93) +
+  theme_bw()+ 
+  labs(title = "Va Inhibition")
+
+```
+
+**No inhibition here**
