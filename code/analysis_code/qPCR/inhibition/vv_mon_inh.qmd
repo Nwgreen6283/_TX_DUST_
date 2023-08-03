@@ -13,14 +13,17 @@ library(lubridate)
 ```
 
 ```{r}
-vv<- read_csv(here("data", "raw_data","vv_mon.csv"))
+vv<- read_csv(here("data", "raw_data","qpcr", "vv","vv_mon.csv"))
 ```
 
 
 Clean
 ```{r}
 inh<- vv %>%
-  filter(Fluor %in% "HEX")  %>%
+  filter(Fluor %in% "HEX")  
+
+she<- 
+  inh %>%
   mutate(type = case_when(grepl("i", Sample) ~ "inh"),
          day = substr(inh$Sample, 4,7),
          site = substr(inh$Sample, 1,2),

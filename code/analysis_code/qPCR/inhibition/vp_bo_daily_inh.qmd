@@ -13,7 +13,7 @@ library(lubridate)
 ```
 
 ```{r}
-vp<- read_csv(here("data", "raw_data","vp_inh_bo.csv"))
+vp<- read_csv(here("data", "raw_data","qpcr", "vp","vp_inh_bo.csv"))
 ```
 
 Make Column for Inh Vs Norm

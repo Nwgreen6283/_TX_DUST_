@@ -21,7 +21,7 @@ vc<- readRDS(file = here("data", "processed_data", "vc_mon_inh.rds"))
 Clean
 ```{r}
 inh<- vc %>%
-  mutate(day = substr(vc$Sample, 4,7),
+  mutate(day = substr(vc$Sample, 4,7), 
          date = case_when(
                           inh$day == "2i" ~ "2022-02-16",
                           inh$day == "3i" ~ "2022-03-09",

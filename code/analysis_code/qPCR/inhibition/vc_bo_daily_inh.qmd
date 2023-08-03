@@ -18,8 +18,8 @@ library(lubridate)
 #### Data
 
 ```{r}
-vc<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_50.csv")) #Run 1:50
-vc_50<- read_csv(here("data", "raw_data","vc_bo_daily_inh_and_reg_1_50_trial2.csv")) #Run 1:50 with reps 4 and 5
+vc<- read_csv(here("data", "raw_data","qpcr", "vc", "vc_bo_daily_inh_and_reg_1_50.csv")) #Run 1:50
+vc_50<- read_csv(here("data", "raw_data","qpcr", "vc","vc_bo_daily_inh_and_reg_1_50_trial2.csv")) #Run 1:50 with reps 4 and 5
 ```
 
 # Cleaning

@@ -18,7 +18,7 @@ library(lubridate)
 #### Data
 
 ```{r}
-vp<- read_csv(here("data", "raw_data","vp_daily_inh.csv"))
+vp<- read_csv(here("data", "raw_data","qpcr", "vp","vp_daily_inh.csv"))
 ```
 
 # Cleaning
