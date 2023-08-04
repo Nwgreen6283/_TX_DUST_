@@ -184,6 +184,8 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 
 <!--# FYI: WE CAN USE PEARSON FOR LOG10(DUST) X VIBRIO -->
 
+<!--# BUT FOR THE SAKE OF CONSISTENCY, WE WILL USE SPEARMANS FOR EVERYTHING -->
+
 ```{r, fig.width= 7, fig.height=7}
 corrplot(bo_cor$r, type="upper",
          tl.col = "black",
