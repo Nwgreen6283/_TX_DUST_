@@ -184,6 +184,8 @@ master2<-
 
 #### Site-specific Dataframes + Lag
 
+<!--# Note: C2 has no sig relationship. So we make lag all 1 so that correlation matrix does not get messed up and have two dust lag options (1 and 2 days) -->
+
 ```{r}
 bo<- 
   master2 %>%
@@ -195,7 +197,7 @@ c2<-
   master2 %>%
   filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 2)) %>%
+  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 rd<- 
   master2 %>%

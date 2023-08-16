@@ -190,16 +190,22 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 corrplot(bo_cor$r, type="upper",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
          title = "BLIND OSO", mar = c(0,0,1,0))
 
 corrplot(c2_cor$r, type="upper",
          tl.col = "black",
          p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
          title = "CANALS", mar = c(0,0,1,0))
 
 corrplot(rd_cor$r, type="upper",
          tl.col = "black",
          p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
          title = "GULF", mar = c(0,0,1,0))
 
 ```
