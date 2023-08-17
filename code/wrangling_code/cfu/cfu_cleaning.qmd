@@ -61,7 +61,7 @@ cfu<-
 ```{r}
 cfu<-
   cfu %>%
-  filter(!site %in% c("1 X PBS", "Milli Q"))
+  filter(!site %in% c("1 X PBS", "Milli Q", "20% Glycerol"))
 ```
 
 #### Choose Dilution factors w/ least variability
@@ -69,10 +69,40 @@ cfu<-
 <!--# Need to be careful here. Check with Erin on choosing this. -->
 
 ```{r}
-cfu<-
+#cfu<-
+  #cfu %>%
+ # filter(variation %in% "g") %>% #Manually added 'g' that denotes dilution with least variation
+ # select(!variation)
+```
+
+#### Use  code to choose least variable
+
+```{r}
+cfu<- 
   cfu %>%
-  filter(variation %in% "g") %>% #Manually added 'g' that denotes dilution with least variation
-  select(!variation)
+  mutate(DIL = substr(sample, 1,3),
+         rep = case_when(DIL == "100"~ "1", 
+                         DIL == "50+" ~ "2",
+                         TRUE ~ "3")) %>% #Splits up sample by dilution
+  select(site, date, sample, cfu_mL, cfu_yel, cfu_gre, rep) 
+
+```
+
+```{r}
+cfu<- 
+  cfu %>%
+  group_by(site, date, rep) %>%
+  mutate(var_cfu = var(cfu_mL)) #Calculates Variance
+  
+```
+
+```{r}
+cfu<-
+  cfu %>% 
+    group_by(site, date) %>% 
+   slice_min(order_by = var_cfu) %>% #Selects rows with minmum variance by date and site
+  select(!c(rep, var_cfu))
+
 ```
 
 #### Create Column with average CFUs by site and date
