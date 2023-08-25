@@ -147,6 +147,7 @@ do<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "DO.png"))
+do
 ```
 
 #### Nitrite:Nitrate
@@ -182,6 +183,7 @@ nn<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "NN.png"))
+nn
 ```
 
 #### Orthophosphate
@@ -214,6 +216,8 @@ ortho<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "orthop.png"))
+ortho
+
 ```
 
 #### DON (TDN - NN - Amm)
@@ -278,6 +282,7 @@ doc<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "DOC.png"))
+doc
 ```
 
 #### TOC
@@ -310,6 +315,7 @@ toc<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "TOC.png"))
+toc
 ```
 
 #### pH
@@ -409,6 +415,7 @@ tn<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "TN.png"))
+tn
 ```
 
 #### Silicate
@@ -602,6 +609,8 @@ chl<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "chla.png"))
+chl
+
 ```
 
 #### TSS

@@ -59,11 +59,11 @@ daily %>%
     aes(x = date,
         y = cfu_tot,
         color = site)) +
-  facet_wrap(~site)+
+ #facet_wrap(~site)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c")) +
+                                "Gulf" = "4c848c")) +
   theme_bw() +
   labs(x = "Date",
        y = "Average Total CFU/mL",

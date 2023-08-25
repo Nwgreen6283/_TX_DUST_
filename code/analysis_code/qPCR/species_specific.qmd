@@ -256,6 +256,15 @@ all_spp
 ggsave(here("results", "plots", "qpcr","species_all_daily.png"))
 ```
 
+#### Clean DF For Writing
+
+```{r}
+clean<-
+  spp %>%
+  filter(site %in% "Gulf" &
+         species %in% "Vc")
+```
+
 # MONTHLY PLOTS
 
 #### Vp

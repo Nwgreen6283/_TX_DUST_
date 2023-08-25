@@ -1,0 +1,430 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+# Getting Started
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(lubridate)
+```
+
+#### Load Data
+
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
+```
+
+# Cleaning
+
+#### Daily data frame
+
+```{r}
+daily<- d1 %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
+  filter(!date %in% as.Date('2022-07-10'),
+         hr_cst %in% "01") %>%
+  select(!c(...1, hr_cst))
+
+dust<-
+  dust %>%
+  filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19'))
+```
+
+# Plot
+
+#### Temp
+
+```{r}
+temp<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = temp,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Temperatire (°C)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+temp
+```
+
+#### Salinity
+
+```{r}
+sal<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = sal,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Salinity",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+sal
+```
+
+#### DO (mg/l)
+
+```{r}
+do<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = do_mgl,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DO (mg/L)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+do
+```
+
+#### Orthop
+
+```{r}
+orthop<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = orthop,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Orthophosphate (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+orthop
+```
+
+#### NN
+
+```{r}
+nn<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = nn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Nitrate-Nitrite (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+nn
+```
+
+#### Amm
+
+```{r}
+amm<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Ammonium (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+amm
+```
+
+#### Sil
+
+```{r}
+sil<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = temp,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Silicate (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+sil
+```
+
+#### TDN
+
+```{r}
+tdn<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = tdn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TDN (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+tdn
+```
+
+#### DOC
+
+```{r}
+doc<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = doc,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DOC (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+doc
+```
+
+#### TSS
+
+```{r}
+tss<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = tss,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TSS (UNITS?)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+tss
+```
+
+#### Chla
+
+```{r}
+chl<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = chl,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Chlorophyl a",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c"))
+chl
+```
+
+#### Dust
+
+```{r}
+dusty<-
+  dust %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = t7sum),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Dust AOD")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    #axis.title.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7))
+dusty
+```
+
+# Combine
+
+```{r, fig.height=3}
+fig<- ggarrange(temp,
+                sal,
+                do,
+                amm,
+                sil,
+                tdn,
+                doc,
+                tss,
+                dusty,
+                chl+
+                font("x.text", size = 8.5),
+                ncol = 2, 
+                nrow = 5,
+                align = "v")
+
+fig
+
+ggsave(here("results", "plots", "env", "important_variables_for_paper.png"))
+```

@@ -75,7 +75,7 @@ cfu<-
  # select(!variation)
 ```
 
-#### Use  code to choose least variable
+#### Use code to choose least variable
 
 ```{r}
 cfu<- 

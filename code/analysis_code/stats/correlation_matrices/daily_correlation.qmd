@@ -79,7 +79,7 @@ bo<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_tot",
+         "Total CFU" = "cfu_tot",
          "HF183" = "hf_copies_mL",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
@@ -108,7 +108,7 @@ c2<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_tot",
+         "Total CFU" = "cfu_tot",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
          "Green CFU" = "cfu_gre",
@@ -136,7 +136,7 @@ rd<-
          "TN" = "tn",
          "Dust" = "dust",
          "Dust_Lag" = "dust_lag",
-         "Avg CFU" = "cfu_tot",
+         "Total CFU" = "cfu_tot",
          "Total Bacteria" = "tot_bacteria",
          "Yellow CFU"  = "cfu_yel",
          "Green CFU" = "cfu_gre",
@@ -186,7 +186,7 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 
 <!--# BUT FOR THE SAKE OF CONSISTENCY, WE WILL USE SPEARMANS FOR EVERYTHING -->
 
-```{r, fig.width= 7, fig.height=7}
+```{r}
 corrplot(bo_cor$r, type="upper",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
@@ -208,7 +208,13 @@ corrplot(rd_cor$r, type="upper",
          number.cex = 0.60,
          title = "GULF", mar = c(0,0,1,0))
 
+flattenCorrMatrix(bo_cor$r, bo_cor$P)
+flattenCorrMatrix(c2_cor$r, c2_cor$P)
+flattenCorrMatrix(rd_cor$r, rd_cor$P)
+
 ```
+
+\
 
 #### All Sites Correlation Plot
 
@@ -221,7 +227,7 @@ bo<-bo %>%
 all<- 
   rbind(c2, rd, bo) %>%
   #Remove Non-interesting variables
-  select(!c("Dissolved Oxygen (%)", "Secchi", "VAI", "DIN:DIP", "Green CFU", "Yellow CFU"))
+  select(!c("Dissolved Oxygen (%)", "Secchi", "VAI", "DIN:DIP"))
 
 all_cor<- rcorr(as.matrix(all), type = "spearman")
 flattenCorrMatrix(all_cor$r, all_cor$P)

@@ -18,7 +18,7 @@ format:
 ```{r, include = FALSE}
 library(FactoMineR)
 library(ggfortify)
-library(factoextra)
+library(factoextra)P
 library(scatterplot3d)
 library(here)
 library(tidyverse)
@@ -68,7 +68,7 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 master<-
   master %>%
-  select(temp, sal, doc, don, pH, chl, orthop, tss, nn, do_mgl, dust_lag, copies_mL, cfu_tot, amm, date, site, Vc, Vv)
+  select(temp, sal, doc, don, pH, chl, orthop, tss, nn, do_mgl, dust_lag, copies_mL, cfu_tot, amm, date, site, Vc, Vv, cfu_gre, cfu_yel)
 
 master<-
   master %>%
@@ -82,7 +82,9 @@ master<-
          "NO2-NO3" = "nn",
          "DO" = "do_mgl",
          "Total_Vibrio" = "copies_mL",
-         "CFU" = "cfu_tot",
+         "Total CFU" = "cfu_tot",
+         "Green CFU" = "cfu_gre",
+         "Yellow CFU" = "cfu_yel",
          "NH4+" = "amm")
 ```
 

@@ -1,0 +1,109 @@
+---
+title: "cfu_total_dust"
+format:
+  html:
+    theme: default
+---
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+```
+
+#### Data
+
+```{r, include = FALSE}
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
+data<- read_csv(here("data", "processed_data", "tx_master.csv"))
+```
+
+# Clean
+
+#### Select and Filter
+
+```{r}
+data<-
+  data %>%
+  filter(Type %in% "Daily",
+         hr_cst %in% "01") %>%
+  select(copies_mL, cfu_tot, site, date)
+```
+
+# Plot
+
+#### CFU
+
+```{r}
+cfu<-
+  data %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = cfu_tot,
+        color = site)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c")) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "CFU/mL")+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
+```
+
+#### Total Vibrio
+
+```{r}
+vib<-
+  data %>%
+  ggplot() + 
+  geom_line(
+    aes(x = date,
+        y = copies_mL,
+        color = site)) +
+ #facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "4c848c")) +
+  theme_bw() +
+  labs(y = "Total Vibrio copies/mL")+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
+```
+
+#### Dust
+
+```{r}
+d<- 
+  dust %>%
+  filter(between(date, as.Date('2022-07-07'),  as.Date('2022-07-19'))) %>%
+  ggplot()+ geom_line(
+    aes(x = date,
+        y = t7sum)) +
+  theme_bw() +
+  labs(x = "Date",
+       y = "Dust AOD")
+```
+
+#### Combine
+
+```{r}
+master_fig<-
+  ggarrange(cfu,vib,d,
+            nrow = 3,
+            ncol = 1,
+            align = "v")
+
+master_fig
+
+ggsave(here("results", "plots", "dust_cfu_total.png" ))
+```
