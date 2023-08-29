@@ -1,0 +1,43 @@
+## This is the raw data file for the RT-PCR probit analysis.
+
+## You need to insert below the RT-PCR data. The easiest way is to do copy-paste
+## from Excel. For this, fill in three columns of an Excel worksheet in the
+## following layout:
+
+##      Nb_copies	Positives	Total
+##          0.371           3      5
+##           3.71           5      5
+##          37.10           5      5
+##          371.0           5      5
+##           3710           4      4
+##          37100           5      5
+##         371000           5      5
+
+## - The left column is the number of copies of template for each condition. I
+##   recommend at least six conditions. A series from 0.1 to 100,000 copies per
+##   assay should work fine.
+## - The middle column is the number of positive reactions observed at each
+##   template point.
+## - The right column is the total number of reactions (usually 10) run for each
+##   condition.
+
+## When you're done, save the changes, make sure the file is inside the current
+## R working directory and/or RStudio project directory, and run the
+## `probit_en.R` script.
+
+
+## BEGIN editable section-------------------------------------------------------
+
+## Copy-paste below the data from your Excel worksheet.
+
+      Nb_copies	Positives	Total
+          0.264           1      5
+           2.64           4      5
+          26.40           5      5
+          264.0           5      5
+           2640           5      5
+          26400           5      5
+         264000           5      5
+        2640000		  5      5
+
+## END editable section---------------------------------------------------------
