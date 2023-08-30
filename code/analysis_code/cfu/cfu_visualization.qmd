@@ -75,6 +75,12 @@ daily %>%
 ggsave(here("results", "plots", "cfu", "total_daily.png"))
 ```
 
+```{r}
+yeet<-
+  c_d %>% 
+  select(date, cfu_tot)
+```
+
 #### Green and Yellow Growth
 
 ##### BLIND OSO

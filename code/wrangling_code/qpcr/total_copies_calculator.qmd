@@ -4,20 +4,24 @@ format:
   html:
     theme: default
 ---
+
 *This script is for cleaning qPCR results on Total Vibrio enumeration. It takes Cq value outputs from the CFX (qPCR machine) and computes it to copies of gene targets of Vibrio. The data set contains a daily and monthly time series. We will be examining daily.*
 
 Libraries
+
 ```{r}
 library(tidyverse)
 library(here)
 ```
 
 Load data
+
 ```{r}
-data <-read_csv(here("data", "raw_data", "copies_master.csv"))
+data <-read_csv(here("data", "raw_data", "qPCR", "total", "total_copies_mon_daily.csv"))
 ```
 
-Select and Filter for Daily and Monthly Time Series 
+Select and Filter for Daily and Monthly Time Series
+
 ```{r}
 daily<- data %>%
 select(Type,Sample, Cq) %>%
@@ -28,7 +32,8 @@ select(Type,Sample, Cq) %>%
   filter(Type %in% "Monthly")
 ```
 
-Create Site Column from Sample Name 
+Create Site Column from Sample Name
+
 ```{r}
 site_daily<- daily %>%
   mutate(site = substr(daily$Sample,1,2)) #Creates new column `Site` from the first two letters in `Sample` (BO16 becomes BO)
@@ -37,7 +42,8 @@ site_monthly<- monthly %>%
   mutate(site = substr(monthly$Sample,1,2)) #Creates new column `Site` from the first two letters in `Sample` (BO16 becomes BO)
 ```
 
-Add Dilution Column and Filter column. The dilution column applies if samples were diluted prior to qPCR. For example, if I diluted a sample 1:10, my dilution column would denote "10".  The filter column pertains to the amount of water sample (mL) that was concentrated onto a water filter prior to qPCR. 
+Add Dilution Column and Filter column. The dilution column applies if samples were diluted prior to qPCR. For example, if I diluted a sample 1:10, my dilution column would denote "10". The filter column pertains to the amount of water sample (mL) that was concentrated onto a water filter prior to qPCR.
+
 ```{r}
 dilution_daily<- site_daily %>%
   mutate(dilution = case_when(
@@ -103,8 +109,8 @@ filter_monthly<- dilution_monthly %>%
         filter_amt = as.numeric(filter_amt)) 
 ```
 
-
 Go from CQ --> Copies/mL
+
 ```{r}
 copies_daily<- filter_daily %>%
     mutate(
@@ -132,8 +138,8 @@ copies_monthly<- filter_monthly %>%
 
 ```
 
-
 Some samples did not amplify and have no values: Replace NaN with 0 for copies/mL
+
 ```{r}
 replace_daily<- copies_daily %>% 
  mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
@@ -144,7 +150,8 @@ replace_monthly<- copies_monthly %>%
 filter(!is.na(Sample))   #Dropping NAs from STD Curve 
 ```
 
-Date Column: This adds a date corresponding the a number in the sample name. 
+Date Column: This adds a date corresponding the a number in the sample name.
+
 ```{r}
 date_daily<- replace_daily %>%
   mutate(day = substr(replace_daily$Sample,3,4)) %>% #Creates new column `day` 
@@ -181,8 +188,8 @@ date_monthly<- replace_monthly %>%
 
 ```
 
+Each sample (Date) was done in triplicate for qPCR (technical replicates): We need to take the average of qPCR triplicates
 
-Each sample (Date) was done in triplicate for qPCR (technical replicates): We need to take the average of qPCR triplicates 
 ```{r}
 final_daily<- date_daily %>% group_by(date,site,Type) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
   summarize_if(is.numeric, mean) %>%
@@ -194,20 +201,24 @@ final_monthly<- date_monthly %>% group_by(date,site,Type) %>% #Group all chr tog
   ungroup() #Ungroup to spit everything back out
 ```
 
+#### Also keep triplicates for ANOVA
 
+```{r}
+write_csv(date_daily, here("data", "processed_data", "qpcr", "daily_anova_data.csv"))
+```
 
-Combine Daily and Monthly data sets back together. 
+Combine Daily and Monthly data sets back together.
+
 ```{r}
 copies_final<- full_join(final_monthly,final_daily)
 summary(copies_final)
 str(copies_final)
 ```
 
-
 Save as RDS and CSV
+
 ```{r}
 #saveRDS(copies_final, file= here("data","processed_data","total_clean_copies.rds"))
 write.csv(copies_final,file= here("data","processed_data","total_clean_copies.csv")) 
 
 ```
-

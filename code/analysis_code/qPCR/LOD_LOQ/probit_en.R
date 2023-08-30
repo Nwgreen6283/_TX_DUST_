@@ -66,7 +66,7 @@
 
 ## Title. Replace the text in quotes.
 
-title <- "Va LOD"
+title <- "Vv LOD"
 
 ## END editable section---------------------------------------------------------
 
@@ -77,7 +77,7 @@ library(here)
 
 ## Read and re-label the raw data file.
 
-probdata <- read.table(here("code", "analysis_code", "qPCR", "LOD_LOQ", "va.txt"), header = TRUE)
+probdata <- read.table(here("code", "analysis_code", "qPCR", "LOD_LOQ", "vv.txt"), header = TRUE)
 # NOTE: I CANNOT DO TOTAL BACTERIA SINCE ALL DILUTIONS AND REPS POPPED UP
 encab <- colnames(probdata)
 colnames(probdata) <- c("Dose", "Positives", "Total")
