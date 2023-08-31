@@ -68,3 +68,32 @@ TukeyHSD(b_aov, conf.level=.95)
 TukeyHSD(c_aov, conf.level=.95)
 TukeyHSD(r_aov, conf.level=.95)
 ```
+
+# Plot
+
+```{r, include = FALSE}
+d<- read_csv(here("data", "processed_data", "qpcr", "daily_anova_data"))
+```
+
+```{r}
+d %>%
+  ggplot() + geom_boxplot(
+    aes(x = date,
+        y = copies_mL,
+        color= site,
+        group = interaction(date, site)),
+        position = "identity") +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Vibrio gene copies per mL") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45)) +
+  
+  geom_line(
+    aes(
+      x= date, 
+      y = copies_mL,
+      color = site))
+
+
+ggsave(here("results", "plots", "qpcr", "boxplots", "total_vibrio_daily.png"))
+```

@@ -25,7 +25,7 @@ data<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```{r}
 #Daily All Sites
 daily<- data %>%
-  select(date,copies_mL,site,Type) %>%
+  dplyr::select(date,copies_mL,site,Type) %>%
   filter(Type %in% "Daily") %>%
 drop_na() #Get rid of NAs
 
@@ -115,6 +115,45 @@ tot_vib<- daily %>% ggplot()+geom_line(
 tot_vib
 
 ggsave(here("results", "plots", "qpcr", "total_vib_daily.png"))
+```
+
+#### Using Triplicate Dataset for Boxplots
+
+```{r, include = FALSE}
+d<- read_csv(here("data", "processed_data", "qpcr", "daily_anova_data"))
+```
+
+```{r}
+d<-
+  d %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                             "C2" = "Canals",
+                             "RD" = "Gulf"))
+  
+
+```
+
+```{r}
+d %>%
+  ggplot() + geom_boxplot(
+    aes(x = date,
+        y = copies_mL,
+        color= site,
+        group = interaction(date, site)),
+        position = "identity") +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Vibrio gene copies per mL") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  scale_x_date(breaks = "1 day")+
+  
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = copies_mL,
+                 group=site, 
+                 color = site))  
+
+ggsave(here("results", "plots", "qpcr", "boxplots", "total_vibrio_daily.png"))
 ```
 
 # Make clean DF for writing
