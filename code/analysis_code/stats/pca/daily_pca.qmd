@@ -18,7 +18,7 @@ format:
 ```{r, include = FALSE}
 library(FactoMineR)
 library(ggfortify)
-library(factoextra)P
+library(factoextra)
 library(scatterplot3d)
 library(here)
 library(tidyverse)
@@ -68,23 +68,25 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 master<-
   master %>%
-  select(temp, sal, doc, don, pH, chl, orthop, tss, nn, do_mgl, dust_lag, copies_mL, cfu_tot, amm, date, site, Vc, Vv, cfu_gre, cfu_yel)
+  select(site, date, copies_mL, Vc, Vv, tdn, don, toc, tn, din, doc, dust, dust_lag, do_mgl, cfu_tot, sal, amm, chl, nn, sil, temp, tss, tot_bacteria)
 
 master<-
   master %>%
   rename("Temperature" = "temp",
          "Salinity" = "sal",
          "DOC" = "doc", 
+         "TDN" = "tdn",
+         "TOC" = "toc",
+         "TN" = "tn", 
+         "DIN" = "din", 
          "DON" = "don",
          "Chl_a" = "chl",
-         "PO4-" = "orthop",
+         "SiO42-" = "sil",
          "TSS" = "tss",
          "NO2-NO3" = "nn",
          "DO" = "do_mgl",
          "Total_Vibrio" = "copies_mL",
          "Total CFU" = "cfu_tot",
-         "Green CFU" = "cfu_gre",
-         "Yellow CFU" = "cfu_yel",
          "NH4+" = "amm")
 ```
 
@@ -206,7 +208,7 @@ fviz_pca_biplot(daily_pca,
   theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
-                                "Gulf" = "4c848c")) 
+                                "Gulf" = "#4c848c")) 
   #geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
 #  stat_ellipse(aes(color = PC$site))
 

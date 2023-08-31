@@ -69,7 +69,8 @@ forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0
 #### View Results of FSR
 
 ```{r}
-forward$anova
+b_table<-
+  as.data.frame(forward$anova)
 ```
 
 -   First, we fit the intercept-only model. This model had an AIC of **239.8795**
@@ -106,7 +107,7 @@ all <- lm(copies_mL ~ ., data=c)
 forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
 
 #View Results of FSR
-forward$anova
+c_table<- as.data.frame(forward$anova)
 
 #View Final Model
 c_model<- forward$coefficients
@@ -126,7 +127,7 @@ all <- lm(copies_mL ~ ., data=r)
 forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
 
 #View Results of FSR
-forward$anova
+r_table<- as.data.frame(forward$anova)
 
 #View Final Model
 r_model<- forward$coefficients

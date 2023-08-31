@@ -28,6 +28,10 @@ r_d<- read_csv(here("data", "processed_data", "rd_master_daily.csv"))
 b_m<- read_csv(here("data", "processed_data", "bo_master_monthly.csv"))
 c_m<- read_csv(here("data", "processed_data", "c2_master_monthly.csv"))
 r_m<- read_csv(here("data", "processed_data", "rd_master_monthly.csv"))
+
+#Triplicate Dataset
+trip<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
+
 ```
 
 # Cleaning
@@ -44,6 +48,14 @@ monthly<-
   master %>%
   filter(Type %in% "Monthly"| date %in% as.Date('2022-07-07'),
          hr_cst %in% c("01", "00"))
+```
+
+#### Take Triplicate dataset and select for daily
+
+```{r}
+trip_daily<-
+  trip %>%
+  filter(between(date, as.Date("2022-07-07") , as.Date("2022-07-19")))
 ```
 
 # Plot
@@ -79,6 +91,29 @@ ggsave(here("results", "plots", "cfu", "total_daily.png"))
 yeet<-
   c_d %>% 
   select(date, cfu_tot)
+```
+
+#### Box Plots
+
+```{r}
+trip_daily %>%
+  ggplot() + geom_boxplot(
+    aes(x = date,
+        y = cfu_mL,
+        color= site,
+        group = interaction(date, site)),
+        position = "identity") +
+  theme_bw()+
+  labs(x = "Date",
+       y = "CFU/mL") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  scale_x_date(breaks = "1 day")+
+  
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = cfu_mL,
+                 group=site, 
+                 color = site))  
 ```
 
 #### Green and Yellow Growth
