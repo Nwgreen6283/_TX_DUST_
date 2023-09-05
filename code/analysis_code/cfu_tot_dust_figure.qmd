@@ -30,7 +30,7 @@ data<-
   data %>%
   filter(Type %in% "Daily",
          hr_cst %in% "01") %>%
-  select(copies_mL, cfu_tot, site, date)
+  dplyr::select(copies_mL, cfu_tot, site, date)
 ```
 
 # Plot
@@ -116,7 +116,7 @@ ggsave(here("results", "plots", "dust_cfu_total.png" ))
 
 ```{r, include = FALSE}
 cfu<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
-copies<- read_csv(here("data", "processed_data", "qpcr", "daily_anova_data"))
+copies<- read_csv(here("data", "processed_data", "qpcr", "ANOVA Data", "total_vibrio"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 
 ```
@@ -171,7 +171,7 @@ stat_summary(fun=mean, geom="line",
 
 #### Copies per mL
 
-```{r, fig.width=5}
+```{r, fig.width=5, fig.height=10}
 cop<-
   copies %>%
   ggplot() + geom_boxplot(
@@ -191,12 +191,21 @@ cop<-
   scale_color_manual(values = c("BO" = "#809C52",
                                 "C2" = "#ba4716",
                                 "RD" = "#4c848c"))+
+
+
+geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-18'),y=154323
+,yend=154323), color = "#4c848c", size = 2)+
+annotate("text", x = as.Date('2022-07-15'), y =155000, label = "***", color = "#4c848c", fontface="bold", size = 7)+
+
+geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-14'),y=90000
+,yend=90000), color = "#809C52", size = 2)+
+annotate("text", x = as.Date('2022-07-13'), y =91000, label = "***", color = "#809C52", fontface="bold", size = 7)+
   
 stat_summary(fun=mean, geom="line", 
              aes(x = date, 
                  y = copies_mL,
                  group=site, 
-                 color = site))  
+                 color = site)) 
 cop
 ```
 
@@ -230,7 +239,7 @@ du
 
 #### Combine
 
-```{r}
+```{r, fig.height=4}
 master_box<-
 plot_grid(cf,cop,du,
             nrow = 3,

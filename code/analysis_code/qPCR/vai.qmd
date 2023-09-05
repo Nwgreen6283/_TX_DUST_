@@ -72,6 +72,33 @@ daily %>%
 ggsave(here("results", "plots", "qpcr", "total_bacteria.png"))
 ```
 
+#### Clean DF for writing
+
+```{r}
+clean <-
+  daily %>%
+  filter(hr_cst %in% "01") %>%
+  select(site, date,tot_bacteria)
+
+b<-
+  clean %>%
+  filter(site %in% "Blind Oso")
+
+c<-
+  clean %>%
+  filter(site %in% "Canals")
+
+r<-
+  clean %>%
+  filter(site %in% "Gulf")
+```
+
+```{r}
+mean(b$tot_bacteria)
+mean(r$tot_bacteria)
+mean(c$tot_bacteria)
+```
+
 #### Daily VAI
 
 ```{r}

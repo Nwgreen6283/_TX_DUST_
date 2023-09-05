@@ -265,6 +265,14 @@ clean<-
          species %in% "Vc")
 ```
 
+```{r}
+clean<-
+  clean %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-13')))
+
+mean(clean$copies_mL)
+```
+
 # MONTHLY PLOTS
 
 #### Vp

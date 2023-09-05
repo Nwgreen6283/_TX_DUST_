@@ -120,7 +120,7 @@ ggsave(here("results", "plots", "qpcr", "total_vib_daily.png"))
 #### Using Triplicate Dataset for Boxplots
 
 ```{r, include = FALSE}
-d<- read_csv(here("data", "processed_data", "qpcr", "daily_anova_data"))
+d<- read_csv(here("data", "processed_data", "qpcr", 'ANOVA Data', "total_vibrio"))
 ```
 
 ```{r}
@@ -171,3 +171,15 @@ mean(b$copies_mL)
 mean(c$copies_mL)
 mean(r$copies_mL)
 ```
+
+#### Gulf Initial Average (
+
+```{r}
+r_avg<-
+  r %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-11')))
+
+r_avg_initial<- mean(r_avg$copies_mL)
+```
+
+\

@@ -60,6 +60,16 @@ dust %>% ggplot()+ geom_line(
 ggsave(here("results", "plots", "dust", "dust_daily.png"))
 ```
 
+#### What was the average for the first half (7-12)
+
+```{r}
+avg<-
+  dust %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-12')))
+
+avg_value<- mean(avg$t7sum)
+```
+
 # Make Pretty Dust Table
 
 ```{r}

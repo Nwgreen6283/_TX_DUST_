@@ -1,0 +1,131 @@
+---
+title: "ANOVA"
+format:
+  html:
+    theme: default
+---
+
+[LINK](https://www.r-bloggers.com/2021/08/how-to-perform-tukey-hsd-test-in-r/)
+
+#### Libraries
+
+```{r, include=FALSE}
+library(here)
+library(tidyverse)
+library(multcomp)
+```
+
+#### Data
+
+Note: This data is pridced in total_copies_calculator code. I kept qPCR triplicates (i.e. did not average) for this
+
+```{r, include = FALSE}
+vib<- read_csv(here::here("data", "processed_data", "qpcr", "ANOVA Data", "total_vibrio"))
+bac<- read_csv(here::here("data", "processed_data", "qpcr", "ANOVA Data", "total_bacteria.csv"))
+hf<- read_csv(here::here("data", "processed_data", "qpcr", "ANOVA Data", "hf183.csv"))
+```
+
+# Total Vibrio
+
+## Clean
+
+#### Subselect datasets
+
+```{r}
+vib<-
+  vib %>%
+  mutate(date = substr(date, 9,10)) #Date needs to not be as.Date format
+b<-
+  vib %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(date, copies_mL)  
+c<-
+  vib %>%
+  filter(site %in% "C2") %>%
+  dplyr::select(date, copies_mL)
+
+r<-
+  vib %>%
+  filter(site %in% "RD") %>%
+  dplyr::select(date, copies_mL)
+```
+
+## Stats
+
+#### AOV
+
+```{r}
+b_aov<- 
+  aov(copies_mL ~ date, data = b)
+
+c_aov<- 
+  aov(copies_mL ~ date, data = c)
+
+r_aov<- 
+  aov(copies_mL ~ date, data = r)
+```
+
+#### Tukey HSD
+
+```{r}
+options(digits = 22) #So we can see what a pvalue of 0 really is
+TukeyHSD(b_aov, conf.level=.95) 
+TukeyHSD(c_aov, conf.level=.95)
+TukeyHSD(r_aov, conf.level=.95)
+```
+
+# Total Bacteria
+
+#### Subselect datasets
+
+```{r}
+bac<-
+  bac %>%
+  mutate(date = substr(date, 9,10)) #Date needs to not be as.Date format
+b<-
+  bac %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(date, copies_mL)  
+c<-
+  bac %>%
+  filter(site %in% "C2") %>%
+  dplyr::select(date, copies_mL)
+
+r<-
+  bac %>%
+  filter(site %in% "RD") %>%
+  dplyr::select(date, copies_mL)
+```
+
+## Stats
+
+#### AOV
+
+```{r}
+b_aov<- 
+  aov(copies_mL ~ date, data = b)
+
+c_aov<- 
+  aov(copies_mL ~ date, data = c)
+
+r_aov<- 
+  aov(copies_mL ~ date, data = r)
+```
+
+#### Tukey HSD
+
+```{r}
+TukeyHSD(b_aov, conf.level=.95)
+TukeyHSD(c_aov, conf.level=.95)
+TukeyHSD(r_aov, conf.level=.95)
+```
+
+# 
+
+```{r}
+
+```
+
+# Plots
+
+#### Total Vibrio by site

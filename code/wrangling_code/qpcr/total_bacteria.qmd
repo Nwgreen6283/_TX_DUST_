@@ -34,25 +34,25 @@ r<-
   r %>%
  # filter(!Well %in% "I07") %>%
   filter(!Sample %in% "Pos") %>%
-    select(Cq, Sample) %>%
+    dplyr::select(Cq, Sample) %>%
   mutate(site = if_else(Sample == "NTC", "NTC", "RD"))
 
 c<- 
   c %>%
   filter(!Sample %in% c("Pos")) %>%
-  select(Cq, Sample) %>%
+  dplyr::select(Cq, Sample) %>%
   mutate(site = if_else(Sample == "NTC", "NTC", "C2"))
 
 b<- 
   b %>%
   filter(!Sample %in% "Pos") %>%
-  select(Cq, Sample) %>%
+ dplyr:: select(Cq, Sample) %>%
   mutate(site = if_else(Sample == "NTC", "NTC", "BO"))
 
 mon<- 
   mon %>%
   filter(!Sample %in% "pos") %>%
-  select(Cq, Sample) #%>%
+  dplyr::select(Cq, Sample) #%>%
   #mutate(site = if_else(Sample == "NTC", "NTC", "BO"))
 ```
 
@@ -151,7 +151,7 @@ master<- master %>%
     copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site)
+dplyr::select(Sample,copies_mL, site)
 
 mon<- mon %>%
     mutate(
@@ -162,7 +162,7 @@ mon<- mon %>%
     copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site,day)
+dplyr::select(Sample,copies_mL, site,day)
 ```
 
 #### NAN --> 0
@@ -188,7 +188,7 @@ master<-
                          day ==  "18"~"2022-07-18",
                          day == "19"~"2022-07-19",
                          Sample == "NTC" ~ "NTC")) %>%
-  select(date, site, copies_mL) %>%
+  dplyr::select(date, site, copies_mL) %>%
   mutate(date = as.Date(date))
 
 mon<- mon %>%
@@ -205,8 +205,18 @@ mon<- mon %>%
                          day ==  "11"~"2022-11-15",
                          day == "12"~"2022-12-14",
                          Sample == "NTC" ~ "NTC")) %>%
-  select(date, site, copies_mL) %>%
+  dplyr::select(date, site, copies_mL) %>%
   mutate(date = as.Date(date))
+```
+
+#### Save datasets for ANOVA
+
+```{r}
+anova<-
+  master %>%
+  filter(!site %in% "NTC")
+
+write_csv(anova, here('data', 'processed_data', 'qpcr', 'ANOVA Data', 'total_bacteria.csv'))
 ```
 
 #### Average qPCR Triplicates
