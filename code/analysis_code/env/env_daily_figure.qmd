@@ -64,7 +64,7 @@ temp<-
     #axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
+    #legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
@@ -521,4 +521,12 @@ fig<- ggarrange(temp,
 fig
 
 ggsave(here("results", "plots", "env", "important_variables_for_paper.png"))
+```
+
+```{r}
+ggarrange(temp, sal+
+                font("x.text", size = 8.5),
+                ncol = 1, 
+                nrow = 2,
+                align = "v")
 ```

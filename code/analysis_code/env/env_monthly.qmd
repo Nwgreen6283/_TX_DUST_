@@ -34,7 +34,7 @@ daily<- d1 %>%
   filter(Type %in% "Daily")
 
 monthly<- d1 %>% 
-  mutate(Type = case_when(d1$date == "2022-07-07"  ~ "Monthly", #This makes 7-7-22 a monthly value for July
+  mutate(Type = case_when(d1$date == "2022-07-18"  ~ "Monthly", #This makes 7-18-22 a monthly value for July
                           d1$Type == "Monthly" ~ "Monthly")) %>%
   filter(Type %in% "Monthly") 
 ```
@@ -898,4 +898,57 @@ average_df<-
 kable(average_df)
 ```
 
-#### 
+# Plot
+
+```{r}
+site_nn<-
+  avg %>%
+  ggplot() + geom_boxplot(
+    aes(x = site,
+        y = nn,
+        color = site)) +
+  theme_bw()+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  labs(y = "Nitrate+Nitrite (µM)")
+
+```
+
+```{r}
+site_orthop<-
+  avg %>%
+  ggplot() + geom_boxplot(
+    aes(x = site,
+        y = orthop,
+        color = site))+
+  theme_bw()+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  labs(y = "Orthophosphate (µM)")
+
+```
+
+```{r}
+site_amm<-
+  avg %>%
+  ggplot() + geom_boxplot(
+    aes(x = site,
+        y = amm,
+        color = site)) +
+  theme_bw()+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  labs(y = "Ammonium (µM)")
+
+```
+
+```{r, fig.height= 3, fig.width=3}
+ggarrange(site_nn, site_orthop, site_amm,
+          ncol = 1, 
+          nrow = 3)
+
+ggsave(here('results', 'plots', 'env', 'monthly_nutrients_averages.png'))
+```

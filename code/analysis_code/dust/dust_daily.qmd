@@ -54,9 +54,11 @@ dust %>% ggplot()+ geom_line(
        x = "Date",
        y = "Dust AOD")+
   theme_bw()+
-  scale_x_date(date_breaks = "1 day", date_labels = "%b%d") +
-  theme(plot.title = element_text(hjust = 0.5))
-
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_vline(xintercept = as.Date('2022-07-07'), linetype = 2) +
+  geom_vline(xintercept = as.Date('2022-07-19'), linetype = 2)
+             
 ggsave(here("results", "plots", "dust", "dust_daily.png"))
 ```
 

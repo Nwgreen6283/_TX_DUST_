@@ -68,17 +68,15 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 master<-
   master %>%
-  select(site, date, copies_mL, Vc, Vv, tdn, don, toc, tn, din, doc, dust, dust_lag, do_mgl, cfu_tot, sal, amm, chl, nn, sil, temp, tss, tot_bacteria)
+  select(site, date, copies_mL, Vc, Vv, don, toc, tn, doc, dust, dust_lag, do_mgl, cfu_tot, sal, amm, chl, nn, sil, temp, tss, tot_bacteria)
 
 master<-
   master %>%
   rename("Temperature" = "temp",
          "Salinity" = "sal",
          "DOC" = "doc", 
-         "TDN" = "tdn",
          "TOC" = "toc",
-         "TN" = "tn", 
-         "DIN" = "din", 
+         "TN" = "tn",  
          "DON" = "don",
          "Chl_a" = "chl",
          "SiO42-" = "sil",
