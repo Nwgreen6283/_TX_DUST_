@@ -106,9 +106,9 @@ b<- b %>%
     mutate(
     log_sq = ((Cq-35.691)/-3.236), #Nina's curve [2/2/23]. E7 to E2. 
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*20, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*20, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     hf_copies_mL = copies_uL_extract*concentration_factor) %>%
   select(date, hf_copies_mL)

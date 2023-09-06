@@ -20,7 +20,7 @@ library(ggpubr)
 Load data
 
 ```{r}
-sq <-read_csv(here("data", "raw_data", "vp_daily.csv")) 
+sq <-read_csv(here("data", "raw_data", 'qpcr', 'vp',  "vp_daily.csv")) 
 ```
 
 Filter for HEX dye (samples). Cy5 is for IAC
@@ -76,9 +76,9 @@ copies<- filter %>%
    mutate(
    #log_sq = ((Cq-36.497)/-3.166), #Equation of the line to get log(SQ)
    # sq = 10^log_sq, #Unlog 
-    copies_rxn = SQ*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = SQ*15, #SQ*Reaction Volume
+    #opies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = SQ *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -133,14 +133,14 @@ write.csv(final_d, file= here("data","processed_data","vp_clean_copies.csv"))
 
 ------------------------------------------------------------------------
 
-# Monthly 
+# Monthly
 
 *This dataset is Monthly Vp qPCR*
 
 Load data
 
 ```{r}
-sq <-read_csv(here("data", "raw_data", "vp_mon.csv")) 
+sq <-read_csv(here("data", "raw_data", 'qpcr', 'vp', "vp_mon.csv")) 
 ```
 
 Filter for HEX dye (samples). Cy5 is for IAC
@@ -189,9 +189,9 @@ copies<- filter %>%
    mutate(
    log_sq = ((Cq-36.497)/-3.166), #Equation of the line to get log(SQ)
    sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -241,4 +241,13 @@ Save as RDS and manually add date in excel
 ```{r}
 #stop() #Write error so it wont overwrite
 write.csv(final_m, file= here("data","processed_data","vp_mon_clean_copies.csv"))
+```
+
+#### Combine DF
+
+```{r}
+vp_final<-
+  full_join(final_d, final_m)
+
+write_csv(vp_final, here('data', 'processed_data', 'qpcr', 'for_real', 'vp_final.csv'))
 ```

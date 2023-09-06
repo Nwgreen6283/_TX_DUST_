@@ -196,9 +196,9 @@ copies<- filter %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6--> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site)
@@ -207,9 +207,9 @@ copies_m<- filter_m %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site,day)
@@ -218,9 +218,9 @@ copies_bo<- filter_bo %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+   # copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site,day)
@@ -229,9 +229,9 @@ copies_bo50<- filter_bo50 %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site,day)
@@ -360,4 +360,18 @@ write.csv(final_m, file= here("data","processed_data","vc_clean_copies_mon.csv")
 write.csv(final_bo, file= here("data","processed_data","vc_clean_copies_dail_1_50.csv")) #All 5 reps 
 
 write.csv(final_bo50, file= here("data","processed_data","vc_clean_copies_daily_1_50_2reps.csv")) #Reps 4&5
+```
+
+#### Clean BO dataset
+
+```{r}
+new_bo<-
+  final %>%
+  filter(!site %in% "BO") %>% #Get rid of old BO
+  full_join(final_bo)
+
+vc_final<-
+  full_join(new_bo, final_m)
+
+write_csv(vc_final, here('data', 'processed_data', 'qpcr', 'for_real', 'vc_final.csv')) 
 ```

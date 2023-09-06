@@ -10,27 +10,43 @@ library(tidyverse)
 library(here)
 ```
 
-```{r}
-va_d<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_daily.csv"))
-va_m<- read_csv(here("data", "processed_data", "qpcr", "va_clean_copies_monthly.csv"))
-sp<- read_csv(here("data", "processed_data", "qpcr", "species_all.csv"))
+```{r, include = FALSE}
+va<- read_csv(here('data', 'processed_data', 'qpcr', 'for_real', 'va_final.csv'))
+vc<- read_csv(here('data', 'processed_data', 'qpcr', 'for_real', 'vc_final.csv'))
+vp<- read_csv(here('data', 'processed_data', 'qpcr', 'for_real', 'vp_final.csv'))
+vv<- read_csv(here('data', 'processed_data', 'qpcr', 'for_real', 'vv_final.csv'))
 ```
 
 ```{r}
-va<-
-  rbind(va_d, va_m) %>%
-  select(date, site, copies_mL) 
-
-va$date[va$date == "2022-06-13"] <- "2022-06-14" 
+vp$date[vp$date == "2022-06-13"] <- "2022-06-14" 
 ```
 
 ```{r}
-sp<-
-  sp %>%
-  full_join(va) %>%
+va<- 
+  va %>%
   rename("Va" = "copies_mL")
+vc<- 
+  vc %>%
+  rename("Vc" = "copies_mL")
+vv<- 
+  vv %>%
+  rename("Vv" = "copies_mL")
+vp<- 
+  vp %>%
+  rename("Vp" = "copies_mL")
 ```
 
 ```{r}
-write_csv(sp, here("data", "processed_data", "qpcr", "species_all.csv"))
+species_final0<-
+  left_join(va,vc,  by= c("site","date"))
+
+species_final1<-
+  left_join(vv,vp,  by= c("site","date"))
+
+species_final<-
+  left_join(species_final1, species_final0, by = c("site", "date"))
+```
+
+```{r}
+write_csv(species_final, here("data", "processed_data", "qpcr", "species_all.csv"))
 ```

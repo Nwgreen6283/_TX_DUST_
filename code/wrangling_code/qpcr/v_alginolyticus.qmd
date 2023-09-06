@@ -132,9 +132,9 @@ d<- d %>%
     mutate(
     log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq*dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site)
@@ -144,9 +144,9 @@ m<- m %>%
     mutate(
     log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*15, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*15, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site, day)
@@ -221,6 +221,15 @@ Save as RDS and manually add date in excel
 #stop() #Write error so it wont overwrite
 write.csv(d, file= here("data","processed_data","qpcr", "va_clean_copies_daily.csv"))
 write.csv(m, file= here("data","processed_data","qpcr", "va_clean_copies_monthly.csv"))
+```
+
+#### Combine and Save
+
+```{r}
+va_final<-
+  full_join(d,m)
+
+write_csv(va_final, here('data', 'processed_data', 'qpcr', 'for_real','va_final.csv'))
 ```
 
 # Plot

@@ -115,10 +115,10 @@ Go from CQ --> Copies/mL
 copies_daily<- filter_daily %>%
     mutate(
     log_sq = ((Cq-36.114)/-3.3844), #Equation of the line to get log(SQ):  This comes from running a standard curve during qPCR. 
-    sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*10, #SQ*Reaction Volume: Each qPCR reaction was 10µL
-    copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume: Each 10µL reaction had 2.5µL of DNA added. 
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    sq = 10^log_sq, #This is in copies per reaction
+    #copies_rxn = sq*10, #SQ*Reaction Volume: Each qPCR reaction was 10µL
+    #copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume: Each 10µL reaction had 2.5µL of DNA added. 
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -128,9 +128,9 @@ copies_monthly<- filter_monthly %>%
     mutate(
     log_sq = ((Cq-36.114)/-3.3844), #Equation of the line to get log(SQ)
     sq = 10^log_sq, #Unlog 
-    copies_rxn = sq*10, #SQ*Reaction Volume
-    copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume
-    copies_uL_extract = copies_uL_1_10 *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    #copies_rxn = sq*10, #SQ*Reaction Volume
+    #copies_uL_1_10 = copies_rxn/2.5, #Copies/RXN / DNA Template Volume
+    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -204,7 +204,7 @@ final_monthly<- date_monthly %>% group_by(date,site,Type) %>% #Group all chr tog
 #### Also keep triplicates for ANOVA
 
 ```{r}
-write_csv(date_daily, here("data", "processed_data", "qpcr", "daily_anova_data.csv"))
+write_csv(date_daily, here("data", "processed_data", "qpcr", "ANOVA Data", "daily_anova_data.csv"))
 ```
 
 Combine Daily and Monthly data sets back together.
@@ -219,6 +219,6 @@ Save as RDS and CSV
 
 ```{r}
 #saveRDS(copies_final, file= here("data","processed_data","total_clean_copies.rds"))
-write.csv(copies_final,file= here("data","processed_data","total_clean_copies.csv")) 
+write.csv(copies_final,file= here("data","processed_data", "qpcr","total_clean_copies.csv")) 
 
 ```

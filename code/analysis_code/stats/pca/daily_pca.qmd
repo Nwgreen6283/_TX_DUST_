@@ -86,7 +86,7 @@ master<-
          "NO2-NO3" = "nn",
          "DO" = "do_mgl",
          "Total_Vibrio" = "copies_mL",
-         "Total CFU" = "cfu_tot",
+         "Vibrio_CFU" = "cfu_tot",
          "NH4+" = "amm")
 ```
 

@@ -120,7 +120,7 @@ ggsave(here("results", "plots", "qpcr", "total_vib_daily.png"))
 #### Using Triplicate Dataset for Boxplots
 
 ```{r, include = FALSE}
-d<- read_csv(here("data", "processed_data", "qpcr", 'ANOVA Data', "total_vibrio"))
+d<- read_csv(here("data", "processed_data", "qpcr", 'ANOVA Data', "daily_anova_data.csv"))
 ```
 
 ```{r}
