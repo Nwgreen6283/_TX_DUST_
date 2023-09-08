@@ -186,7 +186,7 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 
 <!--# BUT FOR THE SAKE OF CONSISTENCY, WE WILL USE SPEARMANS FOR EVERYTHING -->
 
-```{r, fig.width = 5, fig.height=5}
+```{r, fig.width = 8, fig.height=8}
 corrplot(bo_cor$r, type="upper",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",

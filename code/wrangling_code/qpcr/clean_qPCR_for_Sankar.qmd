@@ -34,15 +34,16 @@ data<-
 ```{r}
 data<- 
   data %>% 
-  select(copies_mL, Va, Vc, Vv, Vp, tot_bacteria, site, date, VAI) %>%
+  select(copies_mL, Va, Vc, Vv, Vp, tot_bacteria, site, date, VAI, hf_copies_mL) %>%
   rename("Total_Vibrio" = "copies_mL",
-         "Total_Bacteria" = "tot_bacteria")
+         "Total_Bacteria" = "tot_bacteria",
+         "HF183" = "hf_copies_mL")
 ```
 
 #### Re-order columns
 
 ```{r}
-col<- c("date", "site", "Va", "Vc", "Vp", "Vv", "Total_Vibrio", "Total_Bacteria", "VAI")
+col<- c("date", "site", "Va", "Vc", "Vp", "Vv", "Total_Vibrio", "Total_Bacteria", "HF183", "VAI")
 data<- data[,col]
 ```
 

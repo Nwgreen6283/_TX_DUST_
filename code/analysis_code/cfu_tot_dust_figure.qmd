@@ -79,6 +79,7 @@ vib<-
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "none")
+vib
 ```
 
 #### Dust
@@ -116,7 +117,7 @@ ggsave(here("results", "plots", "dust_cfu_total.png" ))
 
 ```{r, include = FALSE}
 cfu<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
-copies<- read_csv(here("data", "processed_data", "qpcr", "ANOVA Data", "total_vibrio"))
+copies<- read_csv(here("data", "processed_data", "qpcr", "ANOVA Data", "daily_anova_data.csv"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 
 ```
@@ -151,7 +152,7 @@ cfu<-
                                          size = 0.5,
                                          linetype = "solid",
                                          colour = "darkblue"),
-        legend.key.size = unit(0.2, 'cm')) +
+        legend.key.size = unit(0.1, 'cm')) +
   scale_x_date(breaks = "2 day", date_labels = "%b %d")+
   labs(x = "Date",
        y = "CFU/mL",
@@ -171,7 +172,7 @@ stat_summary(fun=mean, geom="line",
 
 #### Copies per mL
 
-```{r, fig.width=5, fig.height=10}
+```{r}
 cop<-
   copies %>%
   ggplot() + geom_boxplot(
@@ -193,13 +194,13 @@ cop<-
                                 "RD" = "#4c848c"))+
 
 
-geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-18'),y=154323
-,yend=154323), color = "#4c848c", size = 2)+
-annotate("text", x = as.Date('2022-07-15'), y =155000, label = "***", color = "#4c848c", fontface="bold", size = 7)+
+#(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-18'),y=154323
+#,yend=154323), color = "#4c848c", size = 2)+
+#annotate("text", x = as.Date('2022-07-15'), y =155000, label = "***", color = "#4c848c", fontface="bold", size = 7)+
 
-geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-14'),y=90000
-,yend=90000), color = "#809C52", size = 2)+
-annotate("text", x = as.Date('2022-07-13'), y =91000, label = "***", color = "#809C52", fontface="bold", size = 7)+
+#geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-14'),y=90000
+#,yend=90000), color = "#809C52", size = 2)+
+#annotate("text", x = as.Date('2022-07-13'), y =91000, label = "***", color = "#809C52", fontface="bold", size = 7)+
   
 stat_summary(fun=mean, geom="line", 
              aes(x = date, 
