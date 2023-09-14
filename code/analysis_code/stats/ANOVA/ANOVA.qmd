@@ -145,7 +145,7 @@ t.test(copies_mL ~ dust, data = b_vv)
 t.test(copies_mL ~ dust, data = b_vc)
 
 #RD Vc
-t.test(Vc ~ dust, data = r_vc)
+
 ```
 
 # Fin X Fold increases

@@ -745,7 +745,7 @@ daily_clean<-
 single<-
   daily_clean %>%
   dplyr::select(date, site,
-         sal)
+         temp)
 
 ```
 
@@ -764,5 +764,7 @@ b<-
 ```
 
 ```{r}
-mean(c$chl)
+mean(b$temp)
+mean(c$temp)
+mean(g$temp)
 ```
