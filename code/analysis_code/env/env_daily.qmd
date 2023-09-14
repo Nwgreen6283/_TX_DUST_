@@ -32,7 +32,7 @@ d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 daily<- d1 %>%
   filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
   filter(!date %in% as.Date('2022-07-10')) %>%
-  select(!...1)
+  dplyr::select(!...1)
 ```
 
 # Visualization
@@ -114,6 +114,7 @@ sal<- daily %>%
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "salinity.png"))
+sal
 ```
 
 #### Dissolved Oxygen
@@ -382,6 +383,7 @@ amm<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "amm.png"))
+amm
 ```
 
 #### Total Nitrogen
@@ -481,6 +483,7 @@ tdn<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "TDN.png"))
+tdn
 ```
 
 #### DIN:DIP ((Amm + NN / Ortho))
@@ -643,6 +646,7 @@ tss<-
                                 "Gulf" = "4c848c"))
 
 ggsave(here("results", "plots", "env", "tss.png"))
+tss
 ```
 
 #### Vibrio Copies/mL
@@ -740,8 +744,8 @@ daily_clean<-
 ```{r}
 single<-
   daily_clean %>%
-  select(date, site,
-         chl)
+  dplyr::select(date, site,
+         sal)
 
 ```
 
@@ -757,4 +761,8 @@ c<-
 b<-
   single %>%
   filter(site %in% "Blind Oso")
+```
+
+```{r}
+mean(c$chl)
 ```

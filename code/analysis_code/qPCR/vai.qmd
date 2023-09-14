@@ -78,7 +78,7 @@ ggsave(here("results", "plots", "qpcr", "total_bacteria.png"))
 clean <-
   daily %>%
   filter(hr_cst %in% "01") %>%
-  select(site, date,tot_bacteria)
+  dplyr::select(site, date,tot_bacteria)
 
 b<-
   clean %>%

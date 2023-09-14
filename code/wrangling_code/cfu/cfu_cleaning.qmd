@@ -52,8 +52,8 @@ cfu<-
 ```{r}
 cfu<-
   cfu %>%
-  select(1:13) %>%
-  select(!`CFU conting date, after 24 hr incubation`)
+  dplyr::select(1:13) %>%
+  dplyr::select(!`CFU conting date, after 24 hr incubation`)
 ```
 
 #### Remove Negatives: MilliQ and DI
@@ -101,7 +101,7 @@ cfu<-
 #### Save Dataset for ANOVA and Boxplots
 
 ```{r}
-write_csv(cfu, here('data', 'processed_data','cfu', 'cfu_anova.csv' ))
+write_csv(cfu, here('data', 'processed_data','ANOVA Data', 'cfu_anova.csv' ))
 ```
 
 #### Create Column with average CFUs by site and date

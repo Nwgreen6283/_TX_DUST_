@@ -30,7 +30,7 @@ c_m<- read_csv(here("data", "processed_data", "c2_master_monthly.csv"))
 r_m<- read_csv(here("data", "processed_data", "rd_master_monthly.csv"))
 
 #Triplicate Dataset
-trip<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
+trip<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'cfu_anova.csv'))
 
 ```
 

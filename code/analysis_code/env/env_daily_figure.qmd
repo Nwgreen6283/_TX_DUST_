@@ -32,7 +32,7 @@ daily<- d1 %>%
   filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
   filter(!date %in% as.Date('2022-07-10'),
          hr_cst %in% "01") %>%
-  select(!c(...1, hr_cst))
+  dplyr::select(!c(...1, hr_cst))
 
 dust<-
   dust %>%
@@ -59,9 +59,9 @@ temp<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     #legend.position = "none",
@@ -90,9 +90,9 @@ sal<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -121,9 +121,9 @@ do<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -152,9 +152,9 @@ orthop<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -183,9 +183,9 @@ nn<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -214,9 +214,9 @@ amm<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -245,9 +245,9 @@ sil<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -276,9 +276,9 @@ tdn<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -292,24 +292,24 @@ tdn
 #### DOC
 
 ```{r}
-doc<-
+toc<-
   daily %>%
   ggplot() + geom_line(
   aes(
     x = date,
-    y = doc,
+    y = toc,
     color = site),
   size = 1)+
   theme_bw()+
   labs(
     x = "Date",
-    y = "DOC (µM)",
+    y = "TOC (µM)",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -317,7 +317,7 @@ doc<-
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
-doc
+toc
 ```
 
 #### TSS
@@ -334,13 +334,13 @@ tss<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "TSS (UNITS?)",
+    y = "TSS (mg/L)",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -374,8 +374,8 @@ chl<-
     #axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    legend.position = "none")+
+   # legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
@@ -424,9 +424,9 @@ don<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -484,9 +484,9 @@ din<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
     axis.title.y = element_text(size = 7, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
@@ -498,7 +498,7 @@ din<-
 
 # Combine
 
-```{r, fig.height=5, fig.width=4}
+```{r, fig.height=7.5, fig.width=6.5}
 fig<- ggarrange(temp,
                 sal,
                 do,
@@ -507,16 +507,16 @@ fig<- ggarrange(temp,
                 amm,
                 sil,
                 tdn,
-                doc,
+                toc,
                 tss,
                 don,
                 din,
                 tn,
-                chl+
-                font("x.text", size = 8.5),
+                chl,
                 ncol = 2, 
                 nrow = 7,
-                align = "v")
+                align = "v",
+                common.legend = TRUE)
 
 fig
 

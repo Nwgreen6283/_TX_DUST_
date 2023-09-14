@@ -834,6 +834,18 @@ final
 ggsave(here("results", "plots", "env_monthly.png"))
 ```
 
+# Clean dataset for writing
+
+```{r}
+yeet<-
+  monthly %>%
+  dplyr::select(date, site, hr_cst,
+        sal ) %>%
+  filter(site %in% "Gulf",
+         !date == as.Date('2022-05-24') & !date == as.Date('2022-05-20'),
+         hr_cst %in% "01" | hr_cst %in% "00")
+```
+
 # Monthly Averages
 
 We are taking out 5/20 and 5/24 here.
@@ -852,7 +864,7 @@ avg<-
 b_avg<-
   avg %>%
   filter(site %in% "Blind Oso") %>%
-  select(!c(site, date, Type, hr_cst)) 
+  dplyr::select(!c(site, date, Type, hr_cst)) 
 b_avg<-
   rbind(b_avg, sapply(b_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else ""))
 
@@ -861,14 +873,14 @@ b_avg<-
 c_avg<-
   avg %>%
   filter(site %in% "Canals")%>%
-  select(!c(site, date, Type, hr_cst))
+  dplyr::select(!c(site, date, Type, hr_cst))
 c_avg<-
   rbind(c_avg, sapply(c_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else "")) 
 
 r_avg<-
   avg %>%
   filter(site %in% "Gulf")%>%
-  select(!c(site, date, Type, hr_cst))
+  dplyr::select(!c(site, date, Type, hr_cst))
 r_avg<-
   rbind(r_avg, sapply(r_avg, function(x) if(is.numeric(x)) mean(x, na.rm = TRUE) else ""))
 
@@ -900,55 +912,86 @@ kable(average_df)
 
 # Plot
 
+#### NN
+
 ```{r}
+nn_comp <- list( c("Blind Oso", "Canals"), c("Blind Oso", "Gulf"), c("Canals", "Gulf") )
+
 site_nn<-
-  avg %>%
-  ggplot() + geom_boxplot(
-    aes(x = site,
-        y = nn,
-        color = site)) +
-  theme_bw()+
+ggboxplot(avg, x = "site", y = "nn",
+          color = "site")+
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c"))+
-  labs(y = "Nitrate+Nitrite (µM)")
+  labs(y = "Nitrate+Nitrite (µM)")+ 
+    theme(legend.position = "none")+
+ stat_compare_means(comparisons = nn_comp)
+
+site_nn
 
 ```
 
+#### OrthoP
+
 ```{r}
+orthop_comp <- list( c("Blind Oso", "Canals"), c("Blind Oso", "Gulf"), c("Canals", "Gulf") )
+
 site_orthop<-
-  avg %>%
-  ggplot() + geom_boxplot(
-    aes(x = site,
-        y = orthop,
-        color = site))+
-  theme_bw()+
+ggboxplot(avg, x = "site", y = "orthop",
+          color = "site")+
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c"))+
-  labs(y = "Orthophosphate (µM)")
+  labs(y = "Orthophosphate (µM)",
+       color = "Site")+ 
+ stat_compare_means(comparisons = orthop_comp)
+site_orthop
 
 ```
+
+#### Amm
 
 ```{r}
+am_comp <- list( c("Blind Oso", "Canals"), c("Blind Oso", "Gulf"), c("Canals", "Gulf") )
+
 site_amm<-
-  avg %>%
-  ggplot() + geom_boxplot(
-    aes(x = site,
-        y = amm,
-        color = site)) +
-  theme_bw()+
+ggboxplot(avg, x = "site", y = "amm",
+          color = "site")+
     scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c"))+
-  labs(y = "Ammonium (µM)")
-
+  labs(y = "Ammonium (µM)")+ 
+  theme(legend.position = "none")+
+ stat_compare_means(comparisons = am_comp)
+site_amm
 ```
 
-```{r, fig.height= 3, fig.width=3}
+#### Salinity
+
+```{r}
+am_comp <- list( c("Blind Oso", "Canals"), c("Blind Oso", "Gulf"), c("Canals", "Gulf") )
+
+site_sal<-
+ggboxplot(avg, x = "site", y = "sal",
+          color = "site")+
+    scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  labs(y = "Salinity")+ 
+  theme(legend.position = "none")+
+ stat_compare_means(comparisons = am_comp)
+site_sal
+```
+
+#### Combine
+
+```{r, fig.width=8.5, fig.height=4}
 ggarrange(site_nn, site_orthop, site_amm,
-          ncol = 1, 
-          nrow = 3)
+          ncol = 3, 
+          nrow = 1,
+          align = "h",
+          common.legend = TRUE)+
+  labs(legend = "Site")
 
 ggsave(here('results', 'plots', 'env', 'monthly_nutrients_averages.png'))
 ```

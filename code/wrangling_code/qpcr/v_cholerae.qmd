@@ -201,7 +201,7 @@ copies<- filter %>%
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site)
+dplyr::select(Sample,copies_mL, site)
 
 copies_m<- filter_m %>%
     mutate(
@@ -212,7 +212,7 @@ copies_m<- filter_m %>%
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site,day)
+dplyr::select(Sample,copies_mL, site,day)
 
 copies_bo<- filter_bo %>%
     mutate(
@@ -223,7 +223,7 @@ copies_bo<- filter_bo %>%
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site,day)
+dplyr::select(Sample,copies_mL, site,day)
 
 copies_bo50<- filter_bo50 %>%
     mutate(
@@ -234,7 +234,7 @@ copies_bo50<- filter_bo50 %>%
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site,day)
+dplyr::select(Sample,copies_mL, site,day)
 ```
 
 Replace NaN with 0 for copies/mL
@@ -319,6 +319,12 @@ date_bo50<- replace_bo50 %>%
                          day == "17"~"2022-07-17",
                          day ==  "18"~"2022-07-18",
                          day == "19"~"2022-07-19"))
+```
+
+#### Save for ANOVA
+
+```{r}
+write_csv(date_bo, here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
 ```
 
 Take the average of qPCR triplicates

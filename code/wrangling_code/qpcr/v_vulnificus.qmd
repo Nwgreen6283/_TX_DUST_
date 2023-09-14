@@ -28,7 +28,7 @@ Filter for HEX dye (samples). Cy5 is for IAC
 
 ```{r}
 redo2<- redo %>% 
-  select(Cq, Sample, Fluor, Well) %>%
+  dplyr::select(Cq, Sample, Fluor, Well) %>%
   filter(Fluor %in% "HEX",
         !Well %in% "K19") #This triplicate amplified 
 ```
@@ -84,7 +84,7 @@ copies_redo<- filter_redo %>%
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
-select(Sample,copies_mL, site)
+dplyr::select(Sample,copies_mL, site)
 
 
 ```
@@ -118,6 +118,12 @@ date_redo<- replace_redo %>%
                          day == "19"~"2022-07-19"))
 
 
+```
+
+#### Save for ANOVA
+
+```{r}
+write_csv(date_redo, here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
 ```
 
 Take the average of qPCR triplicates

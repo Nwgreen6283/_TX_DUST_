@@ -1,0 +1,186 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+[LINK](https://www.r-bloggers.com/2021/08/how-to-perform-tukey-hsd-test-in-r/)
+
+#### Libraries
+
+```{r, include=FALSE}
+library(here)
+library(tidyverse)
+library(multcomp)
+```
+
+#### Data
+
+Note: This data is pridced in total_copies_calculator code. I kept qPCR triplicates (i.e. did not average) for this
+
+```{r, include = FALSE}
+vib<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_vibrio"))
+bac<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_bacteria.csv"))
+hf<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "hf183.csv"))
+cfu<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "cfu_anova.csv"))
+vc<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vc_anova.csv"))
+vv<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vv_anova.csv"))
+```
+
+# Clean
+
+#### Total Vibrio
+
+**We are going to split the timeseries into low dust (7-12) and high dust days (13-19) and then take the average**
+
+```{r}
+vib<-
+  vib %>%
+  mutate(date = substr(date, 9,10)) %>%  #Date needs to not be as.Date format
+  mutate(dust = case_when(date <=12 ~ "low",
+                          date >12 ~ "high"))
+b<-
+  vib %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(copies_mL, dust)  
+c<-
+  vib %>%
+  filter(site %in% "C2") %>%
+  dplyr::select(copies_mL, dust)
+
+r<-
+  vib %>%
+  filter(site %in% "RD") %>%
+  dplyr::select(copies_mL, dust)
+```
+
+#### CFU
+
+```{r}
+cfu<-
+  cfu %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high")) %>%
+  dplyr::select(date, site, cfu_mL, dust)
+
+b_cfu<-
+  cfu %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(!site)
+c_cfu<-
+  cfu %>%
+  filter(site %in% "C2") %>%
+  dplyr::select(!site)
+r_cfu<-
+  cfu %>%
+  filter(site %in% "RD") %>%
+  dplyr::select(!site)
+```
+
+#### Species
+
+```{r}
+vc<-
+  vc %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high")) 
+vv<-
+  vv %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high")) 
+ 
+
+b_vc<-
+  vc %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(copies_mL, dust)
+b_vv<-
+  vv %>%
+  filter(site %in% "BO") %>%
+  dplyr::select(copies_mL, dust)
+
+```
+
+# T.test
+
+#### Total Vibrio
+
+```{r}
+#BO
+t.test(copies_mL ~ dust, data = b)
+
+#C2
+t.test(copies_mL ~ dust, data = c)
+
+#RD
+t.test(copies_mL ~ dust, data = r)
+```
+
+#### CFU
+
+```{r}
+#BO
+t.test(cfu_mL ~ dust, data = b_cfu)
+
+#C2
+t.test(cfu_mL ~ dust, data = c_cfu)
+
+#RD
+t.test(cfu_mL ~ dust, data = r_cfu)
+```
+
+#### Species
+
+<!--# Need to get rid of zeroes -->
+
+```{r}
+#BO Vv
+t.test(copies_mL ~ dust, data = b_vv)
+
+#BO Vc
+t.test(copies_mL ~ dust, data = b_vc)
+
+#RD Vc
+t.test(Vc ~ dust, data = r_vc)
+```
+
+# Fin X Fold increases
+
+**Averages of high and lo dust days taken and (F-I)/I**
+
+#### Total Vibrioz
+
+```{r}
+b_fold<-
+  b %>%
+  group_by(dust) %>%
+  summarise_at(vars(copies_mL), list(name = mean))
+  ((b_fold[1,2]  - b_fold[2,2] ) / b_fold[2,2])*100
+
+r_fold<-
+  r %>%
+  group_by(dust) %>%
+  summarise_at(vars(copies_mL), list(name = mean))
+  ((r_fold[1,2]  - r_fold[2,2] ) / r_fold[2,2])*100
+
+```
+
+#### CFU
+
+```{r}
+b_fold<-
+  b_cfu %>%
+  group_by(dust) %>%
+  summarise_at(vars(cfu_mL), list(name = mean))
+  ((b_fold[1,2]  - b_fold[2,2] ) / b_fold[2,2])*100
+
+r_fold<-
+  r_cfu %>%
+  group_by(dust) %>%
+  summarise_at(vars(cfu_mL), list(name = mean))
+  ((r_fold[1,2]  - r_fold[2,2] ) / r_fold[2,2])*100
+```

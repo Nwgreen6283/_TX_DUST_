@@ -1,0 +1,359 @@
+---
+title: "pca_biplot"
+format:
+  html:
+    theme: default
+---
+
+**PCA Biplot analysis**
+
+[Link](https://statisticsglobe.com/visualization-pca-r)
+
+<!--# Will do monthly later -->
+
+# Intro
+
+#### Libs
+
+```{r, include = FALSE}
+library(FactoMineR)
+library(ggfortify)
+library(factoextra)
+library(scatterplot3d)
+library(here)
+library(tidyverse)
+library(lubridate)
+```
+
+#### Data
+
+```{r}
+data<- read.csv(here("data", "processed_data", "tx_master.csv"))
+bo_d<- read.csv(here("data", "processed_data", "bo_master_daily.csv"))
+c2_d<- read.csv(here("data", "processed_data", "c2_master_daily.csv"))
+rd_d<- read.csv(here("data", "processed_data", "rd_master_daily.csv"))
+```
+
+# Cleaning
+
+## DAILY
+
+#### Make Site Column and Combine Daily DF
+
+```{r}
+bo_d<-
+  bo_d %>%
+  mutate(site = "Blind Oso") %>%
+  select(!X) 
+
+c2_d<-
+  c2_d %>%
+  mutate(site = "Canals") %>%
+  select(!X) 
+
+rd_d<-
+  rd_d %>%
+  mutate(site = "Gulf") %>%
+  select(!X)
+
+master<- rbind(bo_d, c2_d, rd_d) %>%
+  select(!c(hf_copies_mL)) %>%#Remove Non-numerics and HF183 (not run on all sites)
+  mutate(site = as.factor(site),
+         date = as.Date(date),
+         date = format(date, format = "%d"))
+```
+
+#### Select only significant columns
+
+```{r}
+vibrio<-
+  master %>%
+  select(site, date,copies_mL, cfu_tot, Vc, Vv, temp, sal, tss, toc, doc, don, nn, amm, dust_lag)
+
+
+bacteria<- 
+  master %>%
+  select(site, date, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, tot_bacteria, do_mgl)
+
+vibrio<-
+  vibrio %>%
+  rename("Temperature" = "temp",
+         "Salinity" = "sal",
+         "DOC" = "doc", 
+         "TOC" = "toc",
+         "DON" = "don",
+         "TSS" = "tss",
+         "NO2-NO3" = "nn",
+         "Total_Vibrio" = "copies_mL",
+         "Vibrio_CFU" = "cfu_tot",
+         "NH4+" = "amm")
+
+bacteria<-
+  bacteria %>%
+  rename("Temperature" = "temp",
+         "Salinity" = "sal",
+         "DOC" = "doc", 
+         "TOC" = "toc",
+         "DON" = "don",
+         "TSS" = "tss",
+         "DO" = "do_mgl",
+         "NO2-NO3" = "nn",
+         "Total Bacteria" = "tot_bacteria",
+         "NH4+" = "amm")
+```
+
+# PCA
+
+## Perform PCA
+
+We will perform a PCA for all selected variables except for the [factor variable](https://www.stata.com/features/overview/factor-variables/) (`site`)
+
+```{r}
+daily_pca <- prcomp(vibrio %>% select(!c(date, site)), 
+                   scale=TRUE)
+
+bac_pca<- prcomp(bacteria %>% select(!c(date, site)), 
+                   scale=TRUE)
+```
+
+We have specified `scale = TRUE` inside the function to conduct a PCA using a [correlation matrix](https://statisticsglobe.com/pca-correlation-covariance-matrix), which ensures that [the sensitivity to larger variable variations](https://statisticsglobe.com/pca-correlation-covariance-matrix) is taken into account.
+
+## Extract Explained Variance
+
+```{r}
+summary(daily_pca)
+```
+
+## Visualize Observations
+
+After a PCA, the observations are expressed in principal component scores. Therefore, it is important to visualize the observations along the new axes (principal components) to interpret the relations in the dataset.
+
+```{r}
+PC<- as.data.frame(daily_pca$x)
+head(PC)
+```
+
+In addition to that, if the user has a factor variable, like in this case, he might be interested in showing the grouping on the plot as well. In such as case, the Label variable of wine_data can be added to the PC set as follows.
+
+**We are using `site`**
+
+```{r}
+PC$site<-master$site
+PC$date<-master$date
+```
+
+## 2D Scatterplot
+
+The scatterplot in 2D can be plotted using the [plot()](https://statisticsglobe.com/plot-in-r-example) function and the data points can be colored by Label by assigning the color argument to `PC$site`. We can also add a legend using the [legend()](https://statisticsglobe.com/add-legend-to-plot-in-base-r) function to show the matching colors for each label.
+
+```{r}
+plot(PC$PC1,
+     PC$PC2,
+     col = PC$site,
+     pch = 19,
+     main="Figure 1: 2D Scatterplot",
+     xlab="PC1",
+     ylab="PC2")
+ 
+legend("bottomright", 
+       legend = levels(PC$site), 
+       col = seq_along(levels(PC$site)), 
+       pch = 19)
+ 
+legend("bottomright", 
+       legend = levels(PC$site), 
+       col = seq_along(levels(PC$site)), 
+       pch = 19)
+```
+
+## Ellipse Plot
+
+[Confidence ellipses](https://www.real-statistics.com/multivariate-statistics/multivariate-normal-distribution/confidence-ellipse/) can also be added to a grouped scatter plot visualized after a PCA. Using the same dataset, we can plot them via the [ggplot2](https://ggplot2.tidyverse.org/) package. The grouping is indicated by the color argument in ggplot(); the geom_point() is used to plot the point cloud; then, the stat_ellipse() function is called to add the ellipses per wine group.
+
+```{r}
+ggplot(PC, 
+       aes(x = PC1, 
+       y = PC2, 
+       color = site)) +
+       geom_point() +
+       scale_color_manual(values=c("black", "#CC0066", "green2")) +
+       stat_ellipse() + ggtitle("Figure 2: Ellipse Plot") +
+       theme_bw()
+
+```
+
+## 3D Scatterplot
+
+To draw a 3d scatterplot of observations, one needs the first three principal components' scores. For the implementation, the [scatterplot3d()](https://www.rdocumentation.org/packages/scatterplot3d/versions/0.3-42/topics/scatterplot3d) function of the scatterplot3d package is called with the `color` argument assigned to the Label variable. To add a legend, we will use the legend() function and specify its coordinates via the xyz.convert() function.
+
+```{r}
+plot_3d <- with(PC, 
+                scatterplot3d(PC$PC1, 
+                              PC$PC2, 
+                              PC$PC3, 
+                              color = as.numeric(site), 
+                              pch = 19, 
+                              main ="Figure 3: 3D Scatter Plot", 
+                              xlab="PC1",
+                              ylab="PC2",
+                              zlab="PC3"))
+ 
+legend(plot_3d$xyz.convert(0.5, 0.7, 0.5), 
+       pch = 19, 
+       yjust=0,
+       legend = levels(PC$site), 
+       col = seq_along(levels(PC$site)))
+```
+
+## Visualization of Component-Variable Relations
+
+In order to understand the relation between the principal components and the original variables, a visual that displays both elements are needed. [Biplots](https://statisticsglobe.com/biplot-pca-explained) are used in general for this purpose. They enable the user to understand what the components represent and each variable's share in these representations.
+
+The fviz_pca_biplot() function from the factoextra package can help us to build a biplot. We will specify the deep sky blue color for the variables, or more specifically, for the [loading vectors](http://www.statistics4u.com/fundstat_eng/cc_pca_loadscore.html). Besides, the observation points will be colored in black by default. To find out different ways of plotting biplots in R please see our [Biplot in R](https://statisticsglobe.com/biplot-pca-r) tutorial.
+
+```{r}
+fviz_pca_biplot(daily_pca, 
+                repel = TRUE,
+                col.var = "black",
+                habillage  = PC$site,
+                title = "Vibrio and Environmental Correlates", geom="point", pointsize = master$dust_lag,
+                mean.point = F) +
+  theme_bw()+
+  labs(pointsize= "Site")+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c")) 
+  #geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
+#  stat_ellipse(aes(color = PC$site))
+
+```
+
+```{r}
+fviz_pca_biplot(bac_pca, 
+                repel = TRUE,
+                col.var = "black",
+                habillage  = PC$site,
+                title = "Bacteria and Water Quality", geom="point", pointsize = master$dust_lag,
+                mean.point = F) +
+  theme_bw()+
+  labs(pointsize= "Site")+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c")) 
+```
+
+From Sankar:
+
+We observe distinct clusters among different sites, which are primarily influenced by physical water quality parameters such as salinity and temperature, as well as nutrient levels (DOC, DON, PO4, NO3-NO2), TSS, dissolved oxygen (DO), and pH. 
+
+Specifically, the BO samples are separated from the C2 and RD6 samples along the PC1 axis. The BO samples exhibit higher levels of DOC, DON, PO4, NO3-NO2, TSS, DO, and pH, whereas C2 and RD6 show higher salinity, temperature, and NH4 concentrations. Furthermore, there is a significant daily variation in the water quality of the BO site compared to C2 and RD6. As a result, the sample scores of BO are more spread out as compared to DR6 and C2.
+
+Regarding Vibrio presence, RD6 exhibits higher levels compared to BO and C2, influenced by dust input (dust_lag). On the other hand, BO shows higher levels of Vv and Vc, influenced by both dust and inorganic nutrients (PO4, NO3-NO2), TSS, Chal a.
+
+Salinity has an inverse relationship with TSS, PO4, NO3-NO2, Vv, Vc, and DO, suggesting that the influx of freshwater may introduce most of these inorganic nutrients into the BO system. Additionally, as the bay is shallow, freshwater influx can stir up sediments at the bay bottom, resulting in higher TSS levels. 
+
+[Each point represents one date of sampling. The position of each sample score (point) in the PCA biplot represents its relationship against all of the input variables (loadings) such as TSS, PO4, NO3-NO2, Vv, Vc etc.]{.ul}
+
+## Visualization of Explained Variance
+
+Visualizing the [explained variance per principal component](https://statisticsglobe.com/principal-component-analysis-pca) is useful for deciding on the [ideal number of components to retain in the analysis](https://statisticsglobe.com/choose-optimal-number-components-pca). The [scree plots](https://statisticsglobe.com/scree-plot-pca) are specialized for this kind of visualization in [factor analyses](https://www.statisticssolutions.com/free-resources/directory-of-statistical-analyses/factor-analysis/?__cf_chl_tk=v.QRFngUvCfPZDX1hF.b9wX5.uP_5AkheKQUfcWHxZ0-1676557863-0-gaNycGzNCpA).
+
+A scree plot can be visualized by using the fviz_eig() function of the factoextra package. We can set the `addlabels =` argument to TRUE so that the percentage of [explained variance](https://www.statology.org/explained-variance/) per component is shown on top of each bar plot.
+
+```{r}
+fviz_eig(daily_pca, 
+         addlabels = TRUE, 
+         ylim = c(0, 70),
+         main="Figure 5: Scree Plot")
+```
+
+# Site PCAs
+
+## PCA By site and date
+
+#### Based on corrplots, lets select important varibles by site
+
+```{r}
+b<-
+  vibrio %>%
+  filter(site %in% "Blind Oso") %>%
+  select(!site)
+
+c<-
+  vibrio %>%
+  filter(site %in% "Canals")%>%
+  select(!site)
+
+r<-
+  vibrio %>%
+  filter(site %in% "Gulf")%>%
+  select(!site)
+```
+
+### PCA
+
+```{r}
+bo_pca <- prcomp(b %>% select(-date), #Exclude Date column
+                   scale=TRUE)
+bo_PC<- as.data.frame(bo_pca$x)
+bo_PC$date<-bo_d$date
+
+c2_pca <- prcomp(c %>% select(-date), #Exclude Date column
+                   scale=TRUE)
+c2_PC<- as.data.frame(c2_pca$x)
+c2_PC$date<-c2_d$date
+
+rd_pca <- prcomp(r %>% select(-date), #Exclude Date column
+                   scale=TRUE)
+rd_PC<- as.data.frame(rd_pca$x)
+rd_PC$date<-rd_d$date
+
+```
+
+#### Visualize
+
+```{r}
+#BLIND OSO
+fviz_pca_biplot(bo_pca, 
+                repel = TRUE,
+                col.var = "#809C52",
+                #habillage  = bo_PC$date,
+                title = "Blind Oso Biplot", geom="null")  +
+  geom_text(aes(label =  bo_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_bo.png"))
+```
+
+```{r}
+#CANALS
+fviz_pca_biplot(c2_pca, 
+                repel = TRUE,
+                col.var = "#ba4716",
+                #habillage  = bo_PC$date,
+                title = "Canals Biplot", geom="null") +
+  geom_text(aes(label =  c2_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_c2.png"))
+
+```
+
+```{r}
+#GULF
+fviz_pca_biplot(rd_pca, 
+                repel = TRUE,
+                col.var = "4c848c",
+                #habillage  = bo_PC$date,
+                title = "Gulf Biplot", geom="null") +
+  geom_text(aes(label =  rd_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  theme_bw()
+
+ggsave(here("results", "plots", "pca", "pca_rd.png"))
+```
+
+**From Sankar:**
+
+Personal opinion: I'm uncertain about the viability of creating separate PCA plots for each location. Since we only have 12 sample scores, it's apparent that each sample will correlate with a variable (or variables) that have the highest value on a particular date. This approach may introduce biased statistics, as we already have prior knowledge of which variables are higher on specific dates before conducting the PCA. However, your PCA plot showcasing all sites already encompasses this information found in the Gulf Site PCA. Therefore, generating additional PCA plots for individual sites would be redundant

@@ -72,6 +72,23 @@ avg<-
 avg_value<- mean(avg$t7sum)
 ```
 
+#### Plot TSUM
+
+```{r}
+dust %>% ggplot()+ geom_line(
+  aes(x = date,
+      y = tsum))+
+  labs(title = "Dust Aerosol Optical Density over Daily Time Series",
+       x = "Date",
+       y = "Dust AOD",
+       caption = "TSUM")+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_vline(xintercept = as.Date('2022-07-07'), linetype = 2) +
+  geom_vline(xintercept = as.Date('2022-07-19'), linetype = 2)
+```
+
 # Make Pretty Dust Table
 
 ```{r}
@@ -89,3 +106,5 @@ dust_tbl<-
   kable(dust_tbl[,c(6,1:5)])
 dust_tbl
 ```
+
+hgyaqs
