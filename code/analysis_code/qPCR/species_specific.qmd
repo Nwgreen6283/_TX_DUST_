@@ -169,7 +169,7 @@ yeet<-
          hr_cst %in% "01",
          !date %in% as.Date('2022-07-10')) %>%
   dplyr::select(Site, date, 
-         Vv)
+         Vc)
 ```
 
 ## All Species

@@ -196,9 +196,11 @@ copies<- filter %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6--> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    #copies_rxn = sq*15, #SQ*Reaction Volume
-    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    copies_assay = copies_uL_extract * 1.5,
+    copies_assay= case_when(copies_assay == "NaN" ~ 8.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site)
@@ -207,9 +209,11 @@ copies_m<- filter_m %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    #copies_rxn = sq*15, #SQ*Reaction Volume
-    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    copies_assay = copies_uL_extract * 1.5,
+    copies_assay= case_when(copies_assay == "NaN" ~ 8.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site,day)
@@ -218,9 +222,11 @@ copies_bo<- filter_bo %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    #copies_rxn = sq*15, #SQ*Reaction Volume
-   # copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
+    copies_assay = copies_uL_extract * 1.5,
+    copies_assay= case_when(copies_assay == "NaN" ~ 8.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site,day)
@@ -229,9 +235,11 @@ copies_bo50<- filter_bo50 %>%
     mutate(
     log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
     sq = 10^log_sq, #Unlog 
-    #copies_rxn = sq*15, #SQ*Reaction Volume
-    #copies_uL_1_10 = copies_rxn/1.5, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
+    copies_assay = copies_uL_extract * 1.5,
+    copies_assay= case_when(copies_assay == "NaN" ~ 8.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site,day)

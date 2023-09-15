@@ -66,7 +66,7 @@
 
 ## Title. Replace the text in quotes.
 
-title <- "Vv LOD"
+title <- "V. vulnificus LOD"
 
 ## END editable section---------------------------------------------------------
 
@@ -124,7 +124,7 @@ pdf(file = paste("Probit ", title, " ", timestamp, ".pdf", sep = ""),
 ## Create "empty" plot first. This way we can overlay the curve on top of the grid.
 plot(mod.probit, type = "n", bty = "n", main = NULL, axes = FALSE,
 	xlim = c(0.1, 10^5), ylim = c(0, 1),
-	xlab = "Copies per assay", ylab = "Positives/Total"
+	xlab = "Copies per µL", ylab = "Positives/Total"
 	)
 axis(1, at=c(0.1, 1, 10, 100, 1000, 10000, 100000),
      labels = c(0.1, 1, 10, 100, 1000, 10000, 100000), lty = 1)
@@ -210,7 +210,7 @@ pdf(file = paste("Probit ", title, " ", timestamp, " A4.pdf", sep = ""),
 ## Create "empty" plot first. This way we can overlay the curve on top of the grid.
 plot(mod.probit, type = "n", bty = "n", main = NULL, axes = FALSE,
 	xlim = c(0.1, 10^5), ylim = c(0, 1),
-	xlab = "Copies per assay", ylab = "Positives/Total"
+	xlab = "Copies per µL", ylab = "Positives/Total"
 	)
 axis(1, at=c(0.1, 1, 10, 100, 1000, 10000, 100000),
      labels = c(0.1, 1, 10, 100, 1000, 10000, 100000), lty = 1)
@@ -300,7 +300,7 @@ par(oma = c(0.05,0.05,0.05,0.05))
 
 ## Create "empty" plot first. This way we can overlay the curve on top of the grid.
 plot(mod.probit, type = "n", bty = "n", xlim = c(0.1, 10^5), ylim = c(0, 1),
-	xlab = "Copies per assay", ylab = "Positives/Total", font.main = 1,
+	xlab = "Copies per µL", ylab = "Positives/Total", font.main = 1,
 	main = paste(title, " ", timestamp, sep = ""), cex.main = 0.8, axes = FALSE)
 
 ## Draw the grid lines.

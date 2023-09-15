@@ -1,0 +1,45 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+#### Library
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r}
+d<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'analytical_lod_values.csv'))
+```
+
+#### What are the LOD?
+
+**These are sourced from the LOD code and are in copies/µL: This is what is reported in paper**
+
+| Target         | LOD (copies/µL) | µL of DNA Template |
+|----------------|-----------------|--------------------|
+| Total Vibrio   | 1.49            | 2.5                |
+| Va             | 7.08            | 1.2                |
+| Vc             | 11.4            | 1.5                |
+| Vp             | 0.672           | 1.2                |
+| Vv             | 0.91            | 1.2                |
+| Total Bacteria |                 | 2.5                |
+
+<!--# For Total bacteria, I need to substranct out the NTC and make then check LOD -->
+
+#### Convert from copies/µL to copies/assay
+
+```{r}
+d1<-
+  d %>%
+  mutate(m_lod = a_lod*dna, #Methodical LOD (copies/assay)
+         non_detect = 0.5*m_lod) #Values to make for non-detects (50% of a_LOD)
+
+print(d1)
+```

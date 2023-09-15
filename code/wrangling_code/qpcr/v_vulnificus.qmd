@@ -78,9 +78,11 @@ copies_redo<- filter_redo %>%
     mutate(
     log_sq = ((Cq-37.606)/-3.409), #Equation of the line to get log(SQ). Equation is from Oyster STD CUrve.
     sq = 10^log_sq, #Unlog 
-    #copies_rxn = sq*15, #SQ*Reaction Volume
-    #copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    copies_assay = copies_uL_extract * 1.2,
+    copies_assay= case_when(copies_assay == "NaN" ~ 0.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -89,21 +91,12 @@ dplyr::select(Sample,copies_mL, site)
 
 ```
 
-Replace NaN with 0 for copies/mL
-
-```{r}
-replace_redo<- copies_redo %>%
- mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
-filter(!is.na(Sample))   
- #Dropping NAs from STD Curve
-```
-
 Date Column
 
 ```{r}
 
-date_redo<- replace_redo %>%
-  mutate(day = substr(replace_redo$Sample,4,5)) %>% #Creates new column `date`
+date_redo<- copies_redo %>%
+  mutate(day = substr(copies_redo$Sample,4,5)) %>% #Creates new column `date`
   mutate(date = case_when(day == "7"~"2022-07-07",
                          day ==  "8"~"2022-07-08",
                          day ==  "9"~"2022-07-09",
@@ -202,9 +195,11 @@ copies_mon<- filter_mon %>%
     mutate(
     log_sq = ((Cq-37.606)/-3.409), #Equation of the line to get log(SQ). Equation is from Oyster STD CUrve.
     sq = 10^log_sq, #Unlog 
-   # copies_rxn = sq*15, #SQ*Reaction Volume
-   # copies_uL_1_10 = copies_rxn/1.2, #Copies/RXN / DNA Template Volume
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    copies_assay = copies_uL_extract * 1.2,
+    copies_assay= case_when(copies_assay == "NaN" ~ 0.55, #50% LOD
+                     TRUE ~ copies_assay),
+    copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
     
@@ -213,20 +208,11 @@ select(Sample,copies_mL, site)
 
 ```
 
-Replace NaN with 0 for copies/mL
-
-```{r}
-replace_mon<- copies_mon %>%
- mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
-filter(!is.na(Sample))   
- #Dropping NAs from STD Curve
-```
-
 Date Column
 
 ```{r}
-date_mon<- replace_mon %>%
-  mutate(day = substr(replace_mon$Sample,4,7)) %>% #Creates new column `date`
+date_mon<- copies_mon %>%
+  mutate(day = substr(copies_mon$Sample,4,7)) %>% #Creates new column `date`
   mutate(date = case_when(day == "2"~"2022-02-16",
                          day ==  "3"~"2022-03-09",
                          day ==  "4"~"2022-04-20",
@@ -263,7 +249,8 @@ write.csv(final_mon, file= here("data","processed_data","vv_clean_copies_mon.csv
 ```{r}
 vv_final<-
   full_join(final_redo, final_mon) %>%
-  filter(!site %in% c("E3", "NT"))
+  filter(!site %in% c("E3", "NT")) %>%
+  drop_na
 
 write_csv(vv_final, here('data', 'processed_data', 'qpcr', 'for_real', 'vv_final.csv'))
 ```
