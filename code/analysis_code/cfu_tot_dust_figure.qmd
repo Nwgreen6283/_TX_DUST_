@@ -19,6 +19,7 @@ library(cowplot)
 ```{r, include = FALSE}
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 data<- read_csv(here("data", "processed_data", "tx_master.csv"))
+vc<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vc_anova.csv"))
 ```
 
 # Clean
@@ -251,4 +252,17 @@ plot_grid(cf,cop,du,
 master_box
 
 ggsave(here("results", "plots", "dust_cfu_total_boxplots.png" ))
+```
+
+# Species
+
+#### Vc
+
+```{r}
+vc %>%
+  ggplot() + geom_boxplot(
+    aes(x = date,
+        y = copies_mL,
+        group= date)) +
+  facet_wrap(~site)
 ```

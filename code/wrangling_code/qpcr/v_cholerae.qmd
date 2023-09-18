@@ -15,6 +15,7 @@ format:
 library(tidyverse)
 library(here)
 library(ggpubr)
+select<- dplyr::select
 ```
 
 #### Load data
@@ -245,7 +246,22 @@ copies_bo50<- filter_bo50 %>%
 dplyr::select(Sample,copies_mL, site,day)
 ```
 
+#### %POs
+
+11/36
+
+```{r}
+per_pos<- copies %>% 
+  select(copies_assay,Sample) %>%
+  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(lod = case_when(copies_assay < 17.1 ~ "bad", TRUE ~"good"))
+```
+
 Replace NaN with 0 for copies/mL
+
+<!--# There are no zeroes now, so this code is not needed. Just keeping it so i dont have to hange downstream code -->
 
 ```{r}
 replace<- copies %>%
@@ -332,7 +348,11 @@ date_bo50<- replace_bo50 %>%
 #### Save for ANOVA
 
 ```{r}
-write_csv(date_bo, here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+bo_triplicate_new<-
+  date %>%
+  filter(!site %in% "BO") %>%
+  full_join(date_bo)
+write_csv(bo_triplicate_new, here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
 ```
 
 Take the average of qPCR triplicates

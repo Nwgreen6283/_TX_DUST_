@@ -13,6 +13,7 @@ Libraries
 library(tidyverse)
 library(here)
 library(ggpubr)
+select<-dplyr::select
 ```
 
 Load data
@@ -84,11 +85,28 @@ copies_redo<- filter_redo %>%
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor) %>%
-    
+    copies_mL = copies_uL_extract*concentration_factor) 
+
+
+```
+
+#### Percent Pos
+
+28/36
+
+```{r}
+per_pos<- copies_redo %>% 
+ select(copies_assay,Sample) %>%
+  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(lod = case_when(copies_assay < 1.092 ~ "bad", TRUE ~"good"))
+```
+
+```{r}
+copies_redo<-
+  copies_redo %>%
 dplyr::select(Sample,copies_mL, site)
-
-
 ```
 
 Date Column

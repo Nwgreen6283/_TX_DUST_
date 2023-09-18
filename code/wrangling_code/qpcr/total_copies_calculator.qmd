@@ -12,6 +12,7 @@ Libraries
 ```{r}
 library(tidyverse)
 library(here)
+select<- dplyr::select
 ```
 
 Load data
@@ -208,7 +209,7 @@ final_monthly<- date_monthly %>% group_by(date,site,Type) %>% #Group all chr tog
 #### Also keep triplicates for ANOVA
 
 ```{r}
-write_csv(date_daily, here("data", "processed_data", "qpcr", "ANOVA Data", "daily_anova_data.csv"))
+write_csv(date_daily, here("data", "processed_data", "ANOVA Data", "total_vibrio"))
 ```
 
 Combine Daily and Monthly data sets back together.

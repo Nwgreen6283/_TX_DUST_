@@ -13,22 +13,38 @@ format:
 library(here)
 library(tidyverse)
 library(multcomp)
+select<- dplyr::select
 ```
 
 #### Data
 
 Note: This data is pridced in total_copies_calculator code. I kept qPCR triplicates (i.e. did not average) for this
 
+<!--# Actually we dont need these -->
+
 ```{r, include = FALSE}
-vib<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_vibrio"))
-bac<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_bacteria.csv"))
-hf<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "hf183.csv"))
-cfu<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "cfu_anova.csv"))
-vc<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vc_anova.csv"))
-vv<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vv_anova.csv"))
+#vib<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_vibrio"))
+#bac<- read_csv(here::here("data", "processed_data", "ANOVA Data", "total_bacteria.csv"))
+#hf<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "hf183.csv"))
+#cfu<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "cfu_anova.csv"))
+#vc<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vc_anova.csv"))
+#vv<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vv_anova.csv"))
+```
+
+```{r}
+data<- read_csv(here('data', 'processed_data', 'tx_master.csv'))
 ```
 
 # Clean
+
+```{r}
+t<- 
+  data %>%
+  select(copies_mL, Va, Vv, Vc, Vp, tot_bacteria, hf_copies_mL, date, site, hr_cst, cfu_tot) %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')),
+         hr_cst %in% "01") %>%
+  filter(!date %in% as.Date('2022-07-10')) 
+```
 
 #### Total Vibrio
 
@@ -36,22 +52,23 @@ vv<- read_csv(here::here("data", "processed_data",  "ANOVA Data", "vv_anova.csv"
 
 ```{r}
 vib<-
-  vib %>%
+  t %>%
+  select(date,copies_mL, site) %>%
   mutate(date = substr(date, 9,10)) %>%  #Date needs to not be as.Date format
   mutate(dust = case_when(date <=12 ~ "low",
                           date >12 ~ "high"))
 b<-
   vib %>%
-  filter(site %in% "BO") %>%
-  dplyr::select(copies_mL, dust)  
+  filter(site %in% "Blind Oso") %>%
+  select(copies_mL, dust)  
 c<-
   vib %>%
-  filter(site %in% "C2") %>%
+  filter(site %in% "Canals") %>%
   dplyr::select(copies_mL, dust)
 
 r<-
   vib %>%
-  filter(site %in% "RD") %>%
+  filter(site %in% "Gulf") %>%
   dplyr::select(copies_mL, dust)
 ```
 
@@ -59,23 +76,23 @@ r<-
 
 ```{r}
 cfu<-
-  cfu %>%
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  t %>%
+  select(date, cfu_tot,site) %>%
   mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
                           date > as.Date('2022-07-12') ~ "high")) %>%
-  dplyr::select(date, site, cfu_mL, dust)
+  dplyr::select(date, site, cfu_tot, dust)
 
 b_cfu<-
   cfu %>%
-  filter(site %in% "BO") %>%
+  filter(site %in% "Blind Oso") %>%
   dplyr::select(!site)
 c_cfu<-
   cfu %>%
-  filter(site %in% "C2") %>%
+  filter(site %in% "Canals") %>%
   dplyr::select(!site)
 r_cfu<-
   cfu %>%
-  filter(site %in% "RD") %>%
+  filter(site %in% "Gulf") %>%
   dplyr::select(!site)
 ```
 
@@ -83,12 +100,14 @@ r_cfu<-
 
 ```{r}
 vc<-
-  vc %>%
+  t %>%
+  select(date, Vc,site) %>%
   filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
   mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
                           date > as.Date('2022-07-12') ~ "high")) 
 vv<-
-  vv %>%
+  t %>%
+  select(date, Vv,site) %>%
   filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
   mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "low",
                           date > as.Date('2022-07-12') ~ "high")) 
@@ -96,12 +115,17 @@ vv<-
 
 b_vc<-
   vc %>%
-  filter(site %in% "BO") %>%
-  dplyr::select(copies_mL, dust)
+  filter(site %in% "Blind Oso") %>%
+  dplyr::select(Vc, dust)
 b_vv<-
   vv %>%
-  filter(site %in% "BO") %>%
-  dplyr::select(copies_mL, dust)
+  filter(site %in% "Blind Oso") %>%
+  dplyr::select(Vv, dust)
+
+r_vc<-
+  vc %>%
+  filter(site %in% "Gulf") %>%
+  dplyr::select(Vc, dust)
 
 ```
 
@@ -124,35 +148,33 @@ t.test(copies_mL ~ dust, data = r)
 
 ```{r}
 #BO
-t.test(cfu_mL ~ dust, data = b_cfu)
+t.test(cfu_tot ~ dust, data = b_cfu)
 
 #C2
-t.test(cfu_mL ~ dust, data = c_cfu)
+t.test(cfu_tot ~ dust, data = c_cfu)
 
 #RD
-t.test(cfu_mL ~ dust, data = r_cfu)
+t.test(cfu_tot ~ dust, data = r_cfu)
 ```
 
 #### Species
 
-<!--# Need to get rid of zeroes -->
-
 ```{r}
 #BO Vv
-t.test(copies_mL ~ dust, data = b_vv)
+t.test(Vv ~ dust, data = b_vv)
 
 #BO Vc
-t.test(copies_mL ~ dust, data = b_vc)
+t.test(Vc ~ dust, data = b_vc)
 
 #RD Vc
-
+t.test(Vc ~ dust, data = r_vc)
 ```
 
-# Fin X Fold increases
+# Find X Fold increases
 
 **Averages of high and lo dust days taken and (F-I)/I**
 
-#### Total Vibrioz
+#### Total Vibrio
 
 ```{r}
 b_fold<-
@@ -175,12 +197,34 @@ r_fold<-
 b_fold<-
   b_cfu %>%
   group_by(dust) %>%
-  summarise_at(vars(cfu_mL), list(name = mean))
+  summarise_at(vars(cfu_tot), list(name = mean))
   ((b_fold[1,2]  - b_fold[2,2] ) / b_fold[2,2])*100
 
 r_fold<-
   r_cfu %>%
   group_by(dust) %>%
-  summarise_at(vars(cfu_mL), list(name = mean))
+  summarise_at(vars(cfu_tot), list(name = mean))
   ((r_fold[1,2]  - r_fold[2,2] ) / r_fold[2,2])*100
+```
+
+#### Species
+
+```{r}
+b_vc_fold<- 
+  b_vc %>%
+  group_by(dust) %>%
+  summarise_at(vars(copies_mL), list(name = mean))
+  ((b_vc_fold[1,2]  - b_vc_fold[2,2] ) / b_vc_fold[2,2])*100
+
+b_vv_fold<- 
+  b_vv %>%
+  group_by(dust) %>%
+  summarise_at(vars(copies_mL), list(name = mean))
+  ((b_vv_fold[1,2]  - b_vv_fold[2,2] ) / b_vv_fold[2,2])*100
+
+r_vc_fold<- 
+  r_vc %>%
+  group_by(dust) %>%
+  summarise_at(vars(copies_mL), list(name = mean))
+  ((r_vc_fold[1,2]  - r_vc_fold[2,2] ) / r_vc_fold[2,2])*100
 ```

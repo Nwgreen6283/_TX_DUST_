@@ -15,6 +15,7 @@ format:
 library(tidyverse)
 library(here)
 library(ggpubr)
+select<- dplyr::select
 ```
 
 #### Data
@@ -156,6 +157,19 @@ m<- m %>%
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 select(Sample,copies_mL, site, day)
+```
+
+### %Pos delete later
+
+**1/36 were above LOD**
+
+```{r}
+per_pos<- d %>% 
+ select(copies_assay,Sample) %>%
+  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  mutate(lod = case_when(copies_assay < 8.496 ~ "bad", TRUE ~"good"))
 ```
 
 Replace NaN with 0 for copies/mL

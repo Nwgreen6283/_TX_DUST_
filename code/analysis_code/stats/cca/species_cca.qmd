@@ -12,6 +12,7 @@ format:
 ```{r}
 library(here)
 library(tidyverse)
+select<- dplyr::select
 ```
 
 #### Data
