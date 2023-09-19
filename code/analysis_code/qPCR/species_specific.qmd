@@ -16,6 +16,11 @@ library(lubridate)
 library(ggpubr) #Stacking Plots
 ```
 
+```{r}
+here<- here::here
+rename<- dplyr::rename
+```
+
 #### DATA
 
 ```{r, include=FALSE}
@@ -57,8 +62,6 @@ master<-
                                 "Canals" = "#ba4716",
                                 "Gulf" = "4c848c"))
 # dev.off()
-
- ggsave(here("results", "plots", "qpcr", "vp_daily.png"))
 ```
 
 ## Vv
@@ -86,7 +89,6 @@ vv<-
                                 "Gulf" = "4c848c"))
 #dev.off()
 
- ggsave(here("results", "plots","qpcr", "vv_daily.png"))
 ```
 
 ## Vc
@@ -117,7 +119,7 @@ vc<-
                                 "Canals" = "#ba4716",#3
                                 "Gulf" = "4c848c"))#3
 
- ggsave(here("results", "plots", "qpcr","vc_daily.png"))
+
 ```
 
 #### 
@@ -146,7 +148,7 @@ va<-
                                 "Canals" = "#ba4716",#3
                                 "Gulf" = "4c848c"))#3
 
- ggsave(here("results", "plots", "qpcr","va_daily.png"))
+
 ```
 
 #### Combine
@@ -157,7 +159,7 @@ ggarrange(va,vc,vp,vv,
           common.legend = TRUE,
           align = "hv")
 
-ggsave(here('results', 'plots', 'qpcr', 'species_by_site.png'))
+ggsave(here('results', 'plots', 'qpcr', 'species','species_by_site.png'))
 ```
 
 #### Clean DF for writing

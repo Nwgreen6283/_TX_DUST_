@@ -159,6 +159,12 @@ m<- m %>%
 select(Sample,copies_mL, site, day)
 ```
 
+#### Save Triplicates for Boxplots
+
+```{r}
+write_csv(d, here('data', 'processed_data', 'ANOVA Data','va_anova.csv'))
+```
+
 ### %Pos delete later
 
 **1/36 were above LOD**

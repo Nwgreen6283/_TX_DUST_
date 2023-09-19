@@ -84,6 +84,10 @@ copies<- filter %>%
     copies_mL = copies_uL_extract*concentration_factor) 
 ```
 
+```{r}
+write_csv(copies, here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
+```
+
 #### %Pos
 
 11/36

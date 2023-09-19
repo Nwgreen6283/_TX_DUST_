@@ -1,0 +1,257 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+[LINK](https://www.sharpsightlabs.com/blog/mapping-texas-ports-with-geom_sf-part2/)
+
+**Libs**
+
+```{r}
+library(here)
+library(usmap)
+library("rnaturalearthdata")
+library(tidyverse)
+library(ggpubr)
+library(sf)
+library(ggspatial)
+library(rnaturalearth)
+library(tidygeocoder)
+library(maps)
+library(ggrepel)
+```
+
+# Plot
+
+## TX Map
+
+```{r}
+world_map_data <- ne_countries(scale = "medium", returnclass = "sf")
+state_map_data <- map('state', fill = TRUE, plot = FALSE) %>% st_as_sf()
+
+class(world_map_data)
+class(state_map_data)
+```
+
+#### Simple Map
+
+```{r}
+state_map_data %>% 
+  filter(ID == 'texas') %>% 
+  ggplot() +
+    geom_sf()
+```
+
+#### Map of TX Coast
+
+```{r}
+ggplot() +
+  geom_sf(data = world_map_data) +
+  geom_sf(data = state_map_data) +
+  coord_sf(xlim = c(-100, -91), ylim = c(25,33))
+```
+
+####  Create Corpus List
+
+```{r}
+portlist = c('Corpus Christi, Texas')
+port_data = tibble(location = portlist)
+
+port_data %>% 
+  mutate(location_brief = str_replace(location, ', Texas', '')) ->
+  port_data
+
+port_data %>% 
+  mutate(lat = NA
+         ,long = NA
+         ) ->
+  port_data
+  
+
+for(i in 1:nrow(port_data)){
+  coordinates = geo_osm(port_data$location[i])
+  port_data$long[i] = coordinates$long
+  port_data$lat[i] = coordinates$lat
+}
+
+```
+
+#### Rough Draft
+
+```{r}
+ggplot() +
+  geom_sf(data = world_map_data) +
+  geom_sf(data = state_map_data) +
+  geom_point(data = port_data, aes(x = long, y = lat), color = 'red') +
+  coord_sf(xlim = c(-100, -92), ylim = c(25,33))
+```
+
+#### Create Theme
+
+```{r}
+mytheme <- theme(text = element_text(family = 'Avenir')
+                 ,panel.grid.major = element_line(color = '#cccccc' 
+                                                  ,linetype = 'dashed'
+                                                  ,linewidth  = .3
+                                                  )
+                 ,panel.background = element_rect(fill = 'aliceblue')
+                 ,plot.title = element_text(size = 32)
+                 ,plot.subtitle = element_text(size = 14)
+                 ,axis.title = element_blank()
+                 ,axis.text = element_text(size = 10)
+                 )
+
+land_color <- c('antiquewhite1')
+
+base_plot <- ggplot() +
+  geom_sf(data = world_map_data, fill = land_color, size = .4) +
+  geom_sf(data = state_map_data, fill = NA, size = .4) +
+  geom_point(data = port_data, aes(x = long, y = lat), size = 4, color = 'red', alpha = .15) +
+  geom_point(data = port_data, aes(x = long, y = lat), size  = 4, shape = 1,  color = 'red') +
+  coord_sf(xlim = c(-100, -90), ylim = c(25,33)) +
+  mytheme
+
+print(base_plot)
+```
+
+#### State Labels
+
+```{r}
+sf_use_s2(FALSE)
+```
+
+```{r}
+state_map_data %>% 
+  mutate(ID = str_to_title(ID)) ->
+  state_map_data
+
+state_map_data %>% 
+  mutate(centroid = st_centroid(geom)) ->
+  state_map_data
+
+statename_coords <- state_map_data %>% 
+  st_centroid() %>% 
+  st_coordinates() %>%
+  as_tibble()
+
+state_map_data %>%  
+  bind_cols(statename_coords) %>% 
+  select(ID, X, Y, centroid, geom) ->
+  state_map_data
+
+state_map_data %>% 
+  mutate(x_nudge = case_when( ID == 'Texas' ~ 1.3
+                              ,ID == 'Louisiana' ~ -.6
+                              ,ID == 'Mississippi' ~ 1.5
+                              ,TRUE ~ 0
+                              )
+         ,y_nudge = case_when( ID == 'Texas' ~ .5
+                              ,ID == 'Louisiana' ~ 1
+                              ,TRUE ~ 0
+                              )
+         ) -> 
+  state_map_data
+
+
+state_names <- geom_text(data = state_map_data
+                    ,aes(x = X, y = Y, label = ID)
+                    ,color = "#333333"
+                    ,size = 4
+                    ,fontface = 'bold'
+                    ,nudge_x = state_map_data$x_nudge
+                    ,nudge_y = state_map_data$y_nudge
+                    )
+```
+
+```{r}
+port_data %>% 
+  mutate(x_nudge = case_when( location == 'Corpus Christi, Texas' ~ 1.3
+                             ,TRUE ~ 0)
+         ,y_nudge = case_when( location == 'Corpus Christi, Texas' ~ -1
+                             ,TRUE ~ 0)
+  ) ->
+  port_data
+
+```
+
+```{r}
+TX<-
+  base_plot + 
+  state_names +
+  geom_text_repel(data = port_data
+                  ,aes(x = long
+                       ,y = lat
+                       ,label = location_brief
+                       )
+                  ,family = 'Avenir'
+                  ,nudge_x = port_data$x_nudge
+                  ,nudge_y = port_data$y_nudge
+                  ,segment.color = "#333333"
+                  ) 
+TX
+ggsave(here('results', 'plots', 'texas_map.png'))
+```
+
+## Sites
+
+#### Define Sites
+
+```{r}
+sites <- 
+    data.frame(
+      site = c("Blind Oso", "Canals", "Gulf"),
+      longitude = c(-97.3292, -97.2366,-97.2741), 
+      latitude = c(27.70597, 27.6017, 27.47715))  
+sites
+```
+
+```{r}
+sites<-
+  sites %>% 
+  mutate(
+    x_nudge = case_when( site == 'Blind Oso' ~ 0.13,
+                         site == 'Canals' ~ 0.1,
+                         site == 'Gulf' ~ 0.07),
+    y_nudge = case_when( site == 'Blind Oso' ~ -1,
+                         site == 'Canals' ~ -1,
+                         site == 'Gulf' ~ -10))
+
+  
+sites
+```
+
+#### Texas
+
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+```
+
+```{r}
+SITES<-
+ggplot(data = world) +
+    geom_sf(fill = land_color) +
+    geom_point(data = sites, aes(x = longitude, y = latitude), size = 4, color = 'red', alpha = .15) +
+  geom_point(data = sites, aes(x = longitude, y = latitude), size  = 4, shape = 1,  color = 'red')+
+coord_sf(xlim = c(-98.2, -96.5), ylim = c(27, 28), expand = FALSE)+
+  mytheme +
+   geom_text(data = sites, 
+             aes(
+             longitude, latitude, label = site), colour = "black",
+             ,nudge_x = sites$x_nudge
+             #,nudge_y = sites$y_nudge,
+             ,segment.color = "#333333")
+
+SITES
+ggsave(here('results', 'plots', 'sites_map.png'))
+```
+
+## Combine
+
+```{r}
+ggarrange(TX, SITES,
+          nrow = 2,
+          ncol =1)
+```

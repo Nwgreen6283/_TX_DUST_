@@ -1,0 +1,257 @@
+---
+title: "Species boxplots"
+format:
+  html:
+    theme: default
+---
+
+#### Libraries
+
+```{r}
+library(here)
+library(tidyverse)
+library(Rmisc)#For stat summary
+```
+
+```{r}
+here<- here::here
+rename<- dplyr::rename
+```
+
+#### Data
+
+**This species qPCR data contains all of the technical triplicates from qPCR. BO_Vc does have 5 triplicates**
+
+```{r, include = FALSE}
+va<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'va_anova.csv'))
+vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
+vp<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
+```
+
+# Clean
+
+#### Va
+
+```{r}
+va<- 
+  va %>% #Add Date Column
+  mutate(day = substr(Sample, 2,3),
+   date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  filter(!is.na(date)) %>%
+  select(date, copies_mL, site) %>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf")) 
+```
+
+#### Vc
+
+```{r}
+vc<-
+  vc %>%
+  select(copies_mL, date, site)%>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+```
+
+#### Vv
+
+```{r}
+vv<-
+  vv %>%
+  select(date, copies_mL, site) %>%
+  drop_na()%>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+```
+
+#### Vp
+
+```{r}
+vp<-
+  vp %>%
+  select(copies_mL, Sample, site) %>% #Add Date Column
+  mutate(
+    site = substr(Sample, 1,2),
+    day = substr(Sample, 4,5),
+    date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  filter(!is.na(date)) %>%
+  select(date, copies_mL, site) %>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+```
+
+# Make Stat Summaries
+
+```{r}
+va_sum <- summarySE(va, measurevar="copies_mL", groupvars=c("site", "date"))
+
+vc_sum <- summarySE(vc, measurevar="copies_mL", groupvars=c("site", "date"))
+
+vp_sum <- summarySE(vp, measurevar="copies_mL", groupvars=c("site", "date"))
+
+vv_sum <- summarySE(vv, measurevar="copies_mL", groupvars=c("site", "date"))
+```
+
+# Plot
+
+```{r}
+pd <- position_dodge(0.1) # move lines .05 to the left and right
+```
+
+**We will be plotting Standard Error (SE)**
+
+#### Va
+
+```{r}
+va_p<-
+ggplot(va_sum, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(y = "V. alginolyticus",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())
+va_p
+```
+
+#### Vc
+
+```{r}
+vc_p<-
+ggplot(vc_sum, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "V. cholerae",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())
+vc_p
+```
+
+#### Vp
+
+```{r}
+vp_p<-
+ggplot(vp_sum, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "V. parahaemolyticus",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c")) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))
+vp_p
+```
+
+#### Vv
+
+```{r}
+vv_p<-
+ggplot(vv_sum, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "V. vulnificus",
+       color = "Site",
+       caption = "Lines represent standard error")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))
+
+vv_p
+```
+
+#### Combine
+
+```{r}
+ggarrange(va_p, vc_p, vp_p, vv_p,
+          nrow = 2,
+          ncol = 2,
+          common.legend = TRUE,
+          align = "hv90")
+
+ggsave(here('results', 'plots','qpcr', 'species', 'species_SE_plots.png' ))
+```
