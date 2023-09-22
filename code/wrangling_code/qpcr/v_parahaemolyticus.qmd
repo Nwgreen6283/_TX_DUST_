@@ -16,6 +16,8 @@ library(tidyverse)
 library(here)
 library(ggpubr)
 select<-dplyr::select
+here<- here::here
+mutate<-dplyr::mutate
 ```
 
 Load data
@@ -95,10 +97,13 @@ write_csv(copies, here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
 ```{r}
 per_pos<- copies %>% 
  select(copies_assay,Sample) %>%
-  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  summarize_if(is.numeric, mean) %>%
-  ungroup() %>%
-  mutate(lod = case_when(copies_assay < 0.8064 ~ "bad", TRUE ~"good"))
+ # group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+#summarize_if(is.numeric, mean) %>%
+ # ungroup() %>%
+  mutate(lod = case_when(copies_assay < 0.8064 ~ "bad", TRUE ~"good")) %>%
+  drop_na()
+
+write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'vp_copies_assay.csv'))
 ```
 
 ```{r}

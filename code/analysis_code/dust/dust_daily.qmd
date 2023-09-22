@@ -62,6 +62,22 @@ dust %>% ggplot()+ geom_line(
 ggsave(here("results", "plots", "dust", "dust_daily.png"))
 ```
 
+```{r}
+dust %>% 
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  ggplot()+ geom_line(
+  aes(x = date,
+      y = t7sum))+
+  labs(title = "Dust Aerosol Optical Density over Daily Time Series",
+       x = "Date",
+       y = "Dust AOD")+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d") +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+
+```
+
 #### What was the average for the first half (7-12)
 
 ```{r}

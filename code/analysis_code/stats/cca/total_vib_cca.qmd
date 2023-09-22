@@ -117,7 +117,7 @@ ccf(rd_ccf$t7sum, rd_ccf$cfu_tot)
 title("Gulf Dus$txCopies CCA", line =1)
 ```
 
-**BO is 0, C2 is NA, Gulf is 1**
+**BO is 0, C2 is 0, Gulf is 1**
 
 ## MONTHLY
 

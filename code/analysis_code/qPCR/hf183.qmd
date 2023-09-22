@@ -46,14 +46,16 @@ daily %>%
   ggplot() + 
   geom_line(
     aes(x = date, 
-        y = log10(hf_copies_mL)))+
+        y = log10(hf_copies_mL)),
+        color = "#809C52")+
   scale_x_date(date_breaks= "1 day", date_labels = "%b %d")+
   theme_bw() +
   labs(x = "Date",
        y = "Log10(copies per mL)",
-       title = "HF183 Concentrations at Blind Oso",
-       caption = "Samples diluted 1:10")+
-  theme(plot.title = element_text(hjust = 0.5))
+       title = "HF183 Concentrations at Blind Oso")+
+       #caption = "Samples diluted 1:10")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(face = "bold"))
 
 ggsave(here("results", "plots", "qpcr", "hf183_daily.png"))
 ```

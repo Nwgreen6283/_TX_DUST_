@@ -11,11 +11,14 @@ format:
 library(here)
 library(tidyverse)
 library(Rmisc)#For stat summary
+library(ggpubr)
+library(ggforce)
 ```
 
 ```{r}
 here<- here::here
 rename<- dplyr::rename
+select<- dplyr::select
 ```
 
 #### Data
@@ -27,6 +30,12 @@ va<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'va_anova.csv'))
 vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
 vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
 vp<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
+
+#Above/Below Data
+va1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'va_above_below.csv'))
+vc1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vc_above_below.csv'))
+vp1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vp_above_below.csv'))
+vv1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vv_above_below.csv'))
 ```
 
 # Clean
@@ -54,7 +63,8 @@ va<-
   mutate(date = as.Date(date),
          site = recode(site, "BO" = "Blind Oso",
                        "C2" = "Canals",
-                       "RD" = "Gulf")) 
+                       "RD" = "Gulf"))
+
 ```
 
 #### Vc
@@ -114,13 +124,31 @@ vp<-
 # Make Stat Summaries
 
 ```{r}
-va_sum <- summarySE(va, measurevar="copies_mL", groupvars=c("site", "date"))
+va_sum <- summarySE(va, measurevar="copies_mL", groupvars=c("site", "date")) %>%
+  filter(site %in% "Canals") #Non-detects at this site
 
 vc_sum <- summarySE(vc, measurevar="copies_mL", groupvars=c("site", "date"))
 
-vp_sum <- summarySE(vp, measurevar="copies_mL", groupvars=c("site", "date"))
+vp_sum <- summarySE(vp, measurevar="copies_mL", groupvars=c("site", "date")) %>%
+  filter(!site %in% "Blind Oso") #Non-detects at this site
 
 vv_sum <- summarySE(vv, measurevar="copies_mL", groupvars=c("site", "date"))
+```
+
+#### Combine above/below data with sum data
+
+```{r}
+va_sum<-
+  va_sum %>%full_join(va1)
+
+vc_sum<-
+  vc_sum %>%full_join(vc1)
+
+vp_sum<-
+  vp_sum %>%full_join(vp1)
+
+vv_sum<-
+  vv_sum %>%full_join(vv1)
 ```
 
 # Plot
@@ -131,23 +159,59 @@ pd <- position_dodge(0.1) # move lines .05 to the left and right
 
 **We will be plotting Standard Error (SE)**
 
+#### Vv
+
+```{r}
+vv_p<-
+ggplot(vv_sum, 
+       aes(x=date, 
+           y=log10(copies_mL), 
+           color=site)) + 
+    geom_errorbar(data = vv_sum[vv_sum$point_shape == "16",],
+      aes(ymin=log10(copies_mL-se), 
+          ymax=log10(copies_mL+se)), 
+      width=0.3) +
+    geom_errorbar( data = vv_sum[vv_sum$point_shape == "1" ,],
+      aes(ymin=log10(0), 
+          ymax=log10(0), 
+      width=0)) +
+    geom_line() +
+    geom_point(data = vv_sum, shape= vv_sum$point_shape, size = 2)+
+  theme_bw()+
+  labs(x = "Date",
+       y = "log10(V. vulnificus)",
+       color = "Site",
+       caption = "Open circles = replicates were non-detects")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        legend.position = "none") 
+
+vv_p
+```
+
 #### Va
 
 ```{r}
 va_p<-
 ggplot(va_sum, 
        aes(x=date, 
-           y=copies_mL, 
+           y=log10(copies_mL), 
            color=site)) + 
-    geom_errorbar(
-      aes(ymin=copies_mL-se, 
-          ymax=copies_mL+se), 
-      width=.5, 
-      position=pd) +
-    geom_line(position=pd) +
-    geom_point(position=pd) +
+    geom_errorbar(data = va_sum[va_sum$point_shape == "16",],
+      aes(ymin=log10(copies_mL-se), 
+          ymax= log10(copies_mL+se)), 
+      width=0.3) +
+    geom_errorbar( data = va_sum[va_sum$point_shape == "1" ,],
+      aes(ymin=0, 
+          ymax=0), 
+      width=0) +
+    geom_line() +
+    geom_point(data = va_sum, shape= va_sum$point_shape, size = 2)+
   theme_bw()+
-  labs(y = "V. alginolyticus",
+  labs(y = "log10(V. alginolyticus)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
@@ -155,7 +219,8 @@ ggplot(va_sum,
                                 "Gulf" = "#4c848c"))+
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        legend.position = "none") 
 va_p
 ```
 
@@ -165,18 +230,21 @@ va_p
 vc_p<-
 ggplot(vc_sum, 
        aes(x=date, 
-           y=copies_mL, 
+           y=log10(copies_mL), 
            color=site)) + 
-    geom_errorbar(
-      aes(ymin=copies_mL-se, 
-          ymax=copies_mL+se), 
-      width=.5, 
-      position=pd) +
-    geom_line(position=pd) +
-    geom_point(position=pd) +
+    geom_errorbar(data = vc_sum[vc_sum$point_shape == "16",],
+      aes(ymin= log10(copies_mL-se), 
+          ymax=log10(copies_mL+se)), 
+      width=0.3) +
+    geom_errorbar( data = vc_sum[vc_sum$point_shape == "1" ,],
+      aes(ymin=0, 
+          ymax=0), 
+      width=0) +
+    geom_line() +
+    geom_point(data = vc_sum, shape= vc_sum$point_shape, size = 2)+
   theme_bw()+
   labs(x = "Date",
-       y = "V. cholerae",
+       y = "log10(V. cholerae)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
@@ -184,7 +252,8 @@ ggplot(vc_sum,
                                 "Gulf" = "#4c848c"))+
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        legend.position = "none")
 vc_p
 ```
 
@@ -194,64 +263,39 @@ vc_p
 vp_p<-
 ggplot(vp_sum, 
        aes(x=date, 
-           y=copies_mL, 
+           y=log10(copies_mL), 
            color=site)) + 
-    geom_errorbar(
-      aes(ymin=copies_mL-se, 
-          ymax=copies_mL+se), 
-      width=.5, 
-      position=pd) +
-    geom_line(position=pd) +
-    geom_point(position=pd) +
+    geom_errorbar(data = vp_sum[vp_sum$point_shape == "16",],
+      aes(ymin= log10(copies_mL-se), 
+          ymax= log10(copies_mL+se)), 
+      width=0.3) +
+    geom_errorbar( data = vp_sum[vp_sum$point_shape == "1" ,],
+      aes(ymin=0, 
+          ymax=0), 
+      width=0) +
+    geom_line() +
+    geom_point(data = vp_sum, shape= vp_sum$point_shape, size = 2)+
   theme_bw()+
   labs(x = "Date",
-       y = "V. parahaemolyticus",
+       y = "log10(V. parahaemolyticus)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = c("Blind Oso" = "#809C52",
                                 "Canals" = "#ba4716",
                                 "Gulf" = "#4c848c")) +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45))
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        legend.position = "none")
 vp_p
-```
-
-#### Vv
-
-```{r}
-vv_p<-
-ggplot(vv_sum, 
-       aes(x=date, 
-           y=copies_mL, 
-           color=site)) + 
-    geom_errorbar(
-      aes(ymin=copies_mL-se, 
-          ymax=copies_mL+se), 
-      width=.5, 
-      position=pd) +
-    geom_line(position=pd) +
-    geom_point(position=pd) +
-  theme_bw()+
-  labs(x = "Date",
-       y = "V. vulnificus",
-       color = "Site",
-       caption = "Lines represent standard error")+
-  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
-  theme(axis.text.x = element_text(hjust = 1, angle = 45))
-
-vv_p
 ```
 
 #### Combine
 
-```{r}
+```{r, fig.height=3}
 ggarrange(va_p, vc_p, vp_p, vv_p,
           nrow = 2,
           ncol = 2,
-          common.legend = TRUE,
-          align = "hv90")
+          #common.legend = TRUE,
+          align = "hv")
 
 ggsave(here('results', 'plots','qpcr', 'species', 'species_SE_plots.png' ))
 ```

@@ -14,6 +14,8 @@ library(tidyverse)
 library(here)
 library(ggpubr)
 select<-dplyr::select
+here<- here::here
+mutate<- dplyr::mutate
 ```
 
 Load data
@@ -97,10 +99,13 @@ copies_redo<- filter_redo %>%
 ```{r}
 per_pos<- copies_redo %>% 
  select(copies_assay,Sample) %>%
-  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  summarize_if(is.numeric, mean) %>%
-  ungroup() %>%
-  mutate(lod = case_when(copies_assay < 1.092 ~ "bad", TRUE ~"good"))
+ # group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  #summarize_if(is.numeric, mean) %>%
+  #ungroup() %>%
+  mutate(lod = case_when(copies_assay < 1.092 ~ "bad", TRUE ~"good")) %>%
+  drop_na()
+
+write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'vv_copies_assay.csv'))
 ```
 
 ```{r}

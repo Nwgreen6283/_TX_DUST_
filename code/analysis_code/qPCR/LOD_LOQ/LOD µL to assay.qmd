@@ -12,10 +12,18 @@ library(tidyverse)
 library(here)
 ```
 
+```{r}
+here<-here::here
+```
+
 #### Data
 
 ```{r}
 d<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'analytical_lod_values.csv'))
+va<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'va_copies_assay.csv'))
+vc<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vc_copies_assay.csv'))
+vp<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vp_copies_assay.csv'))
+vv<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vv_copies_assay.csv'))
 ```
 
 #### What are the LOD?
@@ -42,4 +50,217 @@ d1<-
          non_detect = 0.5*m_lod) #Values to make for non-detects (50% of a_LOD)
 
 print(d1)
+```
+
+# How many samples are below LOD?
+
+#### Va
+
+```{r}
+va %>%
+  ggplot()+ geom_point(
+    aes(x = Sample, 
+        y = copies_assay)) +
+  theme_bw()+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(y = "Copies/assay",
+       caption = "Horizontal line = LOD")+
+  geom_hline(yintercept = 8.496)
+```
+
+#### Vc
+
+```{r}
+vc %>%
+  ggplot()+ geom_point(
+    aes(x = Sample, 
+        y = log10(copies_assay))) +
+  theme_bw()+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(y = "log10(Copies/assay)",
+       caption = "Horizontal line = LOD")+
+  geom_hline(yintercept = log10(17.1))
+```
+
+#### Vp
+
+```{r}
+vp %>%
+  ggplot()+ geom_point(
+    aes(x = Sample, 
+        y = copies_assay)) +
+  theme_bw()+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(y = "Copies/assay",
+       caption = "Horizontal line = LOD")+
+  geom_hline(yintercept = 0.8064)
+```
+
+#### Vv
+
+```{r}
+vv %>%
+  ggplot()+ geom_point(
+    aes(x = Sample, 
+        y = copies_assay)) +
+  theme_bw()+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))+
+  labs(y = "Copies/assay",
+       caption = "Horizontal line = LOD")+
+  geom_hline(yintercept = 1.092)
+```
+
+# Make Dataframe with above and below LOD
+
+```{r}
+va1<-
+  va %>%
+  mutate(LOD = case_when(
+    copies_assay < 8.4960 ~ "1", TRUE ~ "0"), #1 indicates it is below LOD
+         sit = substr(Sample,0,1),
+         site = recode(sit, "B" = "Blind Oso",
+                        "C" = "Canals", 
+                       "R" = "Gulf"),
+         day = substr(Sample,2,3),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  dplyr::select(date,site,LOD) %>%
+  mutate(LOD = as.numeric(LOD))
+
+va2<- aggregate(LOD ~ site + date, data = va1, FUN = sum) 
+
+va3<- va1 %>%
+  full_join(va2, by = c("site", "date")) %>%
+  dplyr::rename("LOD" = "LOD.y") %>%
+  select(site, date, LOD ) %>%
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>% #If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+unique()
+
+  
+  
+write_csv(va3, here('data', 'processed_data', 'qpcr','LOD', 'va_above_below.csv' ))
+```
+
+```{r}
+vc1<-
+  vc %>%
+  mutate(LOD = case_when(copies_assay < 17.1 ~ "1", TRUE ~ "0"),
+         sit = substr(Sample,1,2),
+         site = recode(sit, 
+                       "BO" = "Blind Oso",
+                       "C2" = "Canals", 
+                       "RD" = "Gulf"),
+         day = substr(Sample,3,4) ,
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  dplyr::select(date,site,LOD, Sample) %>%
+  drop_na() %>%
+  mutate(LOD = as.numeric(LOD))
+
+vc2<- aggregate(LOD ~ site + date, data = vc1, FUN = sum) 
+
+vc3<- vc1 %>%
+  full_join(vc2, by = c("site", "date")) %>%
+  dplyr::rename("LOD" = "LOD.y") %>%
+  select(site, date, LOD ) %>%
+  mutate(point_shape = case_when((LOD == 3 & site == "Canals") ~ 1,
+                                 (LOD == 3 & site == "Gulf") ~ 1,
+                                 (LOD == 5 & site == "Blind Oso") ~ 1, TRUE ~ 16)) %>% #If all three or 5 were below LOD (so n = 3 or n = 5), then it will be shape #1 or open circle. Else it will be shape #16 or closed cirlce
+  unique()
+
+  write_csv(vc3, here('data', 'processed_data', 'qpcr','LOD', 'vc_above_below.csv' )) 
+```
+
+```{r}
+vp1<-
+  vp %>%
+  mutate(LOD = case_when(copies_assay < 0.8064 ~ "1", TRUE ~ "0"),
+         sit = substr(Sample,1,2),
+         site = recode(sit, 
+                       "BO" = "Blind Oso",
+                       "C2" = "Canals", 
+                       "RD" = "Gulf"),
+         day = substr(Sample,4,5),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  dplyr::select(date,site,LOD) %>%
+  mutate(LOD = as.numeric(LOD))
+
+vp2<- aggregate(LOD ~ site + date, data = vp1, FUN = sum) 
+
+vp3<- vp1 %>%
+  full_join(vp2, by = c("site", "date")) %>%
+  dplyr::rename("LOD" = "LOD.y") %>%
+  select(site, date, LOD ) %>%
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>% #If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+  unique()
+
+  write_csv(vp3, here('data', 'processed_data', 'qpcr','LOD', 'vp_above_below.csv' )) 
+```
+
+```{r}
+vv1<-
+  vv %>%
+  mutate(LOD = case_when(copies_assay < 1.092 ~ "1", TRUE ~ "0"),
+         sit = substr(Sample,1,2),
+         site = recode(sit, 
+                       "BO" = "Blind Oso",
+                       "C2" = "Canals", 
+                       "RD" = "Gulf"),
+         day = substr(Sample,4,5),
+         date = case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19")) %>%
+  dplyr::select(date,site,LOD) %>%
+  mutate(LOD = as.numeric(LOD))
+
+vv2<- aggregate(LOD ~ site + date, data = vv1, FUN = sum) 
+
+vv3<- vv1 %>%
+  full_join(vv2, by = c("site", "date")) %>%
+  dplyr::rename("LOD" = "LOD.y") %>%
+  select(site, date, LOD ) %>%
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>%#If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+  unique()
+
+  write_csv(vv3, here('data', 'processed_data', 'qpcr','LOD', 'vv_above_below.csv' )) 
 ```

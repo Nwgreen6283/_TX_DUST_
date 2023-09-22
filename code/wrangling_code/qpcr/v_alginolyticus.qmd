@@ -18,6 +18,11 @@ library(ggpubr)
 select<- dplyr::select
 ```
 
+```{r}
+here<- here::here
+mutate<- dplyr::mutate
+```
+
 #### Data
 
 ```{r, include = FALSE}
@@ -139,8 +144,7 @@ d<- d %>%
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor) %>%
-select(Sample,copies_mL, site)
+    copies_mL = copies_uL_extract*concentration_factor)
 
 #MONTHLY
 m<- m %>%
@@ -172,10 +176,19 @@ write_csv(d, here('data', 'processed_data', 'ANOVA Data','va_anova.csv'))
 ```{r}
 per_pos<- d %>% 
  select(copies_assay,Sample) %>%
-  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  summarize_if(is.numeric, mean) %>%
-  ungroup() %>%
+ #group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  #summarize_if(is.numeric, mean) %>%
+  #ungroup() %>%
   mutate(lod = case_when(copies_assay < 8.496 ~ "bad", TRUE ~"good"))
+
+write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'va_copies_assay.csv'))
+```
+
+```{r}
+d<-
+  d %>%
+select(Sample,copies_mL, site)
+
 ```
 
 Replace NaN with 0 for copies/mL

@@ -8,10 +8,16 @@ format:
 #### Libraries
 
 ```{r}
+library(Rmisc)
 library(tidyverse)
 library(here)
 library(ggpubr)
 library(cowplot)
+
+```
+
+```{r}
+here<- here::here
 ```
 
 #### Data
@@ -211,13 +217,15 @@ stat_summary(fun=mean, geom="line",
 cop
 ```
 
-#### Dust
+#### Dust as a box plot
 
 ```{r}
-du<- 
+dust<- 
   dust %>%
-  filter(between(date, as.Date('2022-07-07'),  as.Date('2022-07-19'))) %>%
+  filter(between(date, as.Date('2022-07-07'),  as.Date('2022-07-19'))) 
   
+du<-
+  dust %>%
   ggplot()+ geom_boxplot(
     aes(x = date,
         y = t7sum,
@@ -254,15 +262,117 @@ master_box
 ggsave(here("results", "plots", "dust_cfu_total_boxplots.png" ))
 ```
 
-# Species
+# Plot: Point and SE
 
-#### Vc
+#### CFU
 
 ```{r}
-vc %>%
-  ggplot() + geom_boxplot(
-    aes(x = date,
-        y = copies_mL,
-        group= date)) +
-  facet_wrap(~site)
+pd <- position_dodge(0.1) # move lines .05 to the left and right
+
+cfu<-
+  cfu %>%
+  select(site, date, cfu_mL) 
+
+cfu_sum<- 
+  summarySE(cfu, measurevar="cfu_mL", groupvars=c("site", "date"))
+```
+
+```{r}
+cfu_p<-
+ggplot(cfu_sum, 
+       aes(x=date, 
+           y=cfu_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=cfu_mL-se, 
+          ymax=cfu_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(y = "CFU/mL",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+cfu_p
+```
+
+#### Total Vibrio
+
+```{r}
+copies<-
+  copies %>%
+  select(!Type) %>%
+  mutate(site = recode(site, 
+                       "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+
+copies_sum<- 
+  summarySE(copies, measurevar="copies_mL", groupvars=c("site", "date"))
+```
+
+```{r}
+cop_p<-
+ggplot(copies_sum, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=.5, 
+      position=pd) +
+    geom_line(position=pd) +
+    geom_point(position=pd) +
+  theme_bw()+
+  labs(y = "Gene copies/mL",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+cop_p
+```
+
+#### Dust as a line plot
+
+```{r}
+du<-
+ggplot(dust , 
+       aes(x=date, 
+           y=t7sum)) +
+    geom_line() +
+    geom_point() +
+  theme_bw()+
+  labs(y = "Dust AOD",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))
+du
+```
+
+#### Combine
+
+```{r}
+master_point<-
+ggarrange(cfu_p,cop_p,du,
+            nrow = 3,
+            ncol = 1,
+          align = "v")
+
+master_point
 ```

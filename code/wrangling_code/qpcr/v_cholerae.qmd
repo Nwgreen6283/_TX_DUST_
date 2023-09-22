@@ -16,6 +16,8 @@ library(tidyverse)
 library(here)
 library(ggpubr)
 select<- dplyr::select
+mutate<- dplyr::mutate
+here<-here::here
 ```
 
 #### Load data
@@ -203,8 +205,7 @@ copies<- filter %>%
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor) %>%
-dplyr::select(Sample,copies_mL, site)
+    copies_mL = copies_uL_extract*concentration_factor) 
 
 copies_m<- filter_m %>%
     mutate(
@@ -229,8 +230,7 @@ copies_bo<- filter_bo %>%
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.5,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor) %>%
-dplyr::select(Sample,copies_mL, site,day)
+    copies_mL = copies_uL_extract*concentration_factor) 
 
 copies_bo50<- filter_bo50 %>%
     mutate(
@@ -253,10 +253,30 @@ dplyr::select(Sample,copies_mL, site,day)
 ```{r}
 per_pos<- copies %>% 
   select(copies_assay,Sample) %>%
-  group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  summarize_if(is.numeric, mean) %>%
-  ungroup() %>%
-  mutate(lod = case_when(copies_assay < 17.1 ~ "bad", TRUE ~"good"))
+  filter(!grepl("BO",Sample)) %>%#get rid of old BO
+  drop_na()
+
+copies_bo1<-
+  copies_bo %>%
+  select(copies_assay,Sample) %>%
+  mutate(Sample = sub("_", "", Sample)) %>%
+  drop_na()
+per_pos<-
+rbind(copies_bo1, per_pos) %>%
+
+mutate(lod = case_when(copies_assay < 17.1 ~ "bad", TRUE ~"good")) 
+
+write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'vc_copies_assay.csv'))
+```
+
+```{r}
+copies<-
+  copies %>%
+dplyr::select(Sample,copies_mL, site)
+
+copies_bo<- 
+  copies_bo %>%
+dplyr::select(Sample,copies_mL, site,day)
 ```
 
 Replace NaN with 0 for copies/mL

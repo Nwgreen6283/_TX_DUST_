@@ -33,6 +33,7 @@ Note: This data is pridced in total_copies_calculator code. I kept qPCR triplica
 
 ```{r}
 data<- read_csv(here('data', 'processed_data', 'tx_master.csv'))
+dust<- read_csv(here('data', 'processed_data', 'dust', 'dust_master.csv'))
 ```
 
 # Clean
@@ -129,7 +130,24 @@ r_vc<-
 
 ```
 
+#### Dust
+
+```{r}
+dust<-
+  dust %>%
+  select(date, t7sum) %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))%>%
+  mutate(event = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high"))
+```
+
 # T.test
+
+#### Dust
+
+```{r}
+t.test(t7sum ~ event, data = dust)
+```
 
 #### Total Vibrio
 
