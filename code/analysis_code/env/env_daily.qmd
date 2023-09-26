@@ -21,6 +21,11 @@ library(lubridate)
 #### Load Data
 
 ```{r}
+here<- here::here
+select<-dplyr::select
+```
+
+```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 ```
 
@@ -745,7 +750,7 @@ daily_clean<-
 single<-
   daily_clean %>%
   dplyr::select(date, site,
-         tss)
+         toc)
 
 ```
 
@@ -764,9 +769,9 @@ b<-
 ```
 
 ```{r}
-mean(b$tss)
-mean(c$tss)
-mean(g$tss)
+mean(b$orthop)
+mean(c$do_mgl)
+mean(g$do_mgl)
 ```
 
 ```{r}

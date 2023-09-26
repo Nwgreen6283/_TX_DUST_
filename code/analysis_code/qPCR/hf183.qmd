@@ -14,12 +14,20 @@ format:
 ```{r}
 library(here)
 library(tidyverse)
+library(Rmisc, mask.ok = TRUE)
+```
+
+```{r}
+here<- here::here
+select<- dplyr::select
+mutate<-dplyr::mutate
 ```
 
 #### Data
 
 ```{r, include = FALSE}
 bo<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv"))
+hf<- read_csv(here("data", "processed_data", "ANOVA Data", 'HF183.csv'))
 ```
 
 # Cleaning
@@ -37,6 +45,14 @@ monthly<-
            date %in% as.Date('2022-07-07'))
 ```
 
+#### Triplicates
+
+```{r}
+hf<-
+  hf %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+```
+
 # Plot
 
 #### Daily
@@ -46,16 +62,16 @@ daily %>%
   ggplot() + 
   geom_line(
     aes(x = date, 
-        y = log10(hf_copies_mL)),
-        color = "#809C52")+
+        y = log10(hf_copies_mL)))+
   scale_x_date(date_breaks= "1 day", date_labels = "%b %d")+
   theme_bw() +
   labs(x = "Date",
-       y = "Log10(copies per mL)",
-       title = "HF183 Concentrations at Blind Oso")+
+       y = "Log10(HF183(copies per mL))")+
+       #title = "HF183 Concentrations at Blind Oso")+
        #caption = "Samples diluted 1:10")+
   theme(plot.title = element_text(hjust = 0.5),
-        axis.title.y = element_text(face = "bold"))
+        axis.title.y = element_text(face = "bold", size = 13),
+        axis.title.x = element_text(size = 13))
 
 ggsave(here("results", "plots", "qpcr", "hf183_daily.png"))
 ```
@@ -79,4 +95,49 @@ monthly %>%
        caption = "Samples diluted 1:10")+
   theme(plot.title = element_text(hjust = 0.5))
    
+```
+
+#### Daily Point Plot
+
+```{r}
+hf %>% ggplot() +
+  geom_boxplot(
+    aes(x = date, 
+        #y = hf_copies_mL, 
+        y = log10(1+hf_copies_mL),
+        group = date))+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
+```
+
+```{r}
+#hf<-
+ # hf %>%
+  #mutate(hf_copies_mL = log10(hf_copies_mL))
+hf_sum <- summarySE(hf, measurevar="hf_copies_mL", groupvars=c("date")) 
+```
+
+```{r}
+ggplot(hf_sum, 
+       aes(x=date, 
+           y=hf_copies_mL)) + 
+    geom_errorbar(data = hf_sum,
+      aes(ymin=hf_copies_mL-se, 
+          ymax=hf_copies_mL+se), 
+      width=0.3) +
+    geom_line() +
+    geom_point(data = hf_sum, size = 2)+
+  theme_bw()+
+  labs(x = "Date",
+       y = "HF183 (copies/mL)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = c("Blind Oso" = "#809C52",
+                                "Canals" = "#ba4716",
+                                "Gulf" = "#4c848c"))+
+  theme(axis.text.x = element_text(size =10),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13,face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
 ```

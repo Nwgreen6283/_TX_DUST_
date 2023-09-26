@@ -21,6 +21,11 @@ library(kableExtra)
 #### Data
 
 ```{r}
+here<- here::here
+select<-dplyr::select
+```
+
+```{r}
 dust<- read_csv(here("data", "processed_data", "dust","dust_master.csv")) 
 dust_all<- read_csv(here("data", "processed_data","tx_master.csv")) 
 ```
@@ -63,8 +68,11 @@ ggsave(here("results", "plots", "dust", "dust_daily.png"))
 ```
 
 ```{r}
-dust %>% 
-  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+dust <-
+  dust %>% 
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
+
+dust %>%
   ggplot()+ geom_line(
   aes(x = date,
       y = t7sum))+

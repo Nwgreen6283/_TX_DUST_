@@ -1,7 +1,7 @@
-﻿target,a_lod,dna
-Total Vibrio,1.49,2.5
-Va,7.08,1.2
-Vc,11.4,1.5
-Vp,0.672,1.2
-Vv,0.91,1.2
-Total Bacteria,,2.5
+﻿target,a_lod,dna,assay_vol
+Total Vibrio,1.49,2.5,10
+Va,7.08,1.2,15
+Vc,11.4,1.5,15
+Vp,0.672,1.2,15
+Vv,0.91,1.2,15
+Total Bacteria,,2.5,10

@@ -128,7 +128,7 @@ filter(!is.na(date))
 #### Save for ANOVA
 
 ```{r}
-write_csv(b, here('data', 'processed_data', 'qpcr', 'ANOVA Data', 'HF183.csv'))
+write_csv(b, here('data', 'processed_data', 'ANOVA Data', 'HF183.csv'))
 ```
 
 #### Take Average

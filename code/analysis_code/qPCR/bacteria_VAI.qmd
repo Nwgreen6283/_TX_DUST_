@@ -7,6 +7,11 @@ format:
 
 **Viz VAI**
 
+```{r}
+here<-here::here
+select<- dplyr::select
+```
+
 # Intro
 
 #### LIbrary
@@ -19,7 +24,7 @@ library(tidyverse)
 #### Data
 
 ```{r, include = FALSE}
-master<- read_csv(here("data", "processed_data", "tx_master.csv"))
+master<- read_csv(here::here("data", "processed_data", "tx_master.csv"))
 ```
 
 # Cleaning
@@ -45,6 +50,10 @@ monthly<-
 
 # Plot
 
+```{r}
+cbbPalette <- c("#009E73", "#D55E00", "#56B4E9" )
+```
+
 #### Daily Total Bacteria
 
 ```{r}
@@ -64,9 +73,7 @@ daily %>%
         axis.title.y = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c")) +
+  scale_color_manual(values = cbbPalette) +
   scale_x_date(date_breaks = "2 day", date_labels = "%b%d")
   
 ggsave(here("results", "plots", "qpcr", "total_bacteria.png"))
@@ -118,9 +125,7 @@ daily %>%
         axis.title.y = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c")) +
+  scale_fill_manual(values = cbbPalette) +
   scale_x_date(date_breaks = "2 day", date_labels = "%b%d")
 
   ggsave(here("results", "plots", "qpcr", "vai.png"))

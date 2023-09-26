@@ -46,7 +46,7 @@ vv<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vv_copies_assay.csv
 ```{r}
 d1<-
   d %>%
-  mutate(m_lod = a_lod*dna, #Methodical LOD (copies/assay)
+  mutate(m_lod = a_lod*assay_vol, #Methodical LOD (copies/assay)
          non_detect = 0.5*m_lod) #Values to make for non-detects (50% of a_LOD)
 
 print(d1)

@@ -2,8 +2,8 @@
 
 ## This R script performs probit analysis on the data from a real-time PCR
 ## experiment. A probit model is used to compute the effective dose of template,
-## expressed as the number of copies per assay, that is required to achieve a
-## given probability (e.g., 50%, 95%) of observing a positive RT-PCR assay.
+## expressed as the number of copies per µL, that is required to achieve a
+## given probability (e.g., 50%, 95%) of observing a positive RT-PCR µL
 
 ## The code depends on R packages `drc` and `openxlsx`. In addition, the script
 ## reads in the raw data saved to an external file, `probit_raw_data_en.txt`.
@@ -33,7 +33,7 @@
 ##         100000          10      10
 ## - The left column is the number of copies of template for each condition. I
 ##   recommend at least six conditions. A series from 0.1 to 100,000 copies per
-##   assay should work fine.
+##   µL should work fine.
 ## - The middle column is the number of positive reactions observed at each
 ##   template point.
 ## - The right column is the total number of replicate reactions (usually 10)

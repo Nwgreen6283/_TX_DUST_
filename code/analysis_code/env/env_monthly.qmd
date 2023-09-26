@@ -19,10 +19,15 @@ library(lubridate)
 library(kableExtra) #Tables
 ```
 
+```{r}
+here<- here::here
+```
+
 #### Data
 
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+env<- read_csv(here("data", "processed_data", "env", "env_meta.csv"))
 ```
 
 # Cleaning
@@ -37,6 +42,22 @@ monthly<- d1 %>%
   mutate(Type = case_when(d1$date == "2022-07-18"  ~ "Monthly", #This makes 7-18-22 a monthly value for July
                           d1$Type == "Monthly" ~ "Monthly")) %>%
   filter(Type %in% "Monthly") 
+```
+
+#### Meta Data
+
+```{r}
+env<- 
+  env %>%
+  dplyr::select(Date, Site, Water_depth) %>%
+  filter(!between(Date, as.Date('2022-07-07'), as.Date("2022-07-17")),
+         !Date %in% as.Date('2022-07-19'),
+         !grepl('-', Water_depth),
+         !Date %in% (c(as.Date('2022-06-28'), as.Date('2022-05-20'), as.Date('2022-05-24'), as.Date('2022-07-05')))) %>%
+  unique() %>%
+  drop_na() %>%
+  mutate(Water_depth = as.numeric(Water_depth))
+
 ```
 
 # Plots
@@ -840,10 +861,30 @@ ggsave(here("results", "plots", "env_monthly.png"))
 yeet<-
   monthly %>%
   dplyr::select(date, site, hr_cst,
-        sal ) %>%
-  filter(site %in% "Gulf",
+        sal, temp, orthop, nn, amm ) %>%
+  filter(#site %in% "Gulf",
          !date == as.Date('2022-05-24') & !date == as.Date('2022-05-20'),
          hr_cst %in% "01" | hr_cst %in% "00")
+```
+
+```{r}
+bo<-
+  yeet %>%
+  filter(site %in% "Blind Oso")
+
+c2<-
+  yeet %>%
+  filter(site %in% "Canals")
+
+rd<-
+  yeet %>%
+  filter(site %in% "Gulf")
+```
+
+```{r}
+write_csv(bo, here('data', 'processed_data', 'env', 'bo_thesis.csv'))
+write_csv(c2, here('data', 'processed_data', 'env', 'c2_thesis.csv'))
+write_csv(rd, here('data', 'processed_data', 'env', 'rd_thesis.csv'))
 ```
 
 # Monthly Averages
@@ -908,6 +949,24 @@ average_df<-
              OrthoP = c(b_orthop, c_orthop, r_orthop),
              Amm = c(b_amm, c_amm, r_amm))
 kable(average_df)
+```
+
+```{r}
+b_env<-
+  env %>%
+  filter(Site %in% "BO")
+
+c_env<-
+  env %>%
+  filter(Site %in% "C2")
+
+r_env<-
+  env %>%
+  filter(Site %in% c("RD6", "PCS"))
+
+mean(b_env$Water_depth)
+mean(c_env$Water_depth)
+mean(r_env$Water_depth)
 ```
 
 # Plot

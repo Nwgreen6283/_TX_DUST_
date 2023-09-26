@@ -14,6 +14,7 @@ library(here)
 library(tidyverse)
 library(multcomp)
 select<- dplyr::select
+here<- here::here
 ```
 
 #### Data
@@ -34,6 +35,7 @@ Note: This data is pridced in total_copies_calculator code. I kept qPCR triplica
 ```{r}
 data<- read_csv(here('data', 'processed_data', 'tx_master.csv'))
 dust<- read_csv(here('data', 'processed_data', 'dust', 'dust_master.csv'))
+hf<- read_csv(here('data', 'processed_data', 'qpcr', 'hf183', 'bo_hf183.csv'))
 ```
 
 # Clean
@@ -141,7 +143,48 @@ dust<-
                           date > as.Date('2022-07-12') ~ "high"))
 ```
 
+#### HF183
+
+```{r}
+hf<-
+  hf %>%
+  filter(type %in% "Daily") %>%
+  select(date, hf_copies_mL) %>%
+  mutate(event = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high"))
+```
+
+#### Bacteria
+
+```{r}
+bact<-
+  t %>%
+  select(date, tot_bacteria, site) %>%
+  mutate(event = case_when(date <= as.Date('2022-07-12') ~ "low",
+                          date > as.Date('2022-07-12') ~ "high"))
+
+b_bac<-
+  bact %>%
+  filter(site %in% "Blind Oso")
+
+c_bac<-
+  bact %>%
+  filter(site %in% "Canals")
+
+r_bac<-
+  bact %>%
+  filter(site %in% "Gulf")
+```
+
 # T.test
+
+#### Bacteria
+
+```{r}
+t.test(tot_bacteria ~ event, data = b_bac)
+t.test(tot_bacteria ~ event, data = c_bac)
+t.test(tot_bacteria ~ event, data = r_bac)
+```
 
 #### Dust
 
@@ -188,6 +231,12 @@ t.test(Vc ~ dust, data = b_vc)
 t.test(Vc ~ dust, data = r_vc)
 ```
 
+#### HF183
+
+```{r}
+t.test(hf_copies_mL ~ event, data = hf)
+```
+
 # Find X Fold increases
 
 **Averages of high and lo dust days taken and (F-I)/I**
@@ -231,18 +280,18 @@ r_fold<-
 b_vc_fold<- 
   b_vc %>%
   group_by(dust) %>%
-  summarise_at(vars(copies_mL), list(name = mean))
+  summarise_at(vars(Vc), list(name = mean))
   ((b_vc_fold[1,2]  - b_vc_fold[2,2] ) / b_vc_fold[2,2])*100
 
 b_vv_fold<- 
   b_vv %>%
   group_by(dust) %>%
-  summarise_at(vars(copies_mL), list(name = mean))
+  summarise_at(vars(Vv), list(name = mean))
   ((b_vv_fold[1,2]  - b_vv_fold[2,2] ) / b_vv_fold[2,2])*100
 
 r_vc_fold<- 
   r_vc %>%
   group_by(dust) %>%
-  summarise_at(vars(copies_mL), list(name = mean))
+  summarise_at(vars(Vc), list(name = mean))
   ((r_vc_fold[1,2]  - r_vc_fold[2,2] ) / r_vc_fold[2,2])*100
 ```
