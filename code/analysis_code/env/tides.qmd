@@ -1,0 +1,66 @@
+---
+title: "tides"
+format:
+  html:
+    theme: default
+---
+
+#### Libs
+
+```{r}
+library(tidyverse)
+library(here)
+library(anytime) 
+
+```
+
+#### DATA
+
+```{r}
+t<- read_csv(here('data', 'processed_data', 'env', 'tides.csv'))
+col<-read_csv(here('data', 'processed_data', 'env', 'collection_times.csv'))
+```
+
+# Clean
+
+#### TIdes
+
+```{r}
+t <-
+  t %>%
+  mutate(date_time = anytime(paste(date,time)))
+
+```
+
+#### Collection Times
+
+```{r}
+col <-
+  col %>%
+  mutate(date_time = anytime(paste(date,time))) %>% 
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')), #Daily
+         site %in% c("RD6", "PCS")) #Gulf
+```
+
+# Plot
+
+```{r}
+t %>%
+ggplot() +
+  geom_line(
+    aes(x = date_time, 
+        y = mllw),
+    color = "blue",
+    size = 1)+
+  scale_x_datetime(date_breaks = "1 day", date_labels = "%b %d")+
+  
+  #Gulf Sample Collection Time
+  geom_vline(xintercept = col$date_time, linetype = "dotdash") +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Mean Low Low Water",
+       caption = "For Gulf site only",
+       title = "Tidal Chart")
+
+ggsave(here('results', 'plots', 'env', 'tides.png'))
+```

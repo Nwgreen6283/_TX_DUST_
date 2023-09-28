@@ -5,6 +5,8 @@ format:
     theme: default
 ---
 
+**After Wrangling qPCR triplicate data, run this code to get point shape etc. And then run boxplot codde**
+
 #### Library
 
 ```{r}

@@ -85,7 +85,7 @@ ggsave(here("results", "plots", "qpcr", "total_bacteria.png"))
 clean <-
   daily %>%
   filter(hr_cst %in% "01") %>%
-  dplyr::select(site, date,tot_bacteria)
+  dplyr::select(site, date,VAI)
 
 b<-
   clean %>%
@@ -101,9 +101,9 @@ r<-
 ```
 
 ```{r}
-mean(b$tot_bacteria)
-mean(r$tot_bacteria)
-mean(c$tot_bacteria)
+mean(b$VAI)
+mean(r$VAI)
+mean(c$VAI)
 ```
 
 #### Daily VAI

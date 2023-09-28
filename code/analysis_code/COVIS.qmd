@@ -1,0 +1,56 @@
+---
+title: "COVIS"
+format:
+  html:
+    theme: default
+---
+
+#### Libs
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r}
+covis<- read_csv(here('data', 'processed_data', 'COVIS.csv'))
+```
+
+# Clean
+
+```{r}
+tx<-
+  covis %>%
+  filter(STATE %in% "TX")
+
+vp_tx<-
+  covis %>%
+  filter(STATE %in% "TX",
+         SpeciesDesignation %in% "PAR")
+
+vv_tx<-
+  covis %>%
+  filter(STATE %in% "TX",
+         SpeciesDesignation %in% "VUL")
+```
+
+# Plot
+
+```{r}
+tx %>% 
+ggplot()+ geom_bar(
+  aes(x = Year,
+      color = SpeciesDesignation)
+)
+```
+
+```{r}
+vp_tx %>%
+  ggplot()+
+  geom_bar(
+    aes(x = Month,
+        color = Year)
+  )
+```

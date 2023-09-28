@@ -25,6 +25,13 @@ library(naniar)
 library(corrtable) #This is a good package for making corrleation tables as opposed to matrices
 ```
 
+```{r}
+here<- here::here
+select<-dplyr::select
+mutate<-dplyr::mutate
+rename<-dplyr::rename
+```
+
 #### Data
 
 Site data sets have lags incorporated (made in `MASTER_MAKER.qmd`)

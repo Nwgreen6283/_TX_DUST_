@@ -79,7 +79,7 @@ copies<- filter %>%
    mutate(
     copies_uL_extract = SQ *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     copies_assay = copies_uL_extract * 1.2,
-    copies_assay= case_when(copies_assay == "NaN" ~ 0.4, #50% LOD
+    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 0.8064) ~ 0.4032, #50% LOD
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
@@ -211,7 +211,7 @@ copies<- filter %>%
    sq = 10^log_sq, #Unlog 
     copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
     copies_assay = copies_uL_extract * 1.2,
-    copies_assay= case_when(copies_assay == "NaN" ~ 0.4, #50% LOD
+    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 0.8064) ~ 0.4032, #50% LOD
                      TRUE ~ copies_assay),
     copies_uL_extract = copies_assay / 1.2,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)

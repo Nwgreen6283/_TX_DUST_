@@ -5,6 +5,8 @@ format:
     theme: default
 ---
 
+**Run this after cleaning qPCR code, and running LOD µL to assay code**
+
 #### Libraries
 
 ```{r}
@@ -31,7 +33,7 @@ vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
 vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
 vp<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
 
-#Above/Below Data
+#Above/Below Data from LOD µL to assay code
 va1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'va_above_below.csv'))
 vc1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vc_above_below.csv'))
 vp1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vp_above_below.csv'))
@@ -154,6 +156,11 @@ vv_sum<-
 # Plot
 
 ```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
+cbbPalette2 <-c( "#BB5566", "#004488" )
+```
+
+```{r}
 pd <- position_dodge(0.1) # move lines .05 to the left and right
 ```
 
@@ -174,21 +181,20 @@ ggplot(vv_sum1,
     geom_errorbar(data = vv_sum1[vv_sum1$point_shape == "16",],
       aes(ymin=copies_mL-se, 
           ymax=copies_mL+se), 
+      size = 1,
       width=0.3) +
     geom_errorbar( data = vv_sum1[vv_sum1$point_shape == "1" ,],
       aes(ymin=0, 
           ymax=0, 
       width=0)) +
-    geom_line() +
-    geom_point(data = vv_sum1, shape= vv_sum1$point_shape, size = 2)+
+    geom_line(size = 1) +
+    geom_point(data = vv_sum1, shape= vv_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
        y = "V. vulnificus (copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
+  scale_color_manual(values = cbbPalette2)+
   theme(axis.text.x = element_text(size =10),
         axis.title.x = element_text(size = 13),
         axis.title.y = element_text(size = 13,face = "bold"),
@@ -212,21 +218,20 @@ ggplot(vv_sum1,
     geom_errorbar(data = vv_sum1[vv_sum1$point_shape == "16",],
       aes(ymin=copies_mL-se, 
           ymax=copies_mL+se), 
-      width=0.3) +
+      width=0.3,
+      size = 1) +
     geom_errorbar( data = vv_sum1[vv_sum1$point_shape == "1" ,],
       aes(ymin=0, 
           ymax=0, 
       width=0)) +
-    geom_line() +
-    geom_point(data = vv_sum1, shape= vv_sum1$point_shape, size = 2)+
+    geom_line(size = 1) +
+    geom_point(data = vv_sum1, shape= vv_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
        y = "V. vulnificus (copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
+  scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -258,9 +263,7 @@ ggplot(va_sum,
   labs(y = "log10(V. alginolyticus)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
+scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
@@ -283,21 +286,20 @@ ggplot(vc_sum1,
     geom_errorbar(data = vc_sum1[vc_sum1$point_shape == "16",],
       aes(ymin=copies_mL-se, 
           ymax=copies_mL+se), 
-      width=0.3) +
+      width=0.3,
+      size = 1) +
     geom_errorbar( data = vc_sum1[vc_sum1$point_shape == "1" ,],
       aes(ymin=0, 
           ymax=0), 
       width=0) +
-    geom_line() +
-    geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2)+
+    geom_line(size = 1) +
+    geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
        y = "V. cholerae (gene copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
+  scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
@@ -320,21 +322,20 @@ ggplot(vc_sum1,
     geom_errorbar(data = vc_sum1[vc_sum1$point_shape == "16",],
       aes(ymin=copies_mL-se, 
           ymax=copies_mL+se), 
-      width=0.3) +
+      width=0.3,
+      size = 1) +
     geom_errorbar( data = vc_sum1[vc_sum1$point_shape == "1" ,],
       aes(ymin=0, 
           ymax=0), 
       width=0) +
-    geom_line() +
-    geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2)+
+    geom_line(size = 1) +
+    geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
        y = "V. cholerae (gene copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c"))+
+  scale_color_manual(values = cbbPalette2)+
   theme(axis.text.x = element_text(size = 10),
         #axis.ticks.x = element_blank(),
         axis.title.x = element_text(size = 13),
@@ -367,9 +368,7 @@ ggplot(vp_sum,
        y = "log10(V. parahaemolyticus)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c")) +
+  scale_color_manual(values = cbbPalette)+ 
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         legend.position = "none")
 vp_p
@@ -377,7 +376,7 @@ vp_p
 
 #### Combine
 
-```{r, fig.height=3}
+```{r, fig.height= 3}
 ggarrange(vc_bo, vv_bo, vc_c2_rd, vv_c2_rd,
           nrow = 2,
           ncol = 2,

@@ -41,6 +41,10 @@ dust<-
 
 # Plot
 
+```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
+```
+
 #### Temp
 
 ```{r}
@@ -62,13 +66,11 @@ temp<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     #legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 temp
 ```
 
@@ -93,13 +95,11 @@ sal<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 sal
 ```
 
@@ -124,13 +124,11 @@ do<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 do
 ```
 
@@ -155,13 +153,11 @@ orthop<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 orthop
 ```
 
@@ -186,13 +182,11 @@ nn<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+   scale_color_manual(values = cbbPalette)
 nn
 ```
 
@@ -217,13 +211,11 @@ amm<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+scale_color_manual(values = cbbPalette)
 amm
 ```
 
@@ -248,14 +240,11 @@ sil<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
-sil
+    scale_color_manual(values = cbbPalette)
 ```
 
 #### TDN
@@ -279,13 +268,11 @@ tdn<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 tdn
 ```
 
@@ -310,13 +297,11 @@ toc<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 toc
 ```
 
@@ -341,13 +326,11 @@ tss<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 tss
 ```
 
@@ -365,20 +348,18 @@ chl<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Chlorophyl a",
+    y = "Chlorophyll-a (µg/L)",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     #axis.title.x = element_blank(),
     #axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none")+
    # legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 chl
 ```
 
@@ -401,7 +382,7 @@ dusty<-
     #axis.title.x = element_blank(),
     #axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7))
 dusty
 ```
@@ -427,13 +408,11 @@ don<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 ```
 
 #### TN
@@ -457,13 +436,11 @@ tn<-
     #axis.title.x = element_blank(),
     #axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 ```
 
 #### DIN
@@ -487,18 +464,16 @@ din<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 11, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 ```
 
 # Combine
 
-```{r, fig.height=7.5, fig.width=6.5}
+```{r, fig.height=6.5, fig.width=4}
 fig<- ggarrange(temp,
                 sal,
                 do,

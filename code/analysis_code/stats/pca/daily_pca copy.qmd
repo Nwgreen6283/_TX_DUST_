@@ -68,12 +68,12 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 vibrio<-
   master %>%
-  select(site, date,copies_mL, cfu_tot, Vc, Vv, temp, sal, tss, toc, doc, don, nn, amm, dust_lag)
+  select(site, date,copies_mL, cfu_tot, Vc, Vv, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, chl)
 
 
 bacteria<- 
   master %>%
-  select(site, date, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, tot_bacteria, do_mgl)
+  select(site, date, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, tot_bacteria, do_mgl, chl)
 
 vibrio<-
   vibrio %>%
@@ -86,7 +86,9 @@ vibrio<-
          "NO2-NO3" = "nn",
          "Total_Vibrio" = "copies_mL",
          "Vibrio_CFU" = "cfu_tot",
-         "NH4+" = "amm")
+         "NH4+" = "amm",
+         "Chlorophyll-a" = "chl",
+         "24_h_lag_Dust" = "dust_lag")
 
 bacteria<-
   bacteria %>%
@@ -221,9 +223,7 @@ fviz_pca_biplot(daily_pca,
   theme_bw()+
   labs(pointsize= "Site")+
   theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-  scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "#4c848c")) 
+  scale_color_manual(values = c("#DDAA33", "#BB5566", "#004488"))  
   #geom_text(aes(label =  master$date), size = 2.5, fontface = "bold", position = position_jitter(width = 0.7, height = 0.4))+
 #  stat_ellipse(aes(color = PC$site))
 
@@ -279,17 +279,19 @@ fviz_eig(daily_pca,
 b<-
   vibrio %>%
   filter(site %in% "Blind Oso") %>%
-  select(!site)
+  select(!site) 
 
 c<-
   vibrio %>%
   filter(site %in% "Canals")%>%
   select(!site)
 
+
 r<-
   vibrio %>%
   filter(site %in% "Gulf")%>%
   select(!site)
+
 ```
 
 ### PCA
@@ -321,7 +323,7 @@ fviz_pca_biplot(bo_pca,
                 col.var = "#809C52",
                 #habillage  = bo_PC$date,
                 title = "Blind Oso Biplot", geom="null")  +
-  geom_text(aes(label =  bo_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  geom_text(aes(label = b$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
   theme_bw()
 
 ggsave(here("results", "plots", "pca", "pca_bo.png"))
@@ -334,7 +336,7 @@ fviz_pca_biplot(c2_pca,
                 col.var = "#ba4716",
                 #habillage  = bo_PC$date,
                 title = "Canals Biplot", geom="null") +
-  geom_text(aes(label =  c2_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  geom_text(aes(label =  c$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
   theme_bw()
 
 ggsave(here("results", "plots", "pca", "pca_c2.png"))
@@ -348,7 +350,7 @@ fviz_pca_biplot(rd_pca,
                 col.var = "4c848c",
                 #habillage  = bo_PC$date,
                 title = "Gulf Biplot", geom="null") +
-  geom_text(aes(label =  rd_d$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
+  geom_text(aes(label =  r$date), fontface = "bold", position = position_jitter(width = 0.7, height = 0.4)) +
   theme_bw()
 
 ggsave(here("results", "plots", "pca", "pca_rd.png"))

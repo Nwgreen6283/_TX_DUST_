@@ -1,0 +1,433 @@
+
+	<datainfo>
+		<origin>NOAA/NOS/CO-OPS</origin>
+		<disclaimer>
+		Disclaimer: These data are based upon the latest information available as of the date of your request, and may differ from the published tide tables.
+		</disclaimer>
+	<datarange>Daily</datarange>
+		<producttype>Tide Prediction</producttype>
+		<stationname>Bob Hall Pier, Corpus Christi</stationname>
+		<state>TX</state>
+		<stationid>8775870</stationid>
+	
+		<stationtype>Harmonic</stationtype>
+		<BeginDate>20220707 02:46</BeginDate>
+		<EndDate>20220719 21:57</EndDate>
+		
+		<dataUnits>Feet</dataUnits>
+		 
+	<Timezone>LST_LDT</Timezone>
+	<Datum>MLLW</Datum>
+	<IntervalType>High/Low</IntervalType>
+	<data>
+	
+			<item>
+				<date>2022/07/07</date>
+				<day>Thu</day>
+		
+				<time>02:46 AM</time>
+			
+				<pred>0.64</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/07</date>
+				<day>Thu</day>
+		
+				<time>09:06 AM</time>
+			
+				<pred>1.05</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/07</date>
+				<day>Thu</day>
+		
+				<time>04:42 PM</time>
+			
+				<pred>0.27</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/08</date>
+				<day>Fri</day>
+		
+				<time>12:04 AM</time>
+			
+				<pred>1.07</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/08</date>
+				<day>Fri</day>
+		
+				<time>04:55 AM</time>
+			
+				<pred>0.96</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/08</date>
+				<day>Fri</day>
+		
+				<time>08:48 AM</time>
+			
+				<pred>1.04</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/08</date>
+				<day>Fri</day>
+		
+				<time>05:10 PM</time>
+			
+				<pred>-0.04</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/09</date>
+				<day>Sat</day>
+		
+				<time>01:57 AM</time>
+			
+				<pred>1.34</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/09</date>
+				<day>Sat</day>
+		
+				<time>05:49 PM</time>
+			
+				<pred>-0.36</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/10</date>
+				<day>Sun</day>
+		
+				<time>03:25 AM</time>
+			
+				<pred>1.62</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/10</date>
+				<day>Sun</day>
+		
+				<time>06:37 PM</time>
+			
+				<pred>-0.63</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/11</date>
+				<day>Mon</day>
+		
+				<time>04:21 AM</time>
+			
+				<pred>1.83</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/11</date>
+				<day>Mon</day>
+		
+				<time>07:32 PM</time>
+			
+				<pred>-0.84</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/12</date>
+				<day>Tue</day>
+		
+				<time>05:18 AM</time>
+			
+				<pred>1.95</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/12</date>
+				<day>Tue</day>
+		
+				<time>08:28 PM</time>
+			
+				<pred>-0.96</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/13</date>
+				<day>Wed</day>
+		
+				<time>06:17 AM</time>
+			
+				<pred>1.97</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/13</date>
+				<day>Wed</day>
+		
+				<time>09:23 PM</time>
+			
+				<pred>-0.97</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/14</date>
+				<day>Thu</day>
+		
+				<time>07:07 AM</time>
+			
+				<pred>1.89</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/14</date>
+				<day>Thu</day>
+		
+				<time>10:19 PM</time>
+			
+				<pred>-0.86</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/15</date>
+				<day>Fri</day>
+		
+				<time>07:45 AM</time>
+			
+				<pred>1.73</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/15</date>
+				<day>Fri</day>
+		
+				<time>11:20 PM</time>
+			
+				<pred>-0.64</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/16</date>
+				<day>Sat</day>
+		
+				<time>08:06 AM</time>
+			
+				<pred>1.53</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/17</date>
+				<day>Sun</day>
+		
+				<time>12:23 AM</time>
+			
+				<pred>-0.35</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/17</date>
+				<day>Sun</day>
+		
+				<time>08:13 AM</time>
+			
+				<pred>1.33</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/17</date>
+				<day>Sun</day>
+		
+				<time>02:15 PM</time>
+			
+				<pred>1.01</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/17</date>
+				<day>Sun</day>
+		
+				<time>05:11 PM</time>
+			
+				<pred>1.10</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/18</date>
+				<day>Mon</day>
+		
+				<time>01:20 AM</time>
+			
+				<pred>0.01</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/18</date>
+				<day>Mon</day>
+		
+				<time>08:17 AM</time>
+			
+				<pred>1.16</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/18</date>
+				<day>Mon</day>
+		
+				<time>02:35 PM</time>
+			
+				<pred>0.73</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/18</date>
+				<day>Mon</day>
+		
+				<time>07:11 PM</time>
+			
+				<pred>0.99</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/19</date>
+				<day>Tue</day>
+		
+				<time>02:13 AM</time>
+			
+				<pred>0.39</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/19</date>
+				<day>Tue</day>
+		
+				<time>08:21 AM</time>
+			
+				<pred>1.06</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/19</date>
+				<day>Tue</day>
+		
+				<time>03:09 PM</time>
+			
+				<pred>0.45</pred>
+			
+			<highlow>L</highlow>
+			
+			</item>
+		
+			<item>
+				<date>2022/07/19</date>
+				<day>Tue</day>
+		
+				<time>09:57 PM</time>
+			
+				<pred>0.98</pred>
+			
+			<highlow>H</highlow>
+			
+			</item>
+		
+		</data>
+</datainfo>

@@ -16,6 +16,7 @@ library(cowplot)
 library(gridExtra)
 library(scales)
 library(ggthemes)
+
 ```
 
 ```{r}
@@ -45,10 +46,10 @@ data<-
 
 # Plot
 
-#### Color-blind pallete
+#### Color-blind pallete: https://personal.sron.nl/\~pault/#sec:qualitative
 
 ```{r}
-cbbPalette <- c("#009E73", "#CC79A7", "#56B4E9" )
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
 show_col(colorblind_pal()(8))
 
 ```
@@ -257,7 +258,7 @@ du_box
 
 #### Combine
 
-```{r, fig.width=8, fig.height=8}
+```{r}
 master_box<-
 ggarrange(cf,cop,du_box,
             nrow = 3,

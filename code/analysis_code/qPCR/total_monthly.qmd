@@ -35,6 +35,10 @@ monthly<- d1 %>%
 
 # Plot
 
+```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488")
+```
+
 #### ALL
 
 ```{r}
@@ -63,9 +67,7 @@ fig3 <- monthly %>%
     legend.position = "none")+ #Removes legend
  scale_x_date(date_breaks="1 month", date_labels="%b")+
 
-scale_color_manual(values = c("Blind Oso" = "#809C52",
-                              "Canals" = "#ba4716",
-                              "Gulf" = "4c848c"))
+scale_color_manual(values = cbbPalette)
 fig3
 
  ggsave(here("results", "plots", "qpcr","total_vib__monthly.png"))
@@ -194,7 +196,5 @@ d1 %>%
     legend.position = "none")+ #Removes legend
  scale_x_date(date_breaks="1 month", date_labels="%b")+
 
-scale_color_manual(values = c("Blind Oso" = "#809C52",
-                              "Canals" = "#ba4716",
-                              "Gulf" = "4c848c"))
+scale_color_manual(values = cbbPalette)
 ```

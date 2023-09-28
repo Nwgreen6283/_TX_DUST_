@@ -45,6 +45,10 @@ daily<- d1 %>%
 #### Temperature
 
 ```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488")
+```
+
+```{r}
 temp<- 
   daily %>% 
   ggplot() + 
@@ -68,16 +72,13 @@ temp<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "temp.png"))
 ```
@@ -107,17 +108,13 @@ sal<- daily %>%
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
-
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
 ggsave(here("results", "plots", "env", "salinity.png"))
 sal
 ```
@@ -141,16 +138,14 @@ do<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DO.png"))
 do
@@ -178,18 +173,16 @@ nn<-
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
    # legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
    # legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
    # legend.text = element_text(size = 7)) + #Moves legend onto plot  + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "NN.png"))
-nn
+
 ```
 
 #### Orthophosphate
@@ -213,14 +206,11 @@ ortho<-
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
-
+    scale_color_manual(values = cbbPalette)
 ggsave(here("results", "plots", "env", "orthop.png"))
 ortho
 
@@ -251,9 +241,7 @@ don<-
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DON.png"))
 ```
@@ -283,9 +271,7 @@ doc<-
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DOC.png"))
 doc
@@ -312,13 +298,11 @@ toc<-
     #axis.title.x = element_blank(),
     #axis.text.x = element_blank(),
     #axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "TOC.png"))
 toc
@@ -350,9 +334,7 @@ pH<-
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "pH.png"))
 ```
@@ -379,13 +361,11 @@ amm<-
     #axis.title.x = element_blank(),
     #axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "amm.png"))
 amm
@@ -417,9 +397,7 @@ tn<-
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "TN.png"))
 tn
@@ -451,9 +429,7 @@ sil<-
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "silicate.png"))
 ```
@@ -483,9 +459,7 @@ tdn<-
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "TDN.png"))
 tdn
@@ -516,9 +490,7 @@ din_dip<-
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DIN_DIP.png"))
 ```
@@ -548,9 +520,7 @@ din<-
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DIN.png"))
 ```
@@ -580,11 +550,10 @@ secchi<-
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "secchi.png"))
+secchi
 ```
 
 #### Chlorophyll
@@ -601,22 +570,21 @@ chl<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Chlorophyl (µg/L)",
+    y = "Chl-a (µg/L)",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
    # axis.title.x = element_blank(),
    # axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
-    legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    legend.position = "top")+
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "chla.png"))
+
 chl
 
 ```
@@ -639,16 +607,14 @@ tss<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-   # axis.ticks.x = element_blank(),
-   # axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+   axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "tss.png"))
 tss
@@ -695,9 +661,7 @@ cop<-
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
     legend.text = element_text(size = 10)) + #Moves legend onto plot 
-    scale_color_manual(values = c("Blind Oso" = "#809C52",
-                                "Canals" = "#ba4716",
-                                "Gulf" = "4c848c"))
+    scale_color_manual(values = cbbPalette)
   # annotate("text", x = as.Date('2022-07-09'), y = 115000, label = "r = 0.70", color = "#809C52") + #BO
    #annotate("text", x = as.Date('2022-07-09'), y = 100100, label = "r = 0.75", color = "#ba4716") + #C2
    #annotate("text", x = as.Date('2022-07-09'), y = 85000, label = "r = 0.67", color = "4c848c") #RD
@@ -705,38 +669,71 @@ cop<-
 ggsave(here("results", "plots", "env", "total_vib.png"))
 ```
 
-#### ALL
+# Temp/Sal
 
 ```{r}
 fig<- ggarrange(temp,
-                sal,
-                nn,
-                ortho,
-                amm +
+                sal+
+                #nn,
+                #ortho,
+                #amm,
                 #din,
                 #don,
                 #doc,
-                #toc,
+                #toc+
+                #pH,
+                #tss,
+                #tn,
+                #sil,
+                #cop,
+                #tdn,
+               # do+
+                #secchi,
+                #din_dip,
+                #chl+
+                font("x.text", size = 8.5),
+                ncol = 1, 
+                nrow = 2,
+                align = "v",
+                common.legend  = TRUE)
+
+fig
+
+
+```
+
+# Chl,TSS, DO
+
+```{r}
+fig<- ggarrange(#temp,
+                #sal+
+                #nn,
+                #ortho,
+                #amm,
+                #din,
+                #don,
+                #doc,
+                tss,
+                #toc+
                 #pH,
                 #tn,
                 #sil,
                 #cop,
                 #tdn,
-                #do,
+                do,
                 #secchi,
                 #din_dip,
-                #chl+
+                chl+
                 font("x.text", size = 8.5),
-                ncol = 2, 
+                ncol = 1, 
                 nrow = 3,
-                align = "v")
+                align = "v",
+                common.legend  = TRUE)
 
 fig
 
 ggsave(here("results", "plots", "env.png"))
 ```
-
-# 
 
 # Make clean datatable for writing
 
@@ -774,10 +771,13 @@ mean(c$do_mgl)
 mean(g$do_mgl)
 ```
 
+#### N, AMM, PO, TOC
+
 ```{r}
-ggarrange(nn,ortho,amm+
+ggarrange(nn,ortho,amm, toc+
             font("x.text", size = 8.5),
-          nrow = 3,
-          ncol = 1,
-          align = "v")
+          nrow = 2,
+          ncol = 2,
+          align = "v",
+          common.legend = TRUE)
 ```
