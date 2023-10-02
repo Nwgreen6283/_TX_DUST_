@@ -70,6 +70,25 @@ dust %>%
 ggsave(here("results", "plots", "dust_2022.png"))
 ```
 
+#### July Whole Month 
+
+```{r}
+dust %>%
+  filter(date %in% as.Date('2022-07-01') : as.Date('2022-07-31'))%>%
+  ggplot() + geom_line(
+    aes(x = date,
+        y = SUM)) +
+  theme_bw()+
+  labs(
+    title = "Dust Aerosol Optical Density in July 2022",
+    x = "",
+    y = "Dust AOD")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(hjust= 1, angle = 45))  + 
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")
+ 
+```
+
 #### May Dust Event
 
 ```{r}

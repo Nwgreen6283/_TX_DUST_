@@ -51,7 +51,7 @@ monthly<-
 # Plot
 
 ```{r}
-cbbPalette <- c("#009E73", "#D55E00", "#56B4E9" )
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
 ```
 
 #### Daily Total Bacteria
@@ -188,3 +188,32 @@ monthly %>%
 ```
 
 <!--# NEED TO RECHECK MELTCURVES -->
+
+#### Total Bacteria Box plot
+
+```{r}
+bac<-read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+```
+
+```{r}
+bac %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = log10(copies_mL),
+        color = site,
+        group = interaction(site,date)),
+    position = "identity")+
+  scale_color_manual(values = cbbPalette) +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = log10(copies_mL),
+                 group=site, 
+                 color = site)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "log10(copies/mL)",
+       color = "Site")+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
+  
+```

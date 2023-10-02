@@ -27,6 +27,11 @@ select<-dplyr::select
 
 ```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+env<- read_csv(here("data", "processed_data", "env", "env_meta.csv"))
+bac<-read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+
+
+
 ```
 
 # Cleaning
@@ -38,6 +43,19 @@ daily<- d1 %>%
   filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
   filter(!date %in% as.Date('2022-07-10')) %>%
   dplyr::select(!...1)
+```
+
+#### Meta Data
+
+```{r}
+env_meta_daily<- 
+  env %>%
+  dplyr::select(Date, Site, Water_depth) %>%
+  filter(between(Date, as.Date('2022-07-07'), as.Date("2022-07-19")),
+         !grepl('-', Water_depth)) %>%
+  unique() %>%
+  drop_na() %>%
+  mutate(Water_depth = as.numeric(Water_depth))
 ```
 
 # Visualization
@@ -109,7 +127,7 @@ sal<- daily %>%
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
     axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
+   # axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
     axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
@@ -156,6 +174,7 @@ do
 ```{r}
 nn<-
   daily %>%
+ # filter(site %in% "Gulf") %>%
   ggplot() + geom_line(
   aes(
     x = date,
@@ -165,7 +184,7 @@ nn<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Nitrate-Nitrite (µM)",
+    y = "NO3- + NO2- (µM)",
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
@@ -173,7 +192,7 @@ nn<-
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
    # legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
@@ -182,7 +201,7 @@ nn<-
     scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "NN.png"))
-
+nn
 ```
 
 #### Orthophosphate
@@ -199,17 +218,15 @@ ortho<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Orthophosphate (µM)",
+    y = "O-phosphate (µM)",
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
-    axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7)) + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
 ggsave(here("results", "plots", "env", "orthop.png"))
 ortho
@@ -237,7 +254,7 @@ don<-
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
    axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -264,13 +281,12 @@ doc<-
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
-    #axis.title.x = element_blank(),
-   # axis.text.x = element_blank(),
-  #  axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    legend.position = "none") + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "DOC.png"))
@@ -298,10 +314,9 @@ toc<-
     #axis.title.x = element_blank(),
     #axis.text.x = element_blank(),
     #axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text( face = "bold"),
     axis.text.y = element_text(size = 7),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    legend.position = "none") + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
 
 ggsave(here("results", "plots", "env", "TOC.png"))
@@ -353,15 +368,15 @@ amm<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Ammonium (µM)",
+    y = "NH4+ (µM)",
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -385,15 +400,15 @@ tn<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "Total Nitrogen (µM)",
+    y = "TN (µM)",
   #  title = "Temperature across Daily Time Series by Site",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
+   # axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -452,10 +467,10 @@ tdn<-
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
-    #axis.title.x = element_blank(),
-    #axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
@@ -481,16 +496,19 @@ din_dip<-
     x = "Date",
     y = "DIN:DIP (µM)",
     color = "Site")+
+  facet_wrap(~site)+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
-    scale_color_manual(values = cbbPalette)
+    scale_color_manual(values = cbbPalette) +
+  geom_hline(yintercept = 16, linetype = "dotdash")
+din_dip
 
 ggsave(here("results", "plots", "env", "DIN_DIP.png"))
 ```
@@ -514,13 +532,14 @@ din<-
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
     axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
+ #   axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
     scale_color_manual(values = cbbPalette)
+din
 
 ggsave(here("results", "plots", "env", "DIN.png"))
 ```
@@ -556,32 +575,72 @@ ggsave(here("results", "plots", "env", "secchi.png"))
 secchi
 ```
 
+#### TOtal Bacteria
+
+```{r}
+bact<-
+bac %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = log10(copies_mL),
+        color = site,
+        group = interaction(site,date)),
+    position = "identity")+
+  scale_color_manual(values = cbbPalette) +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = log10(copies_mL),
+                 group=site, 
+                 color = site)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Total Bacteria (copies/mL)",
+       color = "Site",
+       caption = "Data is on a log-scale")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
+  theme(axis.title.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #axis.ticks.x =element_blank(),
+        #axis.title.y = element_text(face= "bold"),
+        legend.position = "none")
+  
+bact
+
+```
+
 #### Chlorophyll
 
 ```{r}
 chl<-
   daily %>%
-  ggplot() + geom_line(
-  aes(
-    x = date,
-    y = chl,
-    color = site),
-  size = 1)+
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = chl,
+        color = site,
+        group = interaction(site,date)),
+        size = 0,
+    position = "identity")+
+  scale_color_manual(values = cbbPalette) +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = chl,
+                 group=site, 
+                 color = site),
+                 size = 1) +
   theme_bw()+
-  labs(
-    x = "Date",
-    y = "Chl-a (µg/L)",
-    color = "Site")+
-  theme(
-    plot.title= element_text(hjust = 0.5, size = 20),
-   # axis.title.x = element_blank(),
-   # axis.ticks.x = element_blank(),
-    #axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
-    axis.text.y = element_text(size = 7),
-    legend.key.size = unit(0.3,'cm'),
-    legend.position = "top")+
-    scale_color_manual(values = cbbPalette)
+  labs(x = "Date",
+       y = "Chl-a (mg/L)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  theme(axis.title.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #axis.ticks.x =element_blank(),
+        axis.title.y = element_text(face= "bold"),
+        legend.position = "none")
+  
+  
 
 ggsave(here("results", "plots", "env", "chla.png"))
 
@@ -603,7 +662,7 @@ tss<-
   theme_bw()+
   labs(
     x = "Date",
-    y = "TSS",
+    y = "TSS (mg/L)",
     color = "Site")+
   theme(
     plot.title= element_text(hjust = 0.5, size = 20),
@@ -702,7 +761,22 @@ fig
 
 ```
 
-# Chl,TSS, DO
+# CHl and Bac
+
+```{r}
+CHLBAC<-
+  ggarrange(bact, chl +font("x.text", size = 8.5),
+          nrow = 2,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
+
+annotate_figure(CHLBAC,
+               bottom = text_grob("Total Bacteria is on a log-scale",
+                                  hjust = 1.2, x = 1, face = "bold", size = 7))
+```
+
+# TSS, DO
 
 ```{r}
 fig<- ggarrange(#temp,
@@ -720,19 +794,57 @@ fig<- ggarrange(#temp,
                 #sil,
                 #cop,
                 #tdn,
-                do,
+                do+
                 #secchi,
                 #din_dip,
-                chl+
+                #chl+
                 font("x.text", size = 8.5),
                 ncol = 1, 
-                nrow = 3,
+                nrow = 2,
                 align = "v",
                 common.legend  = TRUE)
 
 fig
 
 ggsave(here("results", "plots", "env.png"))
+```
+
+# P and C
+
+```{r, fig.width=3, fig.height=3.5}
+  ggarrange(ortho, doc, toc +font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
+```
+
+# Nitrate
+
+```{r}
+NITRATE<-
+  ggarrange(nn,don,amm, tdn, 
+          din +font("x.text", size = 8.5),
+          tn+font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 2,
+          align = "v",
+          common.legend = TRUE)
+
+annotate_figure(NITRATE,
+               bottom = text_grob("DIN = NH4+ + NO3- + NO2- ; DON = TDN - DIN",
+                                  hjust = 1.2, x = 1, face = "bold", size = 7))
+               
+```
+
+# Redfield
+
+```{r}
+ ggarrange(din, ortho, din_dip +font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
 ```
 
 # Make clean datatable for writing
@@ -747,7 +859,7 @@ daily_clean<-
 single<-
   daily_clean %>%
   dplyr::select(date, site,
-         toc)
+         orthop)
 
 ```
 
@@ -767,17 +879,8 @@ b<-
 
 ```{r}
 mean(b$orthop)
-mean(c$do_mgl)
-mean(g$do_mgl)
+mean(c$orthop)
+mean(g$orthop)
 ```
 
-#### N, AMM, PO, TOC
-
-```{r}
-ggarrange(nn,ortho,amm, toc+
-            font("x.text", size = 8.5),
-          nrow = 2,
-          ncol = 2,
-          align = "v",
-          common.legend = TRUE)
-```
+# 

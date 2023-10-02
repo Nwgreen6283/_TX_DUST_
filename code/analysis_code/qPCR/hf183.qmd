@@ -62,7 +62,9 @@ daily %>%
   ggplot() + 
   geom_line(
     aes(x = date, 
-        y = log10(hf_copies_mL)))+
+        y = log10(hf_copies_mL)),
+    color = "#DDAA33",
+    size = 1)+
   scale_x_date(date_breaks= "1 day", date_labels = "%b %d")+
   theme_bw() +
   labs(x = "Date",
@@ -105,8 +107,13 @@ hf %>% ggplot() +
     aes(x = date, 
         #y = hf_copies_mL, 
         y = log10(1+hf_copies_mL),
-        group = date))+
-  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
+        group = date),
+    color = "#DDAA33") +
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  theme_bw()+
+  labs(x = "",
+      y = "HF183 copies/mL",
+      caption = "Data is on a log-scale")
 ```
 
 ```{r}
@@ -117,6 +124,11 @@ hf_sum <- summarySE(hf, measurevar="hf_copies_mL", groupvars=c("date"))
 ```
 
 ```{r}
+hf_sum<-
+  hf_sum %>%
+  mutate(hf_copies_mL = log10(1+ hf_copies_mL),
+         se = log10(1+se))
+
 ggplot(hf_sum, 
        aes(x=date, 
            y=hf_copies_mL)) + 

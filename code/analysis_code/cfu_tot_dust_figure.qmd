@@ -164,7 +164,8 @@ cfu<-
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        legend.position = "none")+
+        legend.position = "none",
+        axis.title.y = element_text(face = "bold"))+
       #  legend.background = element_rect(fill = "lightblue",
        #                                  size = 0.5,
         #                                 linetype = "solid",
@@ -204,7 +205,8 @@ cop<-
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        legend.position = "none")+
+        legend.position = "none",
+        axis.title.y = element_text(face = "bold"))+
   scale_x_date(breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
 
@@ -245,6 +247,7 @@ du_box<-
   labs(x = "Date",
        y = "Dust AOD",
        tag = "C") +
+  theme(axis.title.y = element_text(face = "bold"))+
   
 geom_line(
   aes(
@@ -258,7 +261,7 @@ du_box
 
 #### Combine
 
-```{r}
+```{r, fig.height=3.5, fig.width=3}
 master_box<-
 ggarrange(cf,cop,du_box,
             nrow = 3,

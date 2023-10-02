@@ -34,16 +34,45 @@ vv_tx<-
   covis %>%
   filter(STATE %in% "TX",
          SpeciesDesignation %in% "VUL")
+
+e_coast<-covis %>%
+  filter(STATE %in% c("TX", "LA", "FL", "GA", "SC", "AL", "MS")) 
 ```
 
 # Plot
+
+#### US
+
+```{r}
+covis %>% 
+ggplot()+ geom_bar(
+  aes(x = Year,
+      fill = SpeciesDesignation))+
+  labs(x = "",
+       y = "Case Count",
+       fill = "Species",
+       title = "Vibrio Case Count in US")+ 
+    theme_bw()
+```
+
+```{r}
+ljh<-
+  covis %>%
+  filter(Year %in% "2018")
+```
+
+#### Texas Cases
 
 ```{r}
 tx %>% 
 ggplot()+ geom_bar(
   aes(x = Year,
-      color = SpeciesDesignation)
-)
+      fill = SpeciesDesignation))+
+  labs(x = "",
+       y = "Case Count",
+       fill = "Species",
+       title = "Vibrio Case Count in Texas")+ 
+    theme_bw()
 ```
 
 ```{r}
@@ -53,4 +82,21 @@ vp_tx %>%
     aes(x = Month,
         color = Year)
   )
+```
+
+#### Case Count per state (SE)
+
+```{r}
+e_coast %>%
+  ggplot() + 
+  geom_bar(
+    aes(x = Year,
+        #color = STATE,
+        fill = STATE)) + 
+  scale_x_continuous(n.breaks = 20) + 
+  theme_bw()+
+  labs(x = "",
+       y = "Case Count",
+       color = "State",
+       title = "Vibrio case count in Saharan-dust-downwind states")
 ```

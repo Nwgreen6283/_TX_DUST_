@@ -51,7 +51,7 @@ monthly<- d1 %>%
 #### Meta Data
 
 ```{r}
-env<- 
+env_meta_monthly<- 
   env %>%
   dplyr::select(Date, Site, Water_depth) %>%
   filter(!between(Date, as.Date('2022-07-07'), as.Date("2022-07-17")),
