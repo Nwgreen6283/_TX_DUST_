@@ -1,0 +1,246 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+#### Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(rstatix)
+```
+
+```{r}
+here<- here::here
+rename<- dplyr::rename
+select<- dplyr::select
+#group_by<- dplyr::group_by
+```
+
+#### Data
+
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
+```
+
+# Clean
+
+**Master**
+
+```{r}
+d1<-
+  d1 %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19")),
+         hr_cst %in% "01",
+         !date %in% as.Date('2022-07-10')) %>%
+  rename("Site" = "site")
+```
+
+**Dust**
+
+```{r}
+dust<-
+  dust %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "LDD",
+                          date > as.Date('2022-07-12') ~ "HDD"))
+```
+
+**Bacteria**
+
+```{r}
+bac<-
+  d1 %>%
+  select(date, Site, tot_bacteria) %>%
+  mutate(
+         tot_bacteria = log10(tot_bacteria)) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "LDD",
+                          date > as.Date('2022-07-12') ~ "HDD")) %>%
+  select(!date) 
+```
+
+**Vibrio**
+
+```{r}
+vib<-
+  d1 %>%
+  select(date, Site, copies_mL) %>%
+  mutate(dust = case_when(date <= as.Date('2022-07-12') ~ "LDD",
+                          date > as.Date('2022-07-12') ~ "HDD")) %>%
+  select(!date) 
+```
+
+**Species**
+
+```{r}
+spp<-
+  d1 %>%
+  select(date, Site, Vc,Vv) %>%
+  mutate(dust= case_when(date <= as.Date('2022-07-12') ~ "LDD",
+                          date > as.Date('2022-07-12') ~ "HDD")) %>%
+  filter(Site %in% "Blind Oso") %>%
+  select(!date) 
+```
+
+# Plot
+
+```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
+```
+
+**Dust**
+
+```{r}
+bxp <- ggboxplot(
+  dust, x = "dust", y = "t7sum", 
+  palette =cbbPalette)
+
+pwc <-dust %>%
+ # group_by(Site) %>%
+  t_test(t7sum~ dust, p.adjust.method = "bonferroni")
+
+pwc <- pwc %>% add_xy_position(x = "dust") 
+
+bxp +
+  stat_pvalue_manual(
+    pwc, 
+   # step.group.by = "Site",
+    tip.length = 0.05, step.increase = 0.1,
+    hide.ns= TRUE,
+    y.position = 0.75) +
+  
+  labs(y = "Dust AOD",
+       x = "")+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"))
+```
+
+**Bacteria**
+
+```{r}
+bxp <- ggboxplot(
+  bac, x = "dust", y = "tot_bacteria", 
+  color = "Site", palette =cbbPalette)
+
+pwc <-bac %>%
+  group_by(Site) %>%
+  t_test(tot_bacteria ~ dust, p.adjust.method = "bonferroni")
+
+pwc <- pwc %>% add_xy_position(x = "dust", group = "Site") 
+
+bxp +
+  stat_pvalue_manual(
+    pwc, 
+    color = "Site", 
+    step.group.by = "Site",
+    tip.length = 0.05, step.increase = 0.1,
+    y.position = 7.8,
+    hide.ns= TRUE) +
+  
+  labs(y = "Total Bacteria (copies/mL)",
+       x = "",
+       caption = "Total Bacteria is on log-scale")+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"))
+
+```
+
+**Vibrio**
+
+```{r}
+bxp <- ggboxplot(
+  vib, x = "dust", y = "copies_mL", 
+  color = "Site", palette =cbbPalette)
+
+pwc <- vib %>%
+  group_by(Site) %>%
+  t_test(copies_mL ~ dust, p.adjust.method = "bonferroni")
+
+pwc <- pwc %>% add_xy_position(x = "dust", group = "Site") 
+
+bxp +
+  stat_pvalue_manual(
+    pwc, 
+    color = "Site", 
+    step.group.by = "Site",
+    tip.length = 0.05, step.increase = 0.1,
+    y.position = c(24000,40000),
+    hide.ns= TRUE) +
+  
+  labs(y = "Total Vibrio (copies/mL)",
+       x = "")+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"))
+```
+
+**Vc at BO (Non-sig)**
+
+```{r}
+bxp <- ggboxplot(
+  spp, x = "dust", y = "Vc", palette =cbbPalette)
+
+pwc <- spp %>%
+ # group_by(Site) %>%
+  t_test(Vc ~ dust, p.adjust.method = "bonferroni")
+
+pwc <- pwc %>% add_xy_position(x = "dust") 
+
+bxp +
+  stat_pvalue_manual(
+    pwc, 
+    step.group.by = "dust",
+    tip.length = 0.05, step.increase = 0.1,
+   # y.position = c(24000,40000),
+    hide.ns= TRUE) +
+  
+  labs(y = "Total Vibrio (copies/mL)",
+       x = "")+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"))
+```
+
+**Vv at BO**
+
+```{r}
+stat.test <- spp %>%
+  #group_by(dust) %>%
+  t_test(Vv ~ dust) %>%
+  adjust_pvalue(method = "bonferroni") %>%
+  add_significance("p.adj")
+stat.test
+
+# Create a box plot
+bxp <- ggboxplot(
+  spp, x = "dust", y = "Vv", 
+   color = "#DDAA33")
+
+# Add p-values onto the box plots
+stat.test <- stat.test %>%
+  add_xy_position(x = "dust", dodge = 0.8)
+bxp + stat_pvalue_manual(
+  stat.test,  label = "p", tip.length = 0.05
+  )
+
+# Add 10% spaces between the p-value labels and the plot border
+bxp + stat_pvalue_manual(
+  stat.test,  label = "p", tip.length = 0.05,
+  y.position = 230, color = "#DDAA33"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))+
+  
+  labs(y = "V. vulnificus (copies/mL)",
+       x = "")+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"))
+
+```

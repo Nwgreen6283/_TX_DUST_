@@ -1,0 +1,313 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+library(Rmisc)#For stat summary
+```
+
+```{r}
+here<- here::here
+select<-dplyr::select
+rename<- dplyr::rename
+```
+
+#### Data
+
+```{r}
+env<- read_csv(here("data", "processed_data", "env", "ENV_META_REPS.csv"))
+```
+
+# Clean
+
+```{r}
+env<-
+  env %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf")) %>%
+  rename("Site" = "site" ) 
+```
+
+```{r}
+c<-
+  env %>%
+  filter(Site %in% "Canals")
+
+r<- 
+  env %>%
+  filter(Site %in% "Gulf")
+```
+
+# Plot
+
+```{r}
+cbbPalette <- c("#BB5566")
+cbbPalette1 <- c("#004488")
+```
+
+#### NH4+
+
+**Canals**
+
+```{r}
+amm_sum <- summarySE(c, measurevar="Ammonium", groupvars=c("Site", "date")) 
+
+amm_c<-
+  ggplot(amm_sum, 
+       aes(x=date, 
+           y=Ammonium, 
+           color=Site)) + 
+    geom_errorbar(data = amm_sum,
+      aes(ymin=Ammonium-se, 
+          ymax=Ammonium+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = amm_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "NH4+ (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
+amm_sum <- summarySE(r, measurevar="Ammonium", groupvars=c("Site", "date")) 
+
+amm_r<-
+  ggplot(amm_sum, 
+       aes(x=date, 
+           y=Ammonium, 
+           color=Site)) + 
+    geom_errorbar(data = amm_sum,
+      aes(ymin=Ammonium-se, 
+          ymax=Ammonium+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = amm_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "NH4+ (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette1)+
+  theme(#axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+      #  axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+```
+
+```{r, fig.width=3, fig.height=3.5}
+AMM<- ggarrange(amm_c, amm_r,
+          ncol = 1, nrow =2, align = "v")
+AMM
+```
+
+#### DON
+
+```{r}
+don_sum <- summarySE(c, measurevar="DON", groupvars=c("Site", "date")) 
+
+don_c<-
+  ggplot(don_sum, 
+       aes(x=date, 
+           y=DON, 
+           color=Site)) + 
+    geom_errorbar(data = don_sum,
+      aes(ymin=DON-se, 
+          ymax=DON+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = don_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "DON (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
+don_sum <- summarySE(r, measurevar="DON", groupvars=c("Site", "date")) 
+
+don_r<-
+  ggplot(don_sum, 
+       aes(x=date, 
+           y=DON, 
+           color=Site)) + 
+    geom_errorbar(data = don_sum,
+      aes(ymin=DON-se, 
+          ymax=DON+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = don_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "DON (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette1)+
+  theme(#axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        #axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none")
+```
+
+```{r, fig.width=3, fig.height=3.5}
+DON<- ggarrange(don_c, don_r,
+          ncol = 1, nrow =2, align = "v")
+DON
+```
+
+#### DOC
+
+```{r}
+doc_sum <- summarySE(c, measurevar="DOC", groupvars=c("Site", "date")) 
+
+doc_c<-
+  ggplot(doc_sum, 
+       aes(x=date, 
+           y=DOC, 
+           color=Site)) + 
+    geom_errorbar(data = doc_sum,
+      aes(ymin=DOC-se, 
+          ymax=DOC+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = doc_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "DOC (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
+doc_sum <- summarySE(r, measurevar="DOC", groupvars=c("Site", "date")) 
+
+doc_r<-
+  ggplot(doc_sum, 
+       aes(x=date, 
+           y=DOC, 
+           color=Site)) + 
+    geom_errorbar(data = doc_sum,
+      aes(ymin=DOC-se, 
+          ymax=DOC+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = doc_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "DOC (µM)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette1)+
+  theme(#axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+      #  axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+```
+
+```{r, fig.width=3, fig.height=3.5}
+DOC<- ggarrange(doc_c, doc_r,
+          ncol = 1, nrow =2, align = "v")
+DOC
+```
+
+#### Chl-a
+
+```{r}
+chl_sum <- summarySE(c, measurevar="Chl_a", groupvars=c("Site", "date")) 
+
+chl_c<-
+  ggplot(chl_sum, 
+       aes(x=date, 
+           y=Chl_a, 
+           color=Site)) + 
+    geom_errorbar(data = chl_sum,
+      aes(ymin=Chl_a-se, 
+          ymax=Chl_a+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = chl_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "Chl-a (mg/L)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none")
+
+chl_sum <- summarySE(r, measurevar="Chl_a", groupvars=c("Site", "date")) 
+
+chl_r<-
+  ggplot(chl_sum, 
+       aes(x=date, 
+           y=Chl_a, 
+           color=Site)) + 
+    geom_errorbar(data = chl_sum,
+      aes(ymin=Chl_a-se, 
+          ymax=Chl_a+se), 
+      size = 0.5,
+      width=0.3) +
+    geom_line(size = 1) +
+    geom_point(data = chl_sum)+
+  theme_bw()+
+  labs(x = "date",
+       y = "Chl-a (mg/L)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette1)+
+  theme(#axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+      #  axis.ticks.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none")
+```
+
+```{r, fig.width=3, fig.height=3.5}
+CHL<- ggarrange(chl_c, chl_r,
+          ncol = 1, nrow =2, align = "v")
+CHL
+```

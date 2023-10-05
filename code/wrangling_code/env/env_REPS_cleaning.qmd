@@ -1,0 +1,93 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+```
+
+```{r}
+here<- here::here
+rename<- dplyr::rename
+select<- dplyr::select
+```
+
+#### Data
+
+```{r}
+env<- read_csv(here('data', 'raw_data', "env_reps.csv")) #Master tab 10.2.23
+```
+
+# Clean
+
+```{r}
+env<-
+  env %>%
+  filter(Level %in% "Surface") %>%
+  select(!c("Notes", "Time")) %>%
+  rename("Ammonium" = "Ammonia",
+         "date" = "Date",
+         "site" = "Site") %>%
+  mutate(site = recode(site, 
+                       "PCS" = "RD",
+                       "RD6" = "RD"))
+```
+
+**Daily DF**
+
+```{r}
+
+env<-
+  env %>%
+  mutate_at(vars(Conductivity, Salinity, DO_mgL, DO_perc, pH, Temperature, Water_depth, Secchi_depth, Chl_a, DOC, TDN, TOC, TN, Ammonium, NO2NO3, Nitrite, Orthophosphate, Silicate), as.numeric)
+```
+
+**Calculate other variables**
+
+```{r}
+env<-
+  env %>%
+  mutate(
+    DIN = Ammonium + NO2NO3,
+    DON = TDN - DIN,
+    DIN_DIP =DIN / Orthophosphate) %>%
+  select(!c(Conductivity, DO_perc, Water_depth, Secchi_depth))
+```
+
+# Save
+
+```{r}
+write_csv(env,here('data', 'processed_data','env', 'ENV_META_REPS.csv' ))
+```
+
+# Average DF
+
+```{r}
+NUT<- env %>% 
+  group_by(site, date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  select(!c(Temperature,Salinity, DO_mgL, pH))
+
+YSI<-
+  env %>%
+  select(c(Rep,site, date,Temperature,Salinity, DO_mgL, pH)) %>%
+  filter(!Rep %in% "B")
+
+ENV<-
+  YSI %>%
+  full_join(NUT) %>%
+  select(!c(Rep))
+```
+
+# Save
+
+```{r}
+write_csv(ENV,here('data', 'processed_data','env', 'ENV_META_AVG.csv' ))
+```

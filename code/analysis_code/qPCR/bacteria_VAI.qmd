@@ -10,6 +10,7 @@ format:
 ```{r}
 here<-here::here
 select<- dplyr::select
+rename<- dplyr::rename
 ```
 
 # Intro
@@ -25,6 +26,7 @@ library(tidyverse)
 
 ```{r, include = FALSE}
 master<- read_csv(here::here("data", "processed_data", "tx_master.csv"))
+dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 ```
 
 # Cleaning
@@ -46,6 +48,13 @@ monthly<-
   master %>%
   filter(Type %in% "Monthly" | date %in% as.Date('2022-07-18'),
          hr_cst %in% c("00", "01"))
+```
+
+```{r}
+dust<-
+  dust %>%
+  mutate(LAG = lag(t7sum, 1)) %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) 
 ```
 
 # Plot
@@ -196,24 +205,123 @@ bac<-read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv')
 ```
 
 ```{r}
+bac<-
+  bac %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"),
+         copies_mL = log10(copies_mL)) %>%
+  rename("Site" = "site" )
+```
+
+```{r}
 bac %>%
   ggplot()+
   geom_boxplot(
     aes(x = date,
-        y = log10(copies_mL),
-        color = site,
-        group = interaction(site,date)),
+        y = copies_mL,
+        color = Site,
+        group = interaction(Site,date)),
     position = "identity")+
   scale_color_manual(values = cbbPalette) +
 stat_summary(fun=mean, geom="line", 
              aes(x = date, 
-                 y = log10(copies_mL),
-                 group=site, 
-                 color = site)) +
+                 y = copies_mL,
+                 group=Site, 
+                 color = Site)) +
   theme_bw()+
   labs(x = "Date",
        y = "log10(copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
   
+```
+
+#### Boxplot by site
+
+```{r}
+means <- aggregate(copies_mL ~  Site, bac, mean)
+
+din_comp <- list( c("Blind Oso", "Canals"), c("Blind Oso", "Gulf"), c("Canals", "Gulf") )
+
+ggboxplot(bac, x = "Site",
+          y = "copies_mL",
+          color = "Site")+
+    scale_color_manual(values = cbbPalette)+
+  labs(y = "copies/mL")+ 
+  theme(legend.position = "none")+
+ stat_compare_means(comparisons = din_comp)+ 
+  stat_summary(fun=mean, colour= cbbPalette, geom="point", 
+               shape=18, size=3, show.legend=FALSE,) + 
+  geom_text(data = means, aes(label = round(copies_mL,2), y = copies_mL + 4))
+```
+
+```{r}
+gu<-
+  bac %>%
+  filter(Site %in% "Gulf") %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = copies_mL,
+        color = Site,
+        group = interaction(Site,date)),
+    position = "identity")+
+  scale_color_manual(values = "#004488") +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = copies_mL,
+                 group=Site, 
+                 color = Site)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "log10(copies/mL)",
+       color = "Site")+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")+
+  theme(legend.position = "none")
+
+ du<-
+   dust %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = t7sum,
+        group = interaction(date)),
+    size = 0,
+    position = "identity")+
+  scale_color_manual(values = "#004488") +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = t7sum)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Dust AOD",
+       color = "Site")+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
+ 
+  du_lag<-
+   dust %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = LAG,
+        group = interaction(date)),
+    size = 0,
+    position = "identity")+
+  scale_color_manual(values = "#004488") +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = LAG)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Dust Lag AOD",
+       color = "Site")+
+  scale_x_date(date_breaks = "1 day", date_labels = "%b %d")
+
+```
+
+```{r}
+ggarrange(du, gu,du_lag,
+          ncol = 1, nrow =3,
+          align = "v")
 ```

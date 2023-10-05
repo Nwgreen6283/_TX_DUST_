@@ -145,7 +145,11 @@ va3<- va1 %>%
   full_join(va2, by = c("site", "date")) %>%
   dplyr::rename("LOD" = "LOD.y") %>%
   select(site, date, LOD ) %>%
-  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>% #If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16),#If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+         per_pos = case_when(LOD ==3 ~ 0,
+                             LOD == 2 ~0.33,
+                             LOD == 1 ~ 0.66,
+                             LOD == 0 ~ 1)) %>% 
 unique()
 
   
@@ -187,7 +191,13 @@ vc3<- vc1 %>%
   select(site, date, LOD ) %>%
   mutate(point_shape = case_when((LOD == 3 & site == "Canals") ~ 1,
                                  (LOD == 3 & site == "Gulf") ~ 1,
-                                 (LOD == 5 & site == "Blind Oso") ~ 1, TRUE ~ 16)) %>% #If all three or 5 were below LOD (so n = 3 or n = 5), then it will be shape #1 or open circle. Else it will be shape #16 or closed cirlce
+                                 (LOD == 5 & site == "Blind Oso") ~ 1, TRUE ~ 16),
+         per_pos = case_when(LOD == 5 ~ 0,
+                             LOD == 4 ~0.2,
+                             LOD == 3 ~ 0.4,
+                             LOD == 2 ~ 0.6,
+                             LOD == 1 ~ 0.8,
+                             LOD == 0 ~ 1)) %>% #If all three or 5 were below LOD (so n = 3 or n = 5), then it will be shape #1 or open circle. Else it will be shape #16 or closed cirlce
   unique()
 
   write_csv(vc3, here('data', 'processed_data', 'qpcr','LOD', 'vc_above_below.csv' )) 
@@ -224,7 +234,11 @@ vp3<- vp1 %>%
   full_join(vp2, by = c("site", "date")) %>%
   dplyr::rename("LOD" = "LOD.y") %>%
   select(site, date, LOD ) %>%
-  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>% #If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16),
+         per_pos = case_when(LOD ==3 ~ 0,
+                             LOD == 2 ~0.33,
+                             LOD == 1 ~ 0.66,
+                             LOD == 0 ~ 1)) %>% #If all three were below LOD (so n = 3), then it will be shape #1 or open circle
   unique()
 
   write_csv(vp3, here('data', 'processed_data', 'qpcr','LOD', 'vp_above_below.csv' )) 
@@ -261,7 +275,11 @@ vv3<- vv1 %>%
   full_join(vv2, by = c("site", "date")) %>%
   dplyr::rename("LOD" = "LOD.y") %>%
   select(site, date, LOD ) %>%
-  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16)) %>%#If all three were below LOD (so n = 3), then it will be shape #1 or open circle
+  mutate(point_shape = case_when(LOD ==3 ~1, TRUE ~ 16),
+         per_pos = case_when(LOD ==3 ~ 0,
+                             LOD == 2 ~0.33,
+                             LOD == 1 ~ 0.66,
+                             LOD == 0 ~ 1)) %>%#If all three were below LOD (so n = 3), then it will be shape #1 or open circle
   unique()
 
   write_csv(vv3, here('data', 'processed_data', 'qpcr','LOD', 'vv_above_below.csv' )) 

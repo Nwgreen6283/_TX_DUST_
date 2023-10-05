@@ -1,0 +1,888 @@
+---
+title: "Environmental Parameters"
+format:
+  html:
+    theme: default
+---
+
+**This data set contains environmental parameters: Temp and Salinity, among other environmental parameters.**
+
+# Getting Started
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggpubr)
+library(lubridate)
+```
+
+#### Load Data
+
+```{r}
+here<- here::here
+select<-dplyr::select
+```
+
+```{r}
+d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
+env<- read_csv(here("data", "processed_data", "env", "env_meta.csv"))
+bac<-read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+
+
+
+```
+
+# Cleaning
+
+#### Daily data frame
+
+```{r}
+daily<- d1 %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) %>%
+  filter(!date %in% as.Date('2022-07-10')) %>%
+  dplyr::select(!...1)
+```
+
+#### Meta Data
+
+```{r}
+env_meta_daily<- 
+  env %>%
+  dplyr::select(Date, Site, Water_depth) %>%
+  filter(between(Date, as.Date('2022-07-07'), as.Date("2022-07-19")),
+         !grepl('-', Water_depth)) %>%
+  unique() %>%
+  drop_na() %>%
+  mutate(Water_depth = as.numeric(Water_depth))
+```
+
+# Visualization
+
+#### Temperature
+
+```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488")
+```
+
+```{r}
+temp<- 
+  daily %>% 
+  ggplot() + 
+ # geom_point(
+ # aes(
+  #  x = date,
+  #  y = temp,
+  #  color = site),
+ # size = 2)+
+  geom_line(
+  aes(
+    x = date,
+    y = temp,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Temperature (°C)",
+   # title = "Daily Temperatures",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "temp.png"))
+```
+
+#### Salinity
+
+```{r}
+sal<- daily %>% 
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = sal,
+    color = site),
+  size = 1)+
+  #geom_point(
+ # aes(
+  #  x = date,
+  #  y = sal,
+  #  color = site),
+  #size = 2)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Salinity",
+    #title = "Daily Salinities",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 15),
+    axis.title.x = element_blank(),
+   # axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+ggsave(here("results", "plots", "env", "salinity.png"))
+sal
+```
+
+#### Dissolved Oxygen
+
+```{r}
+do<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = do_mgl,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DO (mg/L)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "DO.png"))
+do
+```
+
+#### Nitrite:Nitrate
+
+```{r}
+nn<-
+  daily %>%
+ # filter(site %in% "Gulf") %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = nn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "NO3- + NO2- (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+   # legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+   # legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
+   # legend.text = element_text(size = 7)) + #Moves legend onto plot  + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "NN.png"))
+nn
+```
+
+#### Orthophosphate
+
+```{r}
+ortho<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = orthop,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "O-phosphate (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7)) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+ggsave(here("results", "plots", "env", "orthop.png"))
+ortho
+
+```
+
+#### DON (TDN - NN - Amm)
+
+```{r}
+don<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = don,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DON (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+   axis.ticks.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+don
+
+ggsave(here("results", "plots", "env", "DON.png"))
+```
+
+#### DOC
+
+```{r}
+doc<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = doc,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DOC (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "DOC.png"))
+doc
+```
+
+#### TOC
+
+```{r}
+toc<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = toc,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TOC (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    #axis.title.x = element_blank(),
+    #axis.text.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    axis.title.y = element_text( face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none") + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "TOC.png"))
+toc
+```
+
+#### pH
+
+```{r}
+pH<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = pH,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "pH",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "pH.png"))
+```
+
+#### Ammonium
+
+```{r}
+amm<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = amm,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "NH4+ (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "amm.png"))
+amm
+```
+
+#### Total Nitrogen
+
+```{r}
+tn<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = tn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TN (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+   # axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "TN.png"))
+tn
+```
+
+#### Silicate
+
+```{r}
+sil<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = sil,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Silicate (µM)",
+  #  title = "Temperature across Daily Time Series by Site",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "silicate.png"))
+```
+
+#### TDN
+
+```{r}
+tdn<-
+   daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = tdn,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TDN (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "TDN.png"))
+tdn
+```
+
+#### DIN:DIP ((Amm + NN / Ortho))
+
+```{r}
+din_dip<- 
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = din_dip,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN:DIP (µM)",
+    color = "Site")+
+  facet_wrap(~site)+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+    scale_color_manual(values = cbbPalette) +
+  geom_hline(yintercept = 16, linetype = "dotdash")
+din_dip
+
+ggsave(here("results", "plots", "env", "DIN_DIP.png"))
+```
+
+#### DIN (Amm+NN)
+
+```{r}
+din<- 
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = din,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "DIN (µM)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+ #   axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+    scale_color_manual(values = cbbPalette)
+din
+
+ggsave(here("results", "plots", "env", "DIN.png"))
+```
+
+#### Secchi
+
+```{r}
+secchi<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = secchi,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "Secchi Depth (m)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "secchi.png"))
+secchi
+```
+
+#### TOtal Bacteria
+
+```{r}
+bact<-
+bac %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = log10(copies_mL),
+        color = site,
+        group = interaction(site,date)),
+    position = "identity")+
+  scale_color_manual(values = cbbPalette) +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = log10(copies_mL),
+                 group=site, 
+                 color = site)) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Total Bacteria (copies/mL)",
+       color = "Site",
+       caption = "Data is on a log-scale")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
+  theme(axis.title.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #axis.ticks.x =element_blank(),
+        #axis.title.y = element_text(face= "bold"),
+        legend.position = "none")
+  
+bact
+
+```
+
+#### Chlorophyll
+
+```{r}
+chl<-
+  daily %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = chl,
+        color = site,
+        group = interaction(site,date)),
+        size = 0,
+    position = "identity")+
+  scale_color_manual(values = cbbPalette) +
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = chl,
+                 group=site, 
+                 color = site),
+                 size = 1) +
+  theme_bw()+
+  labs(x = "Date",
+       y = "Chl-a (mg/L)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  theme(axis.title.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #axis.ticks.x =element_blank(),
+        axis.title.y = element_text(face= "bold"),
+        legend.position = "none")
+  
+  
+
+ggsave(here("results", "plots", "env", "chla.png"))
+
+chl
+
+```
+
+#### TSS
+
+```{r}
+tss<-
+  daily %>%
+  ggplot() + geom_line(
+  aes(
+    x = date,
+    y = tss,
+    color = site),
+  size = 1)+
+  theme_bw()+
+  labs(
+    x = "Date",
+    y = "TSS (mg/L)",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+   axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.3,'cm'),
+    legend.position = "none")+
+    scale_color_manual(values = cbbPalette)
+
+ggsave(here("results", "plots", "env", "tss.png"))
+tss
+```
+
+#### Vibrio Copies/mL
+
+```{r}
+cop<-
+  daily %>%
+  
+#LINE PLOT
+  ggplot() + 
+  geom_line(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 1)+
+  
+#POINT PLOT
+  geom_point(
+  aes(
+    x = date,
+    y = copies_mL,
+    color = site),
+  size = 2)+
+  theme_bw()+
+  
+#AESTHETICS
+  labs(
+    x = "Date",
+    y = "Copies/mL",
+   # title = "Daily Total Vibrio",
+    color = "Site")+
+  theme(
+    plot.title= element_text(hjust = 0.5, size = 20),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.text.y = element_text(size = 7),
+    legend.key.size = unit(0.5,'cm'),
+    legend.position = "none",
+    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
+    legend.text = element_text(size = 10)) + #Moves legend onto plot 
+    scale_color_manual(values = cbbPalette)
+  # annotate("text", x = as.Date('2022-07-09'), y = 115000, label = "r = 0.70", color = "#809C52") + #BO
+   #annotate("text", x = as.Date('2022-07-09'), y = 100100, label = "r = 0.75", color = "#ba4716") + #C2
+   #annotate("text", x = as.Date('2022-07-09'), y = 85000, label = "r = 0.67", color = "4c848c") #RD
+
+ggsave(here("results", "plots", "env", "total_vib.png"))
+```
+
+# Temp/Sal
+
+```{r}
+fig<- ggarrange(temp,
+                sal+
+                #nn,
+                #ortho,
+                #amm,
+                #din,
+                #don,
+                #doc,
+                #toc+
+                #pH,
+                #tss,
+                #tn,
+                #sil,
+                #cop,
+                #tdn,
+               # do+
+                #secchi,
+                #din_dip,
+                #chl+
+                font("x.text", size = 8.5),
+                ncol = 1, 
+                nrow = 2,
+                align = "v",
+                common.legend  = TRUE)
+
+fig
+
+
+```
+
+# CHl and Bac
+
+```{r}
+CHLBAC<-
+  ggarrange(bact, chl +font("x.text", size = 8.5),
+          nrow = 2,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
+
+annotate_figure(CHLBAC,
+               bottom = text_grob("Total Bacteria is on a log-scale",
+                                  hjust = 1.2, x = 1, face = "bold", size = 7))
+```
+
+# TSS, DO
+
+```{r}
+fig<- ggarrange(#temp,
+                #sal+
+                #nn,
+                #ortho,
+                #amm,
+                #din,
+                #don,
+                #doc,
+                tss,
+                #toc+
+                #pH,
+                #tn,
+                #sil,
+                #cop,
+                #tdn,
+                do+
+                #secchi,
+                #din_dip,
+                #chl+
+                font("x.text", size = 8.5),
+                ncol = 1, 
+                nrow = 2,
+                align = "v",
+                common.legend  = TRUE)
+
+fig
+
+ggsave(here("results", "plots", "env.png"))
+```
+
+# P and C
+
+```{r, fig.width=3, fig.height=3.5}
+  ggarrange(ortho, doc, toc +font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
+```
+
+# Nitrate
+
+```{r}
+NITRATE<-
+  ggarrange(nn,don,amm, tdn, 
+          din +font("x.text", size = 8.5),
+          tn+font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 2,
+          align = "v",
+          common.legend = TRUE)
+
+annotate_figure(NITRATE,
+               bottom = text_grob("DIN = NH4+ + NO3- + NO2- ; DON = TDN - DIN",
+                                  hjust = 1.2, x = 1, face = "bold", size = 7))
+               
+```
+
+# Redfield
+
+```{r}
+ ggarrange(din, ortho, din_dip +font("x.text", size = 8.5),
+          nrow = 3,
+          ncol = 1,
+          align = "v",
+          common.legend = TRUE)
+```
+
+# Make clean datatable for writing
+
+```{r}
+daily_clean<-
+  daily %>%
+  filter(hr_cst %in% "01") 
+```
+
+```{r}
+single<-
+  daily_clean %>%
+  dplyr::select(date, site,
+         orthop)
+
+```
+
+```{r}
+g<-
+  single %>%
+  filter(site %in% "Gulf")
+
+c<-
+  single %>%
+  filter(site %in% "Canals")
+
+b<-
+  single %>%
+  filter(site %in% "Blind Oso")
+```
+
+```{r}
+mean(b$orthop)
+mean(c$orthop)
+mean(g$orthop)
+```
+
+# 

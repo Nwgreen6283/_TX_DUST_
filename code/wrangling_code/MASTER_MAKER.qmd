@@ -9,6 +9,12 @@ format:
 
 # Getting Started
 
+```{r}
+here<-here::here
+select<- dplyr::select
+rename<- dplyr::rename
+```
+
 #### Libraries
 
 ```{r, include = FALSE}
@@ -22,7 +28,7 @@ library(Hmisc) #Lag Function
 ```{r, include = FALSE}
 dust<- readRDS(here("data", "processed_data", "dust", "dust_final.rds")) #Clean dust data
 copies<- read_csv(here("data", "processed_data", "qpcr", "total_clean_copies.csv")) #Clean Copies Data
-env<- read_csv(here("data", "processed_data", "env", "ysi_2.csv")) #Clean Environmental Data
+env<- read_csv(here('data', 'processed_data','env', 'ENV_META_AVG.csv' )) #Clean Environmental Data
 dust_perm<- read_csv(here("data", "processed_data", "dust", "dust_master.csv")) #Dust permutations
 cfu<- read_rds(here("data", "processed_data", "cfu", "cfu.rds")) #CFU Data
 hf<- read_csv(here("data", "processed_data", "qpcr", "hf183", "bo_hf183.csv")) #HF183
@@ -38,8 +44,7 @@ tss<- read_csv(here("data", "processed_data", "env", "tss.csv"))
 
 ```{r}
 env<- env %>%
-  filter(!date == as.Date('2022-02-16') | !site == "RD") %>% #Gets rid of NA
-  select(1:20) #Removes NA columns
+  filter(!date == as.Date('2022-02-16') | !site == "RD") 
 ```
 
 #### Combine Total Bacteria Datasets
@@ -122,39 +127,16 @@ Create Cell Equivalents by dividing sample copies per mL by average 16S rDNA for
 master <- 
   master %>%
   mutate(
-    VAI = ((copies_mL / 9) / (tot_bacteria / 3.5)))
+    VAI = ((copies_mL / 9) / (tot_bacteria / 3.5))) %>%
+  mutate(site = recode(site, "RD" = "Gulf",
+                       "C2" = "Canals",
+                       "BO" = "Blind Oso"))
   
 ```
 
 #### Clean Data Again
 
 We will get warnings since we have dust data for the whole year, but Nutrient and Copies_mL data for just the monthly and daily time series. This is ok.
-
-```{r}
-master<- master %>%
-  select(!c(...1, type))  %>% #Gets rid of number column from excel
-  mutate(
-    sal = as.numeric(master$sal), #Set character columns as numeric
-    temp = as.numeric(master$temp),
-    do_mgl = as.numeric(master$do_mgl),
-    do_per = as.numeric(master$do_per),
-    pH = as.numeric(master$pH),
-    secchi = as.numeric(master$secchi),
-    amm = as.numeric(master$amm),
-    nn = as.numeric(master$nn),
-    orthop = as.numeric(master$orthop),
-    sil = as.numeric(master$sil),
-    din_dip = as.numeric(master$din_dip),
-    tdn = as.numeric(master$tdn),
-    don = as.numeric(master$don),
-    doc = as.numeric(master$doc),
-    toc = as.numeric(master$toc),
-    tn = as.numeric(master$tn),
-    date = as.Date(date)) %>%
-    mutate(site = recode(site, "BO" = "Blind Oso", #Rename Site Columns
-                             "C2" = "Canals",
-                            "RD" = "Gulf"))
-```
 
 #### 
 

@@ -32,9 +32,12 @@ d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 env<- read_csv(here("data", "processed_data", "env", "ENV_META_REPS.csv"))
 ysi<- read_csv(here("data", "processed_data", "env", "ENV_META_AVG.csv"))
 bac<-read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+copies<- read_csv(here("data", "processed_data",  "ANOVA Data", "daily_anova_data.csv"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
-
-
+vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+vc1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vc_above_below.csv'))
+vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
+vv1<- read_csv(here('data', 'processed_data', 'qpcr', 'LOD', 'vv_above_below.csv'))
 ```
 
 # Cleaning
@@ -48,7 +51,8 @@ ysi<-
   mutate(site = recode(site, "BO" = "Blind Oso",
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
-  rename("Site" = "site")
+  rename("Site" = "site") %>%
+  filter(Site %in% "Blind Oso")
 
 env<-
   env %>%
@@ -56,22 +60,62 @@ env<-
   mutate(site = recode(site, "BO" = "Blind Oso",
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
-  rename("Site" = "site")
+  rename("Site" = "site" )%>%
+  filter(Site %in% "Blind Oso")
+
   
 daily<-
   d1 %>%
   filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19")),
          hr_cst %in% "01",
          !date %in% as.Date('2022-07-10')) %>%
-  rename("Site" = "site")
+  rename("Site" = "site") %>%
+  filter(Site %in% "Blind Oso")
+
+  copies<-
+  copies %>%
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19")), 
+         !date %in% as.Date('2022-07-10')) %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf")) %>%
+  rename("Site" = "site") %>%
+  filter(Site %in% "Blind Oso")
+  
+bac<-
+  bac %>%
+  mutate(site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf")) %>%
+  rename("Site" = "site") %>%
+  filter(Site %in% "Blind Oso")
 
 dust<-
   dust %>%
-  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19"))) 
+  filter(date %in% c(as.Date("2022-07-07"):as.Date("2022-07-19")))
 
-  bac<- 
-    bac %>%
-      rename("Site" = "site")
+vc<-
+  vc %>%
+  select(copies_mL, date, site)%>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+vc_sum <- summarySE(vc, measurevar="copies_mL", groupvars=c("site", "date"))
+vc_sum<-
+  vc_sum %>%full_join(vc1)
+
+vv<-
+  vv %>%
+  select(date, copies_mL, site) %>%
+  drop_na()%>%
+  mutate(date = as.Date(date),
+         site = recode(site, "BO" = "Blind Oso",
+                       "C2" = "Canals",
+                       "RD" = "Gulf"))
+vv_sum <- summarySE(vv, measurevar="copies_mL", groupvars=c("site", "date"))
+vv_sum<-
+  vv_sum %>%full_join(vv1)
 ```
 
 # Visualization
@@ -81,7 +125,11 @@ dust<-
 #### Temperature
 
 ```{r}
-cbbPalette <- c("#DDAA33", "#BB5566", "#004488")
+cbbPalette <- c(
+  
+ "#DDAA33")
+               # "#BB5566") 
+ # "#004488")
 ```
 
 ```{r}
@@ -146,12 +194,13 @@ sal<- ysi %>%
   theme(
     plot.title= element_text(hjust = 0.5, size = 15),
     axis.title.x = element_blank(),
-   # axis.ticks.x = element_blank(),
+    axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
     axis.title.y = element_text(size = 13, face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none") + #Moves legend onto plot 
-    scale_color_manual(values = cbbPalette)
+    scale_color_manual(values = cbbPalette)+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")
 sal
 ```
 
@@ -307,7 +356,7 @@ don<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+       # axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -339,7 +388,7 @@ doc<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+        #axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none")  
@@ -374,6 +423,9 @@ toc<-
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
+
+toc
+
 ```
 
 #### 
@@ -439,6 +491,8 @@ tn<-
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
+
+tn
 ```
 
 #### Silicate
@@ -500,6 +554,7 @@ tdn<-
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
+tdn
 ```
 
 #### DIN:DIP ((Amm + NN / Ortho))
@@ -567,6 +622,34 @@ din<-
         legend.position = "none") 
 ```
 
+#### Dust
+
+```{r}
+dus<-
+dust %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x = date,
+        y = t7sum,
+       group = interaction(date),
+    position = "identity"),
+        size = 0)+
+  scale_color_manual(values = cbbPalette) +
+  stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = t7sum))+
+  theme_bw()+
+  labs(x = "date",
+       y = "Dust AOD")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x =element_blank(),
+        axis.title.y = element_text(face= "bold"),
+        legend.position = "none")
+dus
+```
+
 ## BIOTIC
 
 #### TOtal Bacteria
@@ -590,12 +673,13 @@ stat_summary(fun=mean, geom="line",
   theme_bw()+
   labs(x = "date",
        y = "Total Bacteria (copies/mL)",
-       color = "Site")+
+       color = "Site",
+       caption = "Data is on a log-scale")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
   theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
         axis.text.x = element_blank(),
         axis.ticks.x =element_blank(),
-        axis.title.y = element_text(face= "bold"),
         legend.position = "none")
 bact
 ```
@@ -623,9 +707,9 @@ chl<-
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
-  theme(#axis.text.x = element_blank(),
+  theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-        #axis.ticks.x = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -662,81 +746,120 @@ tss<-
 tss
 ```
 
-#### Dust
-
-```{r}
-dus<-
-dust %>%
-  ggplot()+
-  geom_boxplot(
-    aes(x = date,
-        y = t7sum,
-       group = interaction(date),
-    position = "identity"),
-        size = 0)+
-  scale_color_manual(values = cbbPalette) +
-  stat_summary(fun=mean, geom="line", 
-             aes(x = date, 
-                 y = t7sum))+
-  theme_bw()+
-  labs(x = "date",
-       y = "Dust AOD")+
-  scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
-  theme(axis.title.x = element_blank(),
-        #axis.text.x = element_blank(),
-        #axis.ticks.x =element_blank(),
-        axis.title.y = element_text(face= "bold"),
-        legend.position = "none")
-dus
-```
-
 #### Vibrio Copies/mL
 
 ```{r}
 cop<-
-  daily %>%
-  
-#LINE PLOT
-  ggplot() + 
-  geom_line(
-  aes(
-    x = date,
-    y = copies_mL,
-    color = Site),
-  size = 1)+
-  
-#POINT PLOT
-  geom_point(
-  aes(
-    x = date,
-    y = copies_mL,
-    color = Site),
-  size = 2)+
+  copies %>%
+ggplot() + geom_boxplot(
+    aes(x = date,
+        y = copies_mL,
+        color= Site,
+        group = interaction(date, Site)),
+        position = "identity") +
   theme_bw()+
-  
-#AESTHETICS
-  labs(
-    x = "date",
-    y = "Copies/mL",
-   # title = "Daily Total Vibrio",
-    color = "Site")+
-  theme(
-    plot.title= element_text(hjust = 0.5, size = 20),
-    axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
-    axis.text.y = element_text(size = 7),
-    legend.key.size = unit(0.5,'cm'),
-    legend.position = "none",
-    legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid'),
-    legend.text = element_text(size = 10)) + #Moves legend onto plot 
-    scale_color_manual(values = cbbPalette)
-  # annotate("text", x = as.Date('2022-07-09'), y = 115000, label = "r = 0.70", color = "#809C52") + #BO
-   #annotate("text", x = as.Date('2022-07-09'), y = 100100, label = "r = 0.75", color = "#ba4716") + #C2
-   #annotate("text", x = as.Date('2022-07-09'), y = 85000, label = "r = 0.67", color = "4c848c") #RD
+  labs(x = "Date",
+       y = "Total Vibrio (copies/mL)") +
+  theme(axis.title.x = element_blank(),
+        #axis.text.x = element_blank(),
+        #axis.ticks.x = element_blank(),
+        legend.position = "none",
+        axis.title.y = element_text(face = "bold"))+
+  scale_x_date(breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
 
+
+#(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-18'),y=154323
+#,yend=154323), color = "#4c848c", size = 2)+
+#annotate("text", x = as.Date('2022-07-15'), y =155000, label = "***", color = "#4c848c", fontface="bold", size = 7)+
+
+#geom_segment(aes(x=as.Date('2022-07-12'),xend=as.Date('2022-07-14'),y=90000
+#,yend=90000), color = "#809C52", size = 2)+
+#annotate("text", x = as.Date('2022-07-13'), y =91000, label = "***", color = "#809C52", fontface="bold", size = 7)+
+  
+stat_summary(fun=mean, geom="line", 
+             aes(x = date, 
+                 y = copies_mL,
+                 group=Site, 
+                 color = Site)) 
+cop
 ggsave(here("results", "plots", "env", "total_vib.png"))
+```
+
+#### Vc
+
+```{r}
+vc_sum1<-
+  vc_sum %>%
+  filter(site %in% "Blind Oso")
+
+vc_bo<-
+ggplot(vc_sum1, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(data = vc_sum1[vc_sum1$point_shape == "16",],
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=0.3,
+      size = 1) +
+    geom_errorbar( data = vc_sum1[vc_sum1$point_shape == "1" ,],
+      aes(ymin=0, 
+          ymax=0), 
+      width=0) +
+    geom_line(size = 1) +
+    geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2.5)+
+  theme_bw()+
+  labs(x = "Date",
+       y = "V. cholerae (copies/mL)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(#axis.text.x = element_blank(),
+        #axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 13, face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none")
+vc_bo
+```
+
+#### Vv
+
+```{r}
+vv_sum1<-
+  vv_sum %>%
+  filter(site %in% "Blind Oso")
+
+vv_bo<-
+ggplot(vv_sum1, 
+       aes(x=date, 
+           y=copies_mL, 
+           color=site)) + 
+    geom_errorbar(data = vv_sum1[vv_sum1$point_shape == "16",],
+      aes(ymin=copies_mL-se, 
+          ymax=copies_mL+se), 
+      width=0.3,
+      size = 1) +
+    geom_errorbar( data = vv_sum1[vv_sum1$point_shape == "1" ,],
+      aes(ymin=0, 
+          ymax=0, 
+      width=0)) +
+    geom_line(size = 1) +
+    geom_point(data = vv_sum1, shape= vv_sum1$point_shape, size = 2.5)+
+  theme_bw()+
+  labs(x = "Date",
+       y = "V. vulnificus (copies/mL)",
+       color = "Site")+
+  scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
+  scale_color_manual(values = cbbPalette)+
+  theme(#axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+       # axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 13, face = "bold"),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+vv_bo
 ```
 
 # COMBINE
@@ -774,18 +897,19 @@ fig
 
 ```
 
-## Dust/Bact
+## Chl/Bact
 
 ```{r}
-DUSTBAC<-
-  ggarrange(bact, dus +font("x.text", size = 8.5),
-          nrow = 2,
-          ncol = 1,
-          align = "v")
+#CHLBAC<-
+ # ggarrange(bact, chl +font("x.text", size = 8.5),
+  #        nrow = 2,
+   #       ncol = 1,
+    #      align = "v",
+     #     common.legend = TRUE)
 
-annotate_figure(DUSTBAC,
-               bottom = text_grob("Total Bacteria is on a log-scale",
-                                  hjust = 1.2, x = 1, size = 7))
+#annotate_figure(CHLBAC,
+              # bottom = text_grob("Total Bacteria is on a log-scale",
+               #                   hjust = 1.2, x = 1, face = "bold", size = 7))
 ```
 
 # TSS, DO
@@ -858,14 +982,24 @@ annotate_figure(NITRATE,
           common.legend = TRUE)
 ```
 
+# FIGURE FOR PPT
+
+```{r, fig.width=3, fig.height=3.7}
+ ggarrange(sal,tn,toc,
+           vv_bo +font("x.text", size = 8.5),
+          nrow = 4,
+          ncol = 1,
+          align = "v")
+```
+
 # ALL
 
-```{r, fig.height=8, fig.width=5}
-  ggarrange(temp, sal, do,ortho, nn,amm,tdn,toc,doc,tss,don,din,
-            tn +font("x.text", size = 10),
-          chl+font("x.text", size = 10),
-          nrow = 7,
-          ncol = 2,
+```{r, fig.height=2, fig.width=8}
+  ggarrange(amm,ortho, nn,tdn,toc,doc +font("x.text", size = 10, angle = 45),don+font("x.text", size = 10,angle = 45),din+font("x.text", size = 10,angle = 45),
+            tn +font("x.text", size = 10,angle = 45, hjust = 1),
+          chl+font("x.text", size = 10,hjust =1 ,angle = 45),
+          nrow = 2,
+          ncol = 5,
           align = "v",
           common.legend = TRUE)
 ```

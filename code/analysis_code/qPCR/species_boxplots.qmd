@@ -386,11 +386,62 @@ ggarrange(vc_bo, vv_bo, vc_c2_rd, vv_c2_rd,
 ggsave(here('results', 'plots','qpcr', 'species', 'species_SE_plots.png' ))
 ```
 
+## Per Pos
+
+**Vc**
+
 ```{r}
-yeet<-
-  vv_sum %>%
-  filter(point_shape %in% "16")
-  select(copies_mL)
-  
-  mean(yeet$copies_mL)
+vc_pp<-
+  vc1 %>% 
+ # filter(site %in% "Cana") %>%
+  ggplot() +
+  geom_bar(
+    aes(x = date,
+        y = per_pos*100,
+    fill = site),
+    stat = "identity") + facet_wrap(~site) +
+  scale_fill_manual(values = cbbPalette)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"),
+        axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        axis.ticks.x = element_blank())+
+  labs(x = "",
+       y = "% Positivity (n = 5)",
+       title = "V. cholerae: % Positivity of qPCR replicates")+
+  scale_x_date(date_breaks = "2 days", date_labels = "%b %d")+
+  ylim(0,100)
+```
+
+**Vv**
+
+```{r}
+vv_pp<-
+  vv1 %>% 
+ # filter(site %in% "Cana") %>%
+  ggplot() +
+  geom_bar(
+    aes(x = date,
+        y = per_pos*100,
+    fill = site),
+    stat = "identity") + facet_wrap(~site) +
+  scale_fill_manual(values = cbbPalette)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.title.y = element_text(face = "bold"),
+        axis.text.x = element_text(hjust =1, angle = 45),
+        axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))+
+  labs(
+       y = "% Positivity (n = 3)",
+       title = "V. vulnificus: % Positivity of qPCR replicates")+
+  scale_x_date(date_breaks = "2 days", date_labels = "%b %d") +
+  ylim(0,100)
+```
+
+```{r}
+ggarrange(vc_pp, vv_pp,
+          ncol = 1, nrow = 2,
+          align = "v")
 ```

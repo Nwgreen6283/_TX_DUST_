@@ -1,0 +1,25 @@
+﻿species,cases,age,case_range,male,male_per,hospitalizations,hosp_per,deaths ,death_per,big
+Confirmed,"1,585",50,<1–93,"1,092/1,574",69,"454/1,370",33,"57/1,426",4,
+   V. parahaemolyticus,655,48,<1–93,456/646,71,114/578,20,7/586,1,Y
+   V. alginolyticus,277,34,2–92,189/276,68,35/213,16,5/252,2,Y
+V. cholerae *,174,51.5,<1–91,104/173,60,67/161,42,5/162,3,Y
+   V. vulnificus,158,65,6–93,138/158,87,125/146,86,30/142,21,Y
+   V. fluvialis,110,60,6–92,63/110,57,44/94,47,Apr-99,4,N
+   V. mimicus,37,55,13–88,25/37,68,29-Aug,28,Jan-33,3,N
+   G. hollisae,13,43,26–65,13-Nov,85,11-Jun,55,0/10,0,N
+   V. furnissii,7,59,29–78,7-Mar,43,4-Apr,100,0/7,0,N
+   V. harveyi,6,57,15–64,6-Feb,33,6-Jan,17,0/5,0,N
+   V. metschnikovii,6,71.5,10–85,6-May,83,6-Mar,50,0/6,0,N
+   P. damselae,5,54,6–77,5-Apr,80,4-Mar,75,4-Jan,25,N
+   V. cincinnatiensis,2,85.5,78–93,2-Feb,100,2-Feb,100,2-Jan,50,N
+   V. metoecus,1,41,41–41,0/1,0,1-Jan,100,0/1,0,N
+   V. navarrensis,1,4,4–4,1-Jan,100,0/0,–,0/1,0,N
+   V. ponticus,1,30,30–30,0/1,0,0/1,0,0/1,0,N
+   Multiple Species,44,53,4–89,29/44,66,Dec-36,33,Jan-36,3,N
+   Species not identified,88,47.5,1–90,60/88,68,29/78,37,Feb-79,3,N
+Probabale,"1,100",53,<1–103,"536/1,091",49,318/978,33,13/971,1,N
+   V. cholerae (serogroup not specified),197,49,<1–97,98/196,50,56/166,34,3/176,2,N
+   V. parahaemolyticus,15,65.5,24–85,15-Aug,53,0/14,0,0/15,0,N
+   V. vulnificus,1,57,57–57,0/1,0,1-Jan,100,0/1,0,N
+not_identified,887,53,<1–103,430/879,49,261/797,33,10/779,1,N
+Total,"2,685",51,<1–103,"1,628/2,665",61,"772/2,348",33,"70/2,397",3,N 

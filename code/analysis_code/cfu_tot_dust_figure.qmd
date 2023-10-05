@@ -200,7 +200,7 @@ cop<-
         position = "identity") +
   theme_bw()+
   labs(x = "Date",
-       y = "Gene copies/mL",
+       y = "Total Vibrio (copies/mL)",
        tag = "B") +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),

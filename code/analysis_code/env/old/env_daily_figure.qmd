@@ -19,6 +19,12 @@ library(lubridate)
 #### Load Data
 
 ```{r}
+here<- here::here
+rename<- dplyr::rename
+select<- dplyr::select
+```
+
+```{r}
 d1<- read_csv(here("data", "processed_data", "tx_master.csv"))
 dust<- read_csv(here("data", "processed_data", "dust", "dust_master.csv"))
 ```
