@@ -589,7 +589,7 @@ stat_summary(fun=mean, geom="line",
                  color = Site)) +
   theme_bw()+
   labs(x = "date",
-       y = "Total Bacteria (copies/mL)",
+       y = "Total Bacteria (log(copies/mL))",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
   theme(axis.title.x = element_blank(),
@@ -619,7 +619,7 @@ chl<-
     geom_point(data = chl_sum)+
   theme_bw()+
   labs(x = "date",
-       y = "Chl-a (mg/L)",
+       y = "Chl-a (µg/L)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
@@ -776,16 +776,17 @@ fig
 
 ## Dust/Bact
 
-```{r}
+```{r, fig.height=4.5}
 DUSTBAC<-
   ggarrange(bact, dus +font("x.text", size = 8.5),
           nrow = 2,
           ncol = 1,
           align = "v")
+DUSTBAC
 
-annotate_figure(DUSTBAC,
-               bottom = text_grob("Total Bacteria is on a log-scale",
-                                  hjust = 1.2, x = 1, size = 7))
+#annotate_figure(DUSTBAC,
+               #bottom = text_grob("Total Bacteria is on a log-scale",
+                                #  hjust = 1.2, x = 1, size = 7))
 ```
 
 # TSS, DO

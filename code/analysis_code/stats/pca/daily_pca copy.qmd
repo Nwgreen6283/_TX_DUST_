@@ -13,6 +13,12 @@ format:
 
 # Intro
 
+```{r}
+here<- here::here
+select<- dplyr::select
+rename<- dplyr::rename
+```
+
 #### Libs
 
 ```{r, include = FALSE}
@@ -68,40 +74,30 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 vibrio<-
   master %>%
-  select(site, date,copies_mL, cfu_tot, Vc, Vv, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, chl)
+  select(site, date,copies_mL, cfu_tot, Vc, Vv, Temperature, Salinity, tss, TOC, DOC, DON, NO2NO3, Ammonium, dust_lag, Chl_a)
 
 
 bacteria<- 
   master %>%
-  select(site, date, temp, sal, tss, toc, doc, don, nn, amm, dust_lag, tot_bacteria, do_mgl, chl)
+  select(site, date, Temperature, Salinity, tss, TOC, DOC, DON, NO2NO3, Ammonium, dust_lag, tot_bacteria, DO_mgL, Chl_a)
 
 vibrio<-
   vibrio %>%
-  rename("Temperature" = "temp",
-         "Salinity" = "sal",
-         "DOC" = "doc", 
-         "TOC" = "toc",
-         "DON" = "don",
-         "TSS" = "tss",
-         "NO2-NO3" = "nn",
+  rename("TSS" = "tss",
+         "NO2-NO3" = "NO2NO3",
          "Total_Vibrio" = "copies_mL",
          "Vibrio_CFU" = "cfu_tot",
-         "NH4+" = "amm",
-         "Chlorophyll-a" = "chl",
+         "NH4+" = "Ammonium",
+         "Chlorophyll-a" = "Chl_a",
          "24_h_lag_Dust" = "dust_lag")
 
 bacteria<-
   bacteria %>%
-  rename("Temperature" = "temp",
-         "Salinity" = "sal",
-         "DOC" = "doc", 
-         "TOC" = "toc",
-         "DON" = "don",
-         "TSS" = "tss",
-         "DO" = "do_mgl",
-         "NO2-NO3" = "nn",
+  rename("TSS" = "tss",
+         "DO" = "DO_mgL",
+         "NO2-NO3" = "NO2NO3",
          "Total Bacteria" = "tot_bacteria",
-         "NH4+" = "amm")
+         "NH4+" = "Ammonium")
 ```
 
 # PCA

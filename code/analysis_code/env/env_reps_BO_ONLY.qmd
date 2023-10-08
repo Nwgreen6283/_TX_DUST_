@@ -52,7 +52,7 @@ ysi<-
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
   rename("Site" = "site") %>%
-  filter(Site %in% "Blind Oso")
+  filter(Site %in% "Gulf")
 
 env<-
   env %>%
@@ -61,7 +61,7 @@ env<-
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
   rename("Site" = "site" )%>%
-  filter(Site %in% "Blind Oso")
+  filter(Site %in% "Gulf")
 
   
 daily<-
@@ -70,7 +70,7 @@ daily<-
          hr_cst %in% "01",
          !date %in% as.Date('2022-07-10')) %>%
   rename("Site" = "site") %>%
-  filter(Site %in% "Blind Oso")
+  filter(Site %in% "Gulf")
 
   copies<-
   copies %>%
@@ -80,7 +80,7 @@ daily<-
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
   rename("Site" = "site") %>%
-  filter(Site %in% "Blind Oso")
+  filter(Site %in% "Gulf")
   
 bac<-
   bac %>%
@@ -88,7 +88,7 @@ bac<-
                        "C2" = "Canals",
                        "RD" = "Gulf")) %>%
   rename("Site" = "site") %>%
-  filter(Site %in% "Blind Oso")
+  filter(Site %in% "Gulf")
 
 dust<-
   dust %>%
@@ -127,9 +127,9 @@ vv_sum<-
 ```{r}
 cbbPalette <- c(
   
- "#DDAA33")
+ #"#DDAA33")
                # "#BB5566") 
- # "#004488")
+  "#004488")
 ```
 
 ```{r}
@@ -672,9 +672,8 @@ stat_summary(fun=mean, geom="line",
                  color = Site)) +
   theme_bw()+
   labs(x = "date",
-       y = "Total Bacteria (copies/mL)",
-       color = "Site",
-       caption = "Data is on a log-scale")+
+       y = "Total Bacteria (log(copies/mL))",
+       color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d") +
   theme(axis.title.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
@@ -984,9 +983,9 @@ annotate_figure(NITRATE,
 
 # FIGURE FOR PPT
 
-```{r, fig.width=3, fig.height=3.7}
- ggarrange(sal,tn,toc,
-           vv_bo +font("x.text", size = 8.5),
+```{r, fig.width=3, fig.height= 4}
+ ggarrange(amm,chl, bact, 
+          cop +font("x.text", size = 8.5),
           nrow = 4,
           ncol = 1,
           align = "v")

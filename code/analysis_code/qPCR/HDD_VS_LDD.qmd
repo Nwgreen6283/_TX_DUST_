@@ -143,9 +143,8 @@ bxp +
     y.position = 7.8,
     hide.ns= TRUE) +
   
-  labs(y = "Total Bacteria (copies/mL)",
-       x = "",
-       caption = "Total Bacteria is on log-scale")+
+  labs(y = "Total Bacteria (log(copies/mL))",
+       x = "")+
   theme_bw()+
   theme(legend.position = "none",
         axis.title.y = element_text(face = "bold"))
