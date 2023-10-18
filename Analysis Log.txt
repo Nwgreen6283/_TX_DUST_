@@ -1,0 +1,41 @@
+Analysis started: Wed Oct 18 14:27:41 2023
+
+
+These standards not included in hf183 standard curve regression for copy estimate calculations, because they detected below 50%: 0.045
+
+
+Data Summary:
+"Standards"	"Target"	"Reps"	"Detects"	"Cq.mean"	"Cq.sd"	"Copy.CV"	"Cq.CV"	"Rate"
+4500000	"hf183"	5	5	13.963434558	0.0349233426736149	0.0259284173903821	0.0242105631476555	1
+450000	"hf183"	5	5	16.578661544	0.0634868187650119	0.0461056981163529	0.0440270223183139	1
+45000	"hf183"	5	5	19.943040052	0.118685314577463	0.0908142989920773	0.0824057774029318	1
+4500	"hf183"	5	5	23.205282654	0.108908447141049	0.078720194511955	0.075597258558022	1
+450	"hf183"	5	5	26.384482696	0.14314635240506	0.108173426094675	0.0994661987074694	1
+45	"hf183"	5	5	29.76069524	0.102183617212391	0.0760284020330429	0.070917209191291	1
+4.5	"hf183"	5	5	32.222008868	1.19606597238557	1.21601093628345	0.994176285167179	1
+0.45	"hf183"	5	5	34.959263066	0.669665883731434	0.457141228964887	0.490339416310672	1
+0.045	"hf183"	5	1	37.03743817	NA	NA	NA	0.2
+
+
+For hf183, the lowest standard with 95% or greater detection is: 0.45 copies/reaction.
+
+WARNING: For hf183, only 1 standard detected in the informative range (not 0% and not 100%).  Therefore, the LoD model results will be less reliable.
+
+
+Assay summary:
+
+R.squared: The R-squared value of linear regression of all standards Cq-values vs log10 of the starting quantities.
+Slope: The slope of the linear regression.
+Intercept: The y-intercept of the linear regression.
+
+Low.95: The lowest standard with at least 95% positive detection.
+LOD: The 95% limit of detection as determined by probit modeling.
+LOQ: The limit of quantification as determined by decay modeling, using the user-selected CV threshold of: 0.25
+
+rep2.LOD: The effective limit of detection if analyzing in 2 replicates.
+rep3.LOD: The effective limit of detection if analyzing in 3 replicates.
+rep4.LOD: The effective limit of detection if analyzing in 4 replicates.
+rep5.LOD: The effective limit of detection if analyzing in 5 replicates.
+rep8.LOD: The effective limit of detection if analyzing in 8 replicates.
+
+

@@ -182,7 +182,7 @@ pH<-
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
-
+pH
 ```
 
 #### 
@@ -469,6 +469,7 @@ sil<-
         axis.title.y = element_text(size = 13,face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
+sil
 ```
 
 #### TDN

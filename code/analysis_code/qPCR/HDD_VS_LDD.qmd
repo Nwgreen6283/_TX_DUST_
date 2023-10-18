@@ -93,7 +93,7 @@ spp<-
 cbbPalette <- c("#DDAA33", "#BB5566", "#004488" )
 ```
 
-**Dust**
+**Dust: Non Parametric**
 
 ```{r}
 bxp <- ggboxplot(
@@ -102,7 +102,7 @@ bxp <- ggboxplot(
 
 pwc <-dust %>%
  # group_by(Site) %>%
-  t_test(t7sum~ dust, p.adjust.method = "bonferroni")
+  wilcox_test(t7sum~ dust, p.adjust.method = "bonferroni")
 
 pwc <- pwc %>% add_xy_position(x = "dust") 
 
@@ -121,7 +121,7 @@ bxp +
         axis.title.y = element_text(face = "bold"))
 ```
 
-**Bacteria**
+**Bacteria: Non Parametric**
 
 ```{r}
 bxp <- ggboxplot(
@@ -130,7 +130,7 @@ bxp <- ggboxplot(
 
 pwc <-bac %>%
   group_by(Site) %>%
-  t_test(tot_bacteria ~ dust, p.adjust.method = "bonferroni")
+  wilcox_test(tot_bacteria ~ dust, p.adjust.method = "bonferroni")
 
 pwc <- pwc %>% add_xy_position(x = "dust", group = "Site") 
 
@@ -180,7 +180,7 @@ bxp +
         axis.title.y = element_text(face = "bold"))
 ```
 
-**Vc at BO (Non-sig)**
+**Vc at BO (Non-sig): Non Parametric**
 
 ```{r}
 bxp <- ggboxplot(
@@ -188,7 +188,7 @@ bxp <- ggboxplot(
 
 pwc <- spp %>%
  # group_by(Site) %>%
-  t_test(Vc ~ dust, p.adjust.method = "bonferroni")
+  wilcox_test(Vc ~ dust, p.adjust.method = "bonferroni")
 
 pwc <- pwc %>% add_xy_position(x = "dust") 
 
@@ -207,12 +207,12 @@ bxp +
         axis.title.y = element_text(face = "bold"))
 ```
 
-**Vv at BO**
+**Vv at BO: Non Parametric**
 
 ```{r}
 stat.test <- spp %>%
   #group_by(dust) %>%
-  t_test(Vv ~ dust) %>%
+  wilcox_test(Vv ~ dust) %>%
   adjust_pvalue(method = "bonferroni") %>%
   add_significance("p.adj")
 stat.test

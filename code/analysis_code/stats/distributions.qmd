@@ -473,6 +473,28 @@ shapiro.test(r_vc_log$copies_mL)
 
 Most species data has a non normal distribution, so **Shapiro-Wilk's test** will be used uniformally
 
+### TOTAL BACTERIA
+
+```{r}
+shapiro_test(bo$tot_bacteria)
+shapiro_test(c2$tot_bacteria)
+shapiro_test(rd$tot_bacteria)
+```
+
+**Gulf is normal. C2 and BO are not, so lets log transform those**
+
+```{r}
+bo_log<- 
+  bo %>%
+  mutate(tot_bacteria = log10(tot_bacteria))
+
+c2_log<-
+  c2 %>%
+  mutate(tot_bacteria = log10(tot_bacteria))
+shapiro_test(bo_log$tot_bacteria)
+shapiro_test(c2$tot_bacteria)
+```
+
 ### MONTHLY
 
 #### Make Site/Sp DF
