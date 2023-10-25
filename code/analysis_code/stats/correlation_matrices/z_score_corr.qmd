@@ -1,0 +1,247 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+**This code creates a correlation matrix to look at relationships between variables. This helps identify specific relationships of interest**
+
+[Link](http://www.sthda.com/english/wiki/correlation-matrix-a-quick-start-guide-to-analyze-format-and-visualize-a-correlation-matrix-using-r-software):
+
+# Getting Started
+
+#### Libraries
+
+```{r, include= FALSE}
+library(tidyverse)
+library(here)
+library(Hmisc)#Cor Tables and Lag
+library(corrplot) #Cor Plots
+library(lubridate) #For dates
+library(ggpubr) #Plot stacking
+library(kableExtra)
+library(naniar)
+library(corrtable) #This is a good package for making corrleation tables as opposed to matrices
+```
+
+```{r}
+here<- here::here
+select<-dplyr::select
+mutate<-dplyr::mutate
+rename<-dplyr::rename
+```
+
+#### Data
+
+Site data sets have lags incorporated (made in `MASTER_MAKER.qmd`)
+
+```{r, include = FALSE}
+bo<- read_csv(here("data", "processed_data", "z_score", "bo_z_score.csv"))
+c2<- read_csv(here("data", "processed_data", "z_score", "c2_z_score.csv"))
+rd<- read_csv(here("data", "processed_data", "z_score", "rd_z_score.csv"))
+```
+
+# Cleaning
+
+```{r}
+bo<-
+  bo %>%
+  select(!date)
+
+c2<-
+  c2 %>%
+  select(!c(date, hf_copies_mL))
+
+rd<-
+  rd %>%
+  select(!c(date, hf_copies_mL))
+```
+
+#### Rename Copies --> Vibrio
+
+```{r}
+bo<- 
+  bo %>%
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "Chl_a",
+         "Salinity" = "Salinity",
+         "Temperature" = "Temperature",
+         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+       #  "Dissolved Oxygen (%)" = "DO_perc",
+         "Ammonium" = "Ammonium",
+         "Nitrate+Nitrite" = "NO2NO3",
+         "Orthophosphate" = "Orthophosphate",
+         "Silicate" = "Silicate",
+         "DIN" = "DIN",
+         "DIN:DIP" = "DIN_DIP",
+         "TDN" = "TDN",
+         "DON" = "DON",
+         "DOC" = "DOC",
+         "TOC" = "TOC",
+         "TN" = "TN",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag",
+         "Total CFU" = "cfu_tot",
+         "HF183" = "hf_copies_mL",
+         "Total Bacteria" = "tot_bacteria",
+        # "Yellow CFU"  = "cfu_yel",
+        # "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
+
+c2<- 
+  c2 %>%
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "Chl_a",
+         "Salinity" = "Salinity",
+         "Temperature" = "Temperature",
+         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+        # "Dissolved Oxygen (%)" = "DO_perc",
+         "Ammonium" = "Ammonium",
+         "Nitrate+Nitrite" = "NO2NO3",
+         "Orthophosphate" = "Orthophosphate",
+         "Silicate" = "Silicate",
+         "DIN" = "DIN",
+         "DIN:DIP" = "DIN_DIP",
+         "TDN" = "TDN",
+         "DON" = "DON",
+         "DOC" = "DOC",
+         "TOC" = "TOC",
+         "TN" = "TN",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag",
+         "Total CFU" = "cfu_tot",
+         #"HF183" = "hf_copies_mL",
+         "Total Bacteria" = "tot_bacteria",
+        # "Yellow CFU"  = "cfu_yel",
+        # "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
+
+rd<- 
+  rd %>%
+  rename("Total Vibrio" = "copies_mL",
+         "Chlorophyl a" = "Chl_a",
+         "Salinity" = "Salinity",
+         "Temperature" = "Temperature",
+         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+        # "Dissolved Oxygen (%)" = "DO_perc",
+         "Ammonium" = "Ammonium",
+         "Nitrate+Nitrite" = "NO2NO3",
+         "Orthophosphate" = "Orthophosphate",
+         "Silicate" = "Silicate",
+         "DIN" = "DIN",
+         "DIN:DIP" = "DIN_DIP",
+         "TDN" = "TDN",
+         "DON" = "DON",
+         "DOC" = "DOC",
+         "TOC" = "TOC",
+         "TN" = "TN",
+         "Dust" = "dust",
+         "Dust_Lag" = "dust_lag",
+         "Total CFU" = "cfu_tot",
+        # "HF183" = "hf_copies_mL",
+         "Total Bacteria" = "tot_bacteria",
+        # "Yellow CFU"  = "cfu_yel",
+        # "Green CFU" = "cfu_gre",
+         "TSS" = "tss")
+```
+
+# Correlation Matrix
+
+#### Compute Matrix
+
+```{r}
+bo_cor<- rcorr(as.matrix(bo), type = "spearman")
+diag(bo_cor$P) <- 0
+
+c2_cor<- rcorr(as.matrix(c2), type = "spearman")
+diag(c2_cor$P) <- 0
+
+rd_cor<- rcorr(as.matrix(rd), type = "spearman")
+diag(rd_cor$P) <- 0
+```
+
+#### Create Function to make table form of matrix
+
+```{r}
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+```
+
+#### Make DF of Correlations and p-values
+
+```{r}
+b<- flattenCorrMatrix(bo_cor$r, bo_cor$P)
+c<- flattenCorrMatrix(c2_cor$r, c2_cor$P)
+r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
+```
+
+#### Site-specific Correlation Plot
+
+<!--# FYI: WE CAN USE PEARSON FOR LOG10(DUST) X VIBRIO -->
+
+<!--# BUT FOR THE SAKE OF CONSISTENCY, WE WILL USE SPEARMANS FOR EVERYTHING -->
+
+```{r, fig.width = 8, fig.height=8}
+corrplot(bo_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "BLIND OSO", mar = c(0,0,1,0))
+
+corrplot(c2_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "CANALS", mar = c(0,0,1,0))
+
+corrplot(rd_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "GULF", mar = c(0,0,1,0))
+
+flattenCorrMatrix(bo_cor$r, bo_cor$P)
+flattenCorrMatrix(c2_cor$r, c2_cor$P)
+flattenCorrMatrix(rd_cor$r, rd_cor$P)
+
+```
+
+\
+
+#### All Sites Correlation Plot
+
+```{r}
+bo<-bo %>%
+  mutate(Vp = "0",
+         Vp = as.numeric(Vp)) %>%
+  dplyr::select(!HF183)
+
+all<- 
+  rbind(c2, rd, bo) %>%
+  #Remove Non-interesting variables
+  dplyr::select(!c("Dissolved Oxygen (%)", "Secchi", "DIN:DIP"))
+
+all_cor<- rcorr(as.matrix(all), type = "spearman")
+flattenCorrMatrix(all_cor$r, all_cor$P)
+diag(all_cor$P) <- 0
+```
+
+```{r, fig.width=9, fig.height=9}
+corrplot(all_cor$r, type="upper", 
+         tl.col = "black",
+         p.mat = all_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "All Sites", mar = c(0,0,1,0)) 
+```

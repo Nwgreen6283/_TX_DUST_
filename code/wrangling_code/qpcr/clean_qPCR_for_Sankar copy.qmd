@@ -1,0 +1,168 @@
+---
+title: "Clean-up"
+format:
+  html:
+    theme: default
+---
+
+#### Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+#### Data
+
+```{r, include = FALSE}
+va<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'va_anova.csv'))
+vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+vp<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vp_anova.csv'))
+vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova.csv'))
+bact<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+vib<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_vibrio'))
+hf<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'HF183.csv'))
+```
+
+# Clean Daily
+
+## Va
+
+```{r}
+va<-
+  va %>%
+  select(Sample, site, copies_mL) %>%
+  mutate(day = substr(Sample, 2,3),
+         date = as.Date(case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19"))) %>%
+  select(date, copies_mL, site) %>%
+  rename("Va" = "copies_mL")
+va<- va[with(va, order(site, date)),]
+va$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Vc
+
+```{r}
+vc<-
+  vc %>%
+  select(copies_mL, site, date)
+
+vc<- vc[with(vc, order(site, date)),]
+
+bo_letters<-as.data.frame(rep(c(1:5),times=12)) 
+colnames(bo_letters) <- c('Replicate') 
+c2_rd_letters<- as.data.frame(rep(c(1:3),times=24))
+colnames(c2_rd_letters) <- c('Replicate') 
+
+letters<- rbind(bo_letters, c2_rd_letters)
+
+vc<-cbind(vc, letters)%>%
+  rename("Vc" = "copies_mL")
+```
+
+## Vp
+
+```{r}
+vp<-
+  vp %>%
+  filter(Fluor %in% "HEX") %>%
+   select(Sample, site, copies_mL) %>%
+  mutate(day = substr(Sample, 4,5),
+         date = as.Date(case_when(day == "7"~"2022-07-07",
+                         day ==  "8"~"2022-07-08",
+                         day ==  "9"~"2022-07-09",
+                         day ==  "11"~"2022-07-11",
+                         day == "12"~"2022-07-12",
+                         day ==  "13"~"2022-07-13",
+                         day ==  "14"~"2022-07-14",
+                         day ==  "15"~"2022-07-15",
+                         day ==  "16"~"2022-07-16",
+                         day == "17"~"2022-07-17",
+                         day ==  "18"~"2022-07-18",
+                         day == "19"~"2022-07-19"))) %>%
+  select(date, copies_mL, site)%>%
+  drop_na%>%
+  rename("Vp" = "copies_mL")
+vp$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Vv
+
+```{r}
+vv<-
+  vv %>%
+   select(date, site, copies_mL) %>%
+  drop_na()
+
+
+letters1<-as.data.frame(rep(c(1:3),times=35)) 
+colnames(letters1) <- c('Replicate') 
+letters2<- as.data.frame(1:2)
+colnames(letters2) <- c('Replicate') 
+letters<- rbind(letters1, letters2)
+
+vv<-cbind(vv, letters)%>%
+  rename("Vv" = "copies_mL")
+```
+
+## Total Bacteria
+
+```{r}
+bact<-
+  bact %>%
+  rename("Total_Bacteria" = "copies_mL")
+bact$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Total Vibrio
+
+```{r}
+vib<-
+  vib %>%
+  select(!Type)%>%
+  rename("Total_Vibrio" = "copies_mL")
+
+vib$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## HF183
+
+```{r}
+hf<-
+  hf %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(site = "BO")%>%
+  rename("HF183" = "hf_copies_mL")
+hf<- hf[with(hf, order(site, date)),]
+
+hf$Replicate<-as.numeric(rep(c('1','2','3'),times=12))
+```
+
+## Combine Daily qPCR Data
+
+```{r}
+DAILY<-
+  bact %>%
+  full_join(vib) %>%
+  full_join(vp) %>%
+  full_join(va) %>%
+  full_join(vv) %>%
+  select(!Replicate)
+
+```
+
+```{r}
+DAILY1<-
+  cbind(DAILY,vc)
+```

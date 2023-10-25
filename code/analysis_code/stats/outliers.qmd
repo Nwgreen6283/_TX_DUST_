@@ -1,0 +1,149 @@
+---
+title: "outleirs"
+format:
+  html:
+    theme: default
+---
+
+[Link](https://statsandr.com/blog/outliers-detection-in-r/#fn5)
+
+#### Libs
+
+```{r}
+library(here)
+library(tidyverse)
+library(EnvStats)
+library(outliers)
+library(ggpubr)
+```
+
+```{r}
+here<- here::here
+select<- dplyr::select
+```
+
+#### Data
+
+```{r}
+vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+```
+
+# Clean
+
+**Select columns**
+
+```{r}
+vc<-
+  vc %>%
+  select(copies_mL, site, date) %>%
+  filter(site %in% "BO")
+```
+
+```{r}
+shapiro.test(log10(vc$copies_mL))
+```
+
+# Boxplot
+
+```{r}
+vc %>%
+  ggplot() + geom_boxplot(
+    aes(y = log10(copies_mL)))
+```
+
+# Dixon's Test
+
+Similar to the Grubbs test, Dixon test is used to test whether a single low or high value is an outlier. So if more than one outliers is suspected, the test has to be performed on these suspected outliers individually.
+
+Note that Dixon test is most useful for small sample size (usually n≤25�≤25).
+
+To perform the Dixon's test in R, we use the `dixon.test()` function from the `{outliers}` package. However, we [restrict our dataset](https://statsandr.com/blog/data-manipulation-in-r/#subset-a-data-frame) to the 20 first observations as the Dixon test can only be done on small sample size (R will throw an [error](https://statsandr.com/blog/top-10-errors-in-r/) and accepts o[nly dataset of 3 to 30 observations):]{.ul}
+
+**Subset Dataset to just a few dates that had high variability**
+
+```{r}
+vc_dixon<-
+  vc %>%
+  filter(between(date,as.Date('2022-07-14'), as.Date('2022-07-18')))
+vc_dixon_18<-
+  vc %>%
+  filter(date %in% as.Date('2022-07-18'))
+
+vc_dixon_17<-
+  vc %>%
+  filter(date %in% as.Date('2022-07-17'))
+
+vc_dixon_16<-
+  vc %>%
+  filter(date %in% as.Date('2022-07-16'))
+
+vc_dixon_14<-
+  vc %>%
+  filter(date %in% as.Date('2022-07-14'))
+
+vc_dixon_15<-
+  vc %>%
+  filter(date %in% as.Date('2022-07-15'))
+```
+
+**Run Test**
+
+```{r}
+test<- dixon.test(vc_dixon$copies_mL) 
+test_18 <- dixon.test(vc_dixon_18$copies_mL)
+test_17 <- dixon.test(vc_dixon_17$copies_mL)
+test_16 <- dixon.test(vc_dixon_16$copies_mL)
+test_15 <- dixon.test(vc_dixon_15$copies_mL)
+test_14 <- dixon.test(vc_dixon_14$copies_mL)
+test_18
+test_17
+test_16
+test_15
+test_14
+test
+```
+
+A sig. p-value indicates it is an outlier
+
+To test for the [lowest]{.ul} value, simply add the `opposite = TRUE` argument to the `dixon.test()` function
+
+```{r}
+test<-  dixon.test(vc_dixon$copies_mL, opposite = TRUE)
+test_18 <- dixon.test(vc_dixon_18$copies_mL, opposite = TRUE)
+test_17 <- dixon.test(vc_dixon_17$copies_mL, opposite = TRUE)
+test_16 <- dixon.test(vc_dixon_16$copies_mL, opposite = TRUE)
+test_15 <- dixon.test(vc_dixon_15$copies_mL, opposite = TRUE)
+test_14 <- dixon.test(vc_dixon_14$copies_mL, opposite = TRUE)
+test_18
+test_17
+test_16
+test_15
+test_14
+test
+```
+
+The results show that the lowest value 19 is an outlier (*p*-value = 0.008) for both dates. This value is from LOD and is really a non-detect
+
+# Rosner's Test
+
+Rosner's test for outliers has the advantages that:
+
+1.  it is used to detect several outliers at once (unlike Grubbs and Dixon test which must be performed iteratively to screen for multiple outliers), and
+
+2.  it is designed to avoid the problem of masking, where an outlier that is close in value to another outlier can go undetected.
+
+Unlike Dixon test, note that Rosner test is most appropriate when the sample size is large (n≥20�≥20). We therefore use again the initial dataset `dat`, which includes 234 observations.
+
+To perform the Rosner test we use the `rosnerTest()` function from the `{EnvStats}` package. This function requires at least 2 arguments: the data and the number of suspected outliers `k` (with `k = 3` as the default number of suspected outliers).
+
+**Run Test**
+
+```{r}
+test <- rosnerTest(vc$copies_mL,
+  k = 6
+)
+```
+
+```{r}
+test$all.stats
+```

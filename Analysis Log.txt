@@ -1,25 +1,24 @@
-Analysis started: Wed Oct 18 14:27:41 2023
+Analysis started: Mon Oct 23 14:57:50 2023
 
 
-These standards not included in hf183 standard curve regression for copy estimate calculations, because they detected below 50%: 0.045
+These standards not included in Bact standard curve regression for copy estimate calculations, because they detected below 50%: 3.71, 0.371
 
 
 Data Summary:
 "Standards"	"Target"	"Reps"	"Detects"	"Cq.mean"	"Cq.sd"	"Copy.CV"	"Cq.CV"	"Rate"
-4500000	"hf183"	5	5	13.963434558	0.0349233426736149	0.0259284173903821	0.0242105631476555	1
-450000	"hf183"	5	5	16.578661544	0.0634868187650119	0.0461056981163529	0.0440270223183139	1
-45000	"hf183"	5	5	19.943040052	0.118685314577463	0.0908142989920773	0.0824057774029318	1
-4500	"hf183"	5	5	23.205282654	0.108908447141049	0.078720194511955	0.075597258558022	1
-450	"hf183"	5	5	26.384482696	0.14314635240506	0.108173426094675	0.0994661987074694	1
-45	"hf183"	5	5	29.76069524	0.102183617212391	0.0760284020330429	0.070917209191291	1
-4.5	"hf183"	5	5	32.222008868	1.19606597238557	1.21601093628345	0.994176285167179	1
-0.45	"hf183"	5	5	34.959263066	0.669665883731434	0.457141228964887	0.490339416310672	1
-0.045	"hf183"	5	1	37.03743817	NA	NA	NA	0.2
+3710000	"Bact"	5	5	15.427232436	0.153574039414973	0.0965517430465105	0.106751682810816	1
+371000	"Bact"	5	5	19.187409278	0.199547395484079	0.130515763894662	0.138979896499424	1
+37100	"Bact"	5	5	22.860805088	0.284322944540745	0.178500459008605	0.199006826263222	1
+3710	"Bact"	5	5	26.500374382	0.119712646571438	0.0754667662068232	0.0831215241608941	1
+371	"Bact"	5	5	30.25032318	0.0695462021665292	0.0447543707827331	0.0482337725820851	1
+37.1	"Bact"	5	5	33.249222538	0.177849254275806	0.113735021588758	0.123745547535158	1
+3.71	"Bact"	5	0	NA	NA	NA	NA	0
+0.371	"Bact"	5	0	NA	NA	NA	NA	0
 
 
-For hf183, the lowest standard with 95% or greater detection is: 0.45 copies/reaction.
+For Bact, the lowest standard with 95% or greater detection is: 37.1 copies/reaction.
 
-WARNING: For hf183, only 1 standard detected in the informative range (not 0% and not 100%).  Therefore, the LoD model results will be less reliable.
+WARNING: For Bact, all standards detected fully or failed fully.  Therefore, the LoD model will not converge.
 
 
 Assay summary:
@@ -30,7 +29,7 @@ Intercept: The y-intercept of the linear regression.
 
 Low.95: The lowest standard with at least 95% positive detection.
 LOD: The 95% limit of detection as determined by probit modeling.
-LOQ: The limit of quantification as determined by decay modeling, using the user-selected CV threshold of: 0.25
+LOQ: The limit of quantification as determined by decay modeling, using the user-selected CV threshold of: 0.35
 
 rep2.LOD: The effective limit of detection if analyzing in 2 replicates.
 rep3.LOD: The effective limit of detection if analyzing in 3 replicates.

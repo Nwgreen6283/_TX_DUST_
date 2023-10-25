@@ -21,7 +21,7 @@ library(tidyverse)
 #setwd("~/Desktop/Data/LoD/")
 
 ## Read in your data file (MODIFY FILE NAME AS NEEDED):
-DAT <- read.csv(here('data', 'raw_data', 'qpcr', 'lod_loq', 'clean_curves','hf183_LOD.csv'))
+DAT <- read.csv(here('data', 'raw_data', 'qpcr', 'lod_loq', 'clean_curves','tot_bac_LOD.csv')) 
 
 CV<- sd(DAT$Cq) / mean(DAT$Cq)
 
