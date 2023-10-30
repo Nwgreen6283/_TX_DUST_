@@ -51,10 +51,31 @@ rd<-as.data.frame(sapply(rd, function(rd) (rd-mean(rd))/sd(rd)))
 rd$date<- as.Date(c('2022-07-07', '2022-07-08', '2022-07-09','2022-07-11', '2022-07-12', '2022-07-13', '2022-07-14', '2022-07-15', '2022-07-16', '2022-07-17', '2022-07-18', '2022-07-19'))
 ```
 
+**Calculate Delta of Z-scores**
+
+```{r}
+bo_delta<-as.data.frame(sapply(bo, function(bo) (bo-lag(bo)))) %>%
+  drop_na() %>%
+  select(!date)
+
+c2_delta<-as.data.frame(sapply(c2, function(c2) (c2-lag(c2)))) %>%
+  select(!hf_copies_mL) %>%
+  drop_na()%>%
+  select(!date)
+
+rd_delta<-as.data.frame(sapply(rd, function(rd) (rd-lag(rd)))) %>%
+  select(!c(hf_copies_mL, Va, date)) %>%
+  drop_na()
+```
+
 # Save
 
 ```{r}
 write_csv(bo, here('data', 'processed_data', 'z_score', 'bo_z_score.csv'))
 write_csv(c2, here('data', 'processed_data', 'z_score', 'c2_z_score.csv'))
 write_csv(rd, here('data', 'processed_data', 'z_score', 'rd_z_score.csv'))
+
+write_csv(bo_delta, here('data', 'processed_data', 'z_score', 'bo_z_score_delta.csv'))
+write_csv(c2_delta, here('data', 'processed_data', 'z_score', 'c2_z_score_delta.csv'))
+write_csv(rd_delta, here('data', 'processed_data', 'z_score', 'rd_z_score_delta.csv'))
 ```

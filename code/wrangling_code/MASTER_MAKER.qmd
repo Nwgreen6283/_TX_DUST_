@@ -138,7 +138,13 @@ master <-
 
 We will get warnings since we have dust data for the whole year, but Nutrient and Copies_mL data for just the monthly and daily time series. This is ok.
 
-#### 
+#### Create Dust lag
+
+```{r}
+dust_perm<-
+  dust_perm %>%
+  mutate(dust_lag = lag(t7sum))
+```
 
 ## DAILY Site-specific data frames
 
@@ -169,19 +175,16 @@ bo<-
   master2 %>%
   filter(site %in% "Blind Oso"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 1)) %>% #Lag from cca.qmd
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 c2<- 
   master2 %>%
   filter(site %in% "Canals"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 rd<- 
   master2 %>%
   filter(site %in% "Gulf"| date %in% c( as.Date("2022-07-05"), as.Date("2022-07-06"))) %>%
   select(!site) %>% 
-  mutate(dust_lag =Lag(dust, shift  = 1)) %>%
   filter(date %in% as.Date('2022-07-07') : as.Date('2022-07-19')) 
 ```
 

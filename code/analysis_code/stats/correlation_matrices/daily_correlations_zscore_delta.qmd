@@ -22,9 +22,74 @@ library(corrtable) #This is a good package for making corrleation tables as oppo
 #### Data
 
 ```{r, include = FALSE}
-b<- read_csv(here('data', 'processed_data', 'z_score', 'bo_z_score_delta.csv'))
-c<- read_csv(here('data', 'processed_data', 'z_score', 'c2_z_score_delta.csv'))
-r<- read_csv(here('data', 'processed_data', 'z_score', 'rd_z_score_delta.csv'))
+env<- read_csv(here('data', 'processed_data', 'env', 'ENV_META_REPS.csv'))
+qpcr<- read_csv(here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
+dust<-read_csv(here('data', 'processed_data', 'dust', 'dust_master.csv'))
+```
+
+# Clean
+
+```{r}
+env<-
+env %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(Rep, Level))
+
+env$Replicate<-as.numeric(rep(c('1','2'),times=36))
+```
+
+```{r}
+dust<-
+  dust %>%
+  select(t7sum,date) %>%
+  filter(between(date, as.Date('2022-07-06'), as.Date('2022-07-19'))) %>%
+  mutate(dust_lag = lag(t7sum)) %>%
+  filter(!date %in% c(as.Date('2022-07-06'), as.Date('2022-07-10'))) %>%
+  rename('dust' = 't7sum')
+```
+
+```{r}
+master0<-
+  merge(env, qpcr,
+        by = c('Replicate', 'date', 'site'),
+        all = TRUE )
+
+master<-
+  merge(master0, dust,
+        by = "date",
+        all = TRUE)
+```
+
+**Site DF**
+
+```{r}
+b<- 
+  master %>%
+  filter(site %in% "BO")
+
+c<- 
+  master %>%
+  filter(site %in% "C2")
+
+r<- 
+  master %>%
+  filter(site %in% "RD")
+```
+
+**Remove Non-numeric**
+
+```{r}
+b<-
+  b %>% 
+  select(!c(Replicate, date, site, type))
+
+c<-
+  c %>% 
+  select(!c(Replicate, date, site, type, HF183))
+
+r<-
+  r %>% 
+  select(!c(Replicate, date, site, type, HF183))
 ```
 
 # Correlation
