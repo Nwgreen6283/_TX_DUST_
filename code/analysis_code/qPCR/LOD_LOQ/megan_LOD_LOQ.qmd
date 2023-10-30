@@ -1,8 +1,42 @@
-{r}
+---
+title: "megan lod"
+format:
+  html:
+    theme: default
+---
+
+#### Libraries
+
+```{r, include = FALSE}
+library(here)
+library(tidyverse)
+```
+
+#### Data
+
+```{r, include = FALSE}
+vib<- read_csv(here('data', 'raw_data', 'qpcr', 'lod_loq', 'megan', 'hf183.csv'))
+```
+
+# Clean
+
+```{r}
+vib <- 
+  vib %>% 
+  rename("ct" = "Cq") %>%
+  select(c(Sample, ct)) %>%
+  mutate(ct=as.numeric(ifelse(ct=="Undetermined", NA, ct)))
+```
+
+# LOQ/LOD
+
+```{r}
 #Determine the LOD and LOQ by plotting the Normal QQ-Plot
-qqnorm.ct.n1 <- qqnorm(wbe$ct[which(wbe$target=="N1")], plot.it = T) %>% as.data.frame()
-qqnorm.ct.n2 <- qqnorm(wbe$ct[which(wbe$target=="N2")], plot.it = T) %>% as.data.frame()
-tiff(filename = "figures/LML/detection_lims.tiff", height = 9, width = 8, units = "in", res = 600)
+qqnorm.ct.vib <- qqnorm(vib$ct, plot.it = T) %>% as.data.frame()
+
+tiff(filename = "figures/detection_lims.tiff", height = 9, width = 8, units = "in", res = 600)
+
+#Create function to compute LOD and lOQ
 qqnorm.Explorer.ct <- function(qqnorm.ct){
   qqnorm.ct <- qqnorm.ct[which(complete.cases(qqnorm.ct)),]
   qqnorm.ct <- qqnorm.ct[order(qqnorm.ct$x),]
@@ -34,9 +68,12 @@ qqnorm.Explorer.ct <- function(qqnorm.ct){
   loq.ct <- qqnorm.ct$y[which(qqnorm.ct$loq==1)]
   return(list(qqnorm.dataset = qqnorm.ct, lod = lod.ct, loq = loq.ct))
 }
-qqnorm.ct.n1 <- qqnorm.Explorer.ct(qqnorm.ct.n1)
-qqnorm.ct.n2 <- qqnorm.Explorer.ct(qqnorm.ct.n2)
-n1_lod <- qqnorm.ct.n1$lod
-n1_loq <- qqnorm.ct.n1$loq
-n2_lod <- qqnorm.ct.n2$lod
-n2_loq <- qqnorm.ct.n2$loq
+
+#Run function on each data set
+qqnorm.ct.vib <- qqnorm.Explorer.ct(qqnorm.ct.vib)
+
+#Save LOD and LOQ for each data set
+vib_stepone_lod <- qqnorm.ct.vib$lod
+vib_stepone_loq <- qqnorm.ct.vib$loq
+
+```

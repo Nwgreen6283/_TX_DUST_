@@ -1,0 +1,157 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+#### LIbs
+
+```{r}
+library(tidyverse)
+library(here)
+library(Hmisc)#Cor Tables and Lag
+library(corrplot) #Cor Plots
+library(lubridate) #For dates
+library(ggpubr) #Plot stacking
+library(kableExtra)
+library(naniar)
+library(corrtable) #This is a good package for making corrleation tables as opposed to matri
+```
+
+#### Data
+
+```{r, include = FALSE}
+env<- read_csv(here('data', 'processed_data', 'env', 'ENV_META_REPS.csv'))
+qpcr<- read_csv(here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
+dust<-read_csv(here('data', 'processed_data', 'dust', 'dust_master.csv'))
+```
+
+# Clean
+
+```{r}
+env<-
+env %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(Rep, Level))
+
+env$Replicate<-as.numeric(rep(c('1','2'),times=36))
+```
+
+```{r}
+dust<-
+  dust %>%
+  select(t7sum,date) %>%
+  filter(between(date, as.Date('2022-07-06'), as.Date('2022-07-19'))) %>%
+  mutate(dust_lag = lag(t7sum)) %>%
+  filter(!date %in% c(as.Date('2022-07-06'), as.Date('2022-07-10'))) %>%
+  rename('dust' = 't7sum')
+```
+
+```{r}
+master0<-
+  merge(env, qpcr,
+        by = c('Replicate', 'date', 'site'),
+        all = TRUE )
+
+master<-
+  merge(master0, dust,
+        by = "date",
+        all = TRUE)
+```
+
+**Site DF**
+
+```{r}
+b<- 
+  master %>%
+  filter(site %in% "BO")
+
+c<- 
+  master %>%
+  filter(site %in% "C2")
+
+r<- 
+  master %>%
+  filter(site %in% "RD")
+```
+
+**Remove Non-numeric**
+
+```{r}
+b<-
+  b %>% 
+  select(!c(Replicate, date, site, type))
+
+c<-
+  c %>% 
+  select(!c(Replicate, date, site, type, HF183))
+
+r<-
+  r %>% 
+  select(!c(Replicate, date, site, type, HF183))
+```
+
+# Correlation
+
+```{r}
+bo_cor<- rcorr(as.matrix(b), type = "spearman")
+diag(bo_cor$P) <- 0
+
+c2_cor<- rcorr(as.matrix(c), type = "spearman")
+diag(c2_cor$P) <- 0
+
+rd_cor<- rcorr(as.matrix(r), type = "spearman")
+diag(rd_cor$P) <- 0
+```
+
+**Matrix Function**
+
+```{r}
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+```
+
+**DF of P-Values**
+
+```{r}
+b<- flattenCorrMatrix(bo_cor$r, bo_cor$P)
+c<- flattenCorrMatrix(c2_cor$r, c2_cor$P)
+r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
+```
+
+# Plot
+
+```{r, fig.width = 8, fig.height=8}
+corrplot(bo_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "BLIND OSO", mar = c(0,0,1,0))
+
+corrplot(c2_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "CANALS", mar = c(0,0,1,0))
+
+corrplot(rd_cor$r, type="upper",
+         tl.col = "black",
+         p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
+         addCoef.col = "black",
+         number.cex = 0.60,
+         title = "GULF", mar = c(0,0,1,0))
+
+flattenCorrMatrix(bo_cor$r, bo_cor$P)
+flattenCorrMatrix(c2_cor$r, c2_cor$P)
+flattenCorrMatrix(rd_cor$r, rd_cor$P)
+```

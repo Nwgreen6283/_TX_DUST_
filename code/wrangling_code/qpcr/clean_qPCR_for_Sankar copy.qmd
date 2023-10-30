@@ -157,12 +157,23 @@ DAILY<-
   full_join(vib) %>%
   full_join(vp) %>%
   full_join(va) %>%
-  full_join(vv) %>%
-  select(!Replicate)
+  full_join(vv) 
+
+DAILY1<-
+  merge(DAILY, vc,
+        by = c("date", "site", "Replicate"),
+        all = TRUE) %>%
+  mutate(type = "Daily")
+
+DAILY1<-
+  merge(DAILY1, hf,
+        by = c("date", "site", "Replicate"),
+        all = TRUE)
 
 ```
 
+# Save
+
 ```{r}
-DAILY1<-
-  cbind(DAILY,vc)
+write_csv(DAILY1, here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
 ```
