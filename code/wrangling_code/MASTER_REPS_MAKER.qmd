@@ -1,0 +1,94 @@
+---
+title: "Untitled"
+format:
+  html:
+    theme: default
+---
+
+**Libs**
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+**Data**
+
+```{r, include = FALSE}
+env<- read_csv(here('data', 'processed_data', 'env', 'ENV_META_REPS.csv'))
+qpcr<- read_csv(here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
+dust<-read_csv(here('data', 'processed_data', 'dust', 'dust_master.csv'))
+cfu<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
+tss<- read_csv(here('data', 'raw_data', 'tss.csv'))
+```
+
+# Cleaning
+
+## Daily 
+
+```{r}
+#Water Quality
+env<-
+env %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  select(!c(Rep, Level))
+
+env$Replicate<-as.numeric(rep(c('1','2'),times=36))
+
+#Dust
+dust<-
+  dust %>%
+  select(t7sum,date) %>%
+  filter(between(date, as.Date('2022-07-06'), as.Date('2022-07-19'))) %>%
+  mutate(dust_lag = lag(t7sum)) %>%
+  filter(!date %in% c(as.Date('2022-07-06'), as.Date('2022-07-10'))) %>%
+  rename('dust' = 't7sum')
+dust$Replicate<-as.numeric(rep(c('1'),times=12))
+
+#CFU/mL
+cfu<-
+  cfu %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')))
+cfu$Replicate<-as.numeric(rep(c('1','2', '3'),times=36)) 
+cfu<- cfu %>% select(!sample)
+
+#TSS
+tss<-
+  tss %>%
+  select(sample, TSS, date) %>%
+  filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-19')),
+         !grepl('Blank', sample)) %>%
+  mutate(site = substr(sample, 1,2),
+         site = recode(site, "CC" = "C2")) 
+  tss$Replicate<-as.numeric(rep(c('1', '2'),times=36))
+tss<- tss %>% select(site, date, Replicate, TSS)
+
+```
+
+**MASTER**
+
+```{r}
+data1<-
+  merge(env, qpcr, 
+        by = c('Replicate', 'date', 'site'),
+        all = TRUE )
+data2<-
+  merge(data1, cfu,
+        by = c('Replicate', 'date', 'site'),
+        all = TRUE)
+data3<-
+  merge(data2, tss,
+        by = c('Replicate', 'site', 'date'),
+        all = TRUE)
+
+MASTER<-
+  merge(data3, dust,
+        by = c("date", 'Replicate'),
+        all = TRUE)
+```
+
+# Save MASTER REPS
+
+```{r}
+write_csv(MASTER, here('data', 'processed_data', 'tx_master_Daily_REPS.csv'))
+```

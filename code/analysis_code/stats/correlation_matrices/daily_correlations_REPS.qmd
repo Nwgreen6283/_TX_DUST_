@@ -22,21 +22,77 @@ library(corrtable) #This is a good package for making corrleation tables as oppo
 #### Data
 
 ```{r, include = FALSE}
-b<- read_csv(here('data', 'processed_data', 'z_score', 'bo_z_score_delta.csv'))
-c<- read_csv(here('data', 'processed_data', 'z_score', 'c2_z_score_delta.csv'))
-r<- read_csv(here('data', 'processed_data', 'z_score', 'rd_z_score_delta.csv'))
+data<- read_csv(here('data', 'processed_data', 'tx_master_Daily_REPS.csv'))
+```
+
+```{r}
+d<-
+  data %>%
+  select(site, date,Replicate, Salinity, Ammonium, Vc, TSS, dust_lag, cfu_mL)
+```
+
+# Clean
+
+**Rename Variables**
+
+```{r}
+data<-
+  data %>%
+  rename(
+    "Dissolved Oxygen" = "DO_mgL",
+    "Chlorophyl a" = "Chl_a",
+    "DIN:DIP" ="DIN_DIP",
+    "Dust" = "dust",
+    'Dust_Lag' = 'dust_lag',
+    'Nitrate+Nitrite'= 'NO2NO3',
+    'Total Bacteria' = 'Total_Bacteria',
+    'Total Vibrio' = 'Total_Vibrio',
+    'Total CFU' = 'cfu_mL') %>%
+  select(!c(cfu_yel, cfu_gre))
+```
+
+**Site DF**
+
+```{r}
+bo<-
+  data %>%
+  filter(site %in% "BO")
+
+c2<-
+  data %>%
+  filter(site %in% "C2")
+
+rd<-
+  data %>%
+  filter(site %in% "RD")
+```
+
+**Remove Non-numeric**
+
+```{r}
+bo<-
+  bo %>% 
+  select(!c(Replicate, date, site, type))
+
+c2<-
+  c2 %>% 
+  select(!c(Replicate, date, site, HF183, type))
+
+rd<-
+  rd %>% 
+  select(!c(Replicate, date, site,  HF183, type))
 ```
 
 # Correlation
 
 ```{r}
-bo_cor<- rcorr(as.matrix(b), type = "spearman")
+bo_cor<- rcorr(as.matrix(bo), type = "spearman")
 diag(bo_cor$P) <- 0
 
-c2_cor<- rcorr(as.matrix(c), type = "spearman")
+c2_cor<- rcorr(as.matrix(c2), type = "spearman")
 diag(c2_cor$P) <- 0
 
-rd_cor<- rcorr(as.matrix(r), type = "spearman")
+rd_cor<- rcorr(as.matrix(rd), type = "spearman")
 diag(rd_cor$P) <- 0
 ```
 
@@ -65,21 +121,21 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 # Plot
 
 ```{r, fig.width = 8, fig.height=8}
-corrplot(bo_cor$r, type="upper",
+corrplot(bo_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
          number.cex = 0.60,
          title = "BLIND OSO", mar = c(0,0,1,0))
 
-corrplot(c2_cor$r, type="upper",
+corrplot(c2_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
          number.cex = 0.60,
          title = "CANALS", mar = c(0,0,1,0))
 
-corrplot(rd_cor$r, type="upper",
+corrplot(rd_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",

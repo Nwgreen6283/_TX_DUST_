@@ -50,7 +50,7 @@ sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #spe
 ```{r}
 bo<- 
   bo %>%
-  dplyr::select(!c(...1, date, Vp, cfu_gre, cfu_yel, VAI, ...3, type))
+  dplyr::select(!c(...1, date, cfu_gre, cfu_yel, VAI, ...3, type))
 
 c2<- 
   c2 %>%
@@ -193,21 +193,21 @@ r<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
 <!--# BUT FOR THE SAKE OF CONSISTENCY, WE WILL USE SPEARMANS FOR EVERYTHING -->
 
 ```{r, fig.width = 8, fig.height=8}
-corrplot(bo_cor$r, type="upper",
+corrplot(bo_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
          number.cex = 0.60,
          title = "BLIND OSO", mar = c(0,0,1,0))
 
-corrplot(c2_cor$r, type="upper",
+corrplot(c2_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
          number.cex = 0.60,
          title = "CANALS", mar = c(0,0,1,0))
 
-corrplot(rd_cor$r, type="upper",
+corrplot(rd_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
