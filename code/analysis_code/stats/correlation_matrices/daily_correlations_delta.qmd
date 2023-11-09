@@ -22,9 +22,9 @@ library(corrtable) #This is a good package for making corrleation tables as oppo
 #### Data
 
 ```{r, include = FALSE}
-b<- read_csv(here('data', 'processed_data', 'z_score', 'bo_z_score_delta.csv'))
-c<- read_csv(here('data', 'processed_data', 'z_score', 'c2_z_score_delta.csv'))
-r<- read_csv(here('data', 'processed_data', 'z_score', 'rd_z_score_delta.csv'))
+b<- read_csv(here('data', 'processed_data', 'z_score', 'bo_delta.csv'))
+c<- read_csv(here('data', 'processed_data', 'z_score', 'c2_delta.csv'))
+r<- read_csv(here('data', 'processed_data', 'z_score', 'rd_delta.csv'))
 ```
 
 # Clean

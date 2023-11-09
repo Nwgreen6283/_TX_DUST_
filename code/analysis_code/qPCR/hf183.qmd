@@ -112,7 +112,7 @@ hf %>% ggplot() +
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   theme_bw()+
   labs(x = "",
-      y = "HF183 (log(copies/mL))",
+      y = "log10(copies/mL))",
       caption = "Data is on a log-scale")
 ```
 

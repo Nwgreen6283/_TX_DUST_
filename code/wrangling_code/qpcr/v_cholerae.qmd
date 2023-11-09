@@ -34,7 +34,7 @@ bo50<- read_csv(here("data", "raw_data","qpcr", "vc","vc_bo_daily_inh_and_reg_1_
 
 #### Combine BO 1:50 Trials
 
-These two runs are for a total of 5 reps since we had a lot of variability with them. Treat it as on data set.
+These two runs are for a total of 5 reps since we had a lot of variability with them. Treat it as own data set.
 
 ```{r}
 bo<-
@@ -52,11 +52,6 @@ m<- m %>%
 
 bo<- bo %>%
   mutate(site = substr(bo$Sample,1,2))
-
-#b100<- b100 %>%
-  #mutate(site = substr(Sample,1,2))
-bo50<- bo50 %>%
-  mutate(site = substr(Sample,1,2))
 ```
 
 #### Make INH Dataset and save
@@ -74,10 +69,6 @@ inh<-
 
 bo<-
   bo %>%
-  filter(!grepl('i', Sample)) #Drops Inhibition samples
-
-bo50<-
-  bo50 %>%
   filter(!grepl('i', Sample)) #Drops Inhibition samples
 
 saveRDS(inh, file = here("data", "processed_data", "vc_mon_inh.rds")) #Saves inhibition data set for analysis
@@ -165,118 +156,55 @@ filter_bo<- dilution_bo %>%
                           Sample == "BO_18"~"30",
                           Sample == "BO_19"~"30"),
           filter_amt = as.numeric(filter_amt)) 
-
-dilution_bo50<- bo50%>%
-  mutate(dilution = case_when(site == "BO"~"100"),  #BO was 1:100
-         dilution = as.numeric(dilution))
-
-
-
-filter_bo50<- dilution_bo50 %>%
-  mutate(
-    day = substr(dilution_bo50$Sample, 4,7),
-    filter_amt = case_when(
-                          Sample == "BO_7"~"100",
-                          Sample == "BO_8"~"100",
-                          Sample == "BO_9"~"100",
-                          Sample == "BO_9"~"100",
-                          Sample == "BO_11"~"100",
-                          Sample == "BO_12"~"50",
-                          Sample == "BO_13"~"50",
-                          Sample == "BO_14"~"50",
-                          Sample == "BO_15"~"50",
-                          Sample == "BO_16"~"30",
-                          Sample == "BO_17"~"30",
-                          Sample == "BO_18"~"30",
-                          Sample == "BO_19"~"30"),
-          filter_amt = as.numeric(filter_amt)) 
 ```
 
 Cq --> Copies/mL
 
 ```{r}
+vc_LOD<- 11.4#LOD in copies/uL
+```
+
+```{r}
 copies<- filter %>%
     mutate(
-    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6--> e1--> could make it better
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq , #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
-    copies_assay = copies_uL_extract * 1.5,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 17.1) ~ 8.55, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.5,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution) 
+    log_sq = ((Cq-42.230)/-3.196), #Equation 3/23/23. e6--> e1
+    sq = 10^log_sq, #
+    copies_uL = sq ,
+    copies_uL= case_when((copies_uL == "NaN" | copies_uL < vc_LOD) ~ 0.5*vc_LOD, #50% LOD
+                     TRUE ~ copies_uL),
+    concentration_factor = 100/filter_amt, 
+    copies_mL = copies_uL*concentration_factor*dilution) 
 
 copies_m<- filter_m %>%
     mutate(
-    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq , #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
-    copies_assay = copies_uL_extract * 1.5,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 17.1) ~ 8.55, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.5,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution) %>%
-dplyr::select(Sample,copies_mL, site,day)
+    log_sq = ((Cq-42.230)/-3.196), #Equation 3/23/23. e6--> e1
+    sq = 10^log_sq, #
+    copies_uL = sq ,
+    copies_uL= case_when((copies_uL == "NaN" | copies_uL < vc_LOD) ~ 0.5*vc_LOD, #50% LOD
+                     TRUE ~ copies_uL),
+    concentration_factor = 100/filter_amt, 
+    copies_mL = copies_uL*concentration_factor*dilution)  %>%
+dplyr::select(Sample,copies_mL, site,day, copies_uL)
 
 copies_bo<- filter_bo %>%
     mutate(
-    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq , #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
-    copies_assay = copies_uL_extract * 1.5,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 17.1) ~ 8.55, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.5,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution) 
-
-copies_bo50<- filter_bo50 %>%
-    mutate(
-    log_sq = ((Cq-42.230)/-3.196), #Equation of the line to get log(SQ). Equation is 3/23/23. e6 --> e1--> could make it better
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq , #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.) In this case it will be *50
-    copies_assay = copies_uL_extract * 1.5,
-    copies_assay1= case_when((copies_assay == "NaN" | copies_assay < 17.1) ~ 8.55, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.5,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution) %>%
-dplyr::select(Sample,copies_mL, site,day)
-```
-
-#### %POs
-
-11/36
-
-```{r}
-per_pos<- copies %>% 
-  select(copies_assay,Sample) %>%
-  filter(!grepl("BO",Sample)) %>%#get rid of old BO
-  drop_na()
-
-copies_bo1<-
-  copies_bo %>%
-  select(copies_assay,Sample) %>%
-  mutate(Sample = sub("_", "", Sample)) %>%
-  drop_na()
-per_pos<-
-rbind(copies_bo1, per_pos) %>%
-
-mutate(lod = case_when(copies_assay < 17.1 ~ "bad", TRUE ~"good")) 
-
-write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'vc_copies_assay.csv'))
+    log_sq = ((Cq-42.230)/-3.196), #Equation 3/23/23. e6--> e1
+    sq = 10^log_sq, #
+    copies_uL = sq ,
+    copies_uL= case_when((copies_uL == "NaN" | copies_uL < vc_LOD) ~ 0.5*vc_LOD, #50% LOD
+                     TRUE ~ copies_uL),
+    concentration_factor = 100/filter_amt, 
+    copies_mL = copies_uL*concentration_factor*dilution) 
 ```
 
 ```{r}
 copies<-
   copies %>%
-dplyr::select(Sample,copies_mL, site)
+dplyr::select(Sample,copies_mL, site, copies_uL)
 
 copies_bo<- 
   copies_bo %>%
-dplyr::select(Sample,copies_mL, site,day)
+dplyr::select(Sample,copies_mL, site,day, copies_uL)
 ```
 
 Replace NaN with 0 for copies/mL
@@ -298,10 +226,6 @@ replace_bo<- copies_bo %>%
  mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
 filter(!is.na(Sample))   
  #Dropping NAs from STD Curve
-
-replace_bo50<- copies_bo50 %>%
- mutate(copies_mL = ifelse(is.na(copies_mL), 0, copies_mL)) %>%
-filter(!is.na(Sample)) 
 ```
 
 Date Column
@@ -349,20 +273,6 @@ date_bo<- replace_bo %>%
                          day == "17"~"2022-07-17",
                          day ==  "18"~"2022-07-18",
                          day == "19"~"2022-07-19"))
-
-date_bo50<- replace_bo50 %>%
-  mutate(date = case_when(day == "7"~"2022-07-07",
-                         day ==  "8"~"2022-07-08",
-                         day ==  "9"~"2022-07-09",
-                         day ==  "11"~"2022-07-11",
-                         day == "12"~"2022-07-12",
-                         day ==  "13"~"2022-07-13",
-                         day ==  "14"~"2022-07-14",
-                         day ==  "15"~"2022-07-15",
-                         day ==  "16"~"2022-07-16",
-                         day == "17"~"2022-07-17",
-                         day ==  "18"~"2022-07-18",
-                         day == "19"~"2022-07-19"))
 ```
 
 #### Save for ANOVA
@@ -373,6 +283,9 @@ bo_triplicate_new<-
   filter(!site %in% "BO") %>%
   full_join(date_bo)
 write_csv(bo_triplicate_new, here('data', 'processed_data', 'ANOVA Data', 'vc_anova.csv'))
+
+
+write_csv(date_m, here('data', 'processed_data', 'ANOVA Data', 'vc_anova_monthly.csv'))
 ```
 
 Take the average of qPCR triplicates
@@ -382,25 +295,19 @@ final<- date %>%
   group_by(site, Sample,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
   summarize_if(is.numeric, mean) %>%
   ungroup() %>% #Ungroup to spit everything back out 
-  select(date,copies_mL,site)
+  select(date,copies_mL,site, copies_uL)
 
 final_m<- date_m %>% 
   group_by(site, Sample,date, day) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
   summarize_if(is.numeric, mean) %>%
   ungroup() %>% #Ungroup to spit everything back out 
-  select(date,copies_mL,site)
+  select(date,copies_mL,site,copies_uL)
 
 final_bo<- date_bo %>% 
   group_by(site, Sample,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
   summarize_if(is.numeric, mean) %>%
   ungroup() %>% #Ungroup to spit everything back out 
-  select(date,copies_mL,site)
-
-final_bo50<- date_bo50 %>% 
-  group_by(site, Sample,date) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  summarize_if(is.numeric, mean) %>%
-  ungroup() %>% #Ungroup to spit everything back out 
-  select(date,copies_mL,site)
+  select(date,copies_mL,site,copies_uL)
 ```
 
 Save as RDS and manually add date in excel
@@ -412,8 +319,6 @@ write.csv(final, file= here("data","processed_data","vc_clean_copies_daily.csv")
 write.csv(final_m, file= here("data","processed_data","vc_clean_copies_mon.csv"))
 
 write.csv(final_bo, file= here("data","processed_data","vc_clean_copies_dail_1_50.csv")) #All 5 reps 
-
-write.csv(final_bo50, file= here("data","processed_data","vc_clean_copies_daily_1_50_2reps.csv")) #Reps 4&5
 ```
 
 #### Clean BO dataset

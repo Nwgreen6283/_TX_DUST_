@@ -12,6 +12,12 @@ library(tidyverse)
 library(here)
 ```
 
+```{r}
+here<-here::here
+select<- dplyr::select
+rename<- dplyr::rename
+```
+
 **Data**
 
 ```{r, include = FALSE}
@@ -24,7 +30,7 @@ tss<- read_csv(here('data', 'raw_data', 'tss.csv'))
 
 # Cleaning
 
-## Daily 
+## Daily
 
 ```{r}
 #Water Quality

@@ -12,6 +12,12 @@ library(tidyverse)
 library(here)
 ```
 
+```{r}
+select<- dplyr::select
+here<- here::here
+rename<- dplyr::rename
+```
+
 #### Data
 
 ```{r, include = FALSE}
@@ -168,7 +174,8 @@ DAILY1<-
 DAILY1<-
   merge(DAILY1, hf,
         by = c("date", "site", "Replicate"),
-        all = TRUE)
+        all = TRUE) %>%
+  select(!copies_uL)
 
 ```
 

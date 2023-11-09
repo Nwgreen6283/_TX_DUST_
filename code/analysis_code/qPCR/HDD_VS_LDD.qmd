@@ -183,24 +183,33 @@ bxp +
 **Vc at BO (Non-sig): Non Parametric**
 
 ```{r}
+stat.test <- spp %>%
+  #group_by(dust) %>%
+  wilcox_test(Vc ~ dust) %>%
+  adjust_pvalue(method = "bonferroni") %>%
+  add_significance("p.adj")
+stat.test
+
+# Create a box plot
 bxp <- ggboxplot(
-  spp, x = "dust", y = "Vc", palette =cbbPalette)
+  spp, x = "dust", y = "Vc", 
+   color = "#DDAA33")
 
-pwc <- spp %>%
- # group_by(Site) %>%
-  wilcox_test(Vc ~ dust, p.adjust.method = "bonferroni")
+# Add p-values onto the box plots
+stat.test <- stat.test %>%
+  add_xy_position(x = "dust", dodge = 0.8)
+bxp + stat_pvalue_manual(
+  stat.test,  label = "p", tip.length = 0.05
+  )
 
-pwc <- pwc %>% add_xy_position(x = "dust") 
-
-bxp +
-  stat_pvalue_manual(
-    pwc, 
-    step.group.by = "dust",
-    tip.length = 0.05, step.increase = 0.1,
-   # y.position = c(24000,40000),
-    hide.ns= TRUE) +
+# Add 10% spaces between the p-value labels and the plot border
+bxp + stat_pvalue_manual(
+  stat.test,  label = "p", tip.length = 0.05,
+  y.position = 230, color = "#DDAA33"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))+
   
-  labs(y = "Total Vibrio (copies/mL)",
+  labs(y = "V. cholerae (copies/mL)",
        x = "")+
   theme_bw()+
   theme(legend.position = "none",

@@ -1,7 +1,8 @@
-﻿target,a_lod,dna,assay_vol
+﻿target,copies_LOD,dna,assay_vol
+Total Bacteria ,16.5,2.5,10
 Total Vibrio,1.49,2.5,10
 Va,7.08,1.2,15
 Vc,11.4,1.5,15
-Vp,0.672,1.2,15
-Vv,0.91,1.2,15
-Total Bacteria,,2.5,10
+Vp,3,1.2,15
+Vv,3,1.2,15
+HF183,3,5,20

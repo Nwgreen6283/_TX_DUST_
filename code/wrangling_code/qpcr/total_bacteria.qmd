@@ -142,20 +142,24 @@ mon<- mon %>%
 <!--# May need to go from e8 to e0 -->
 
 ```{r}
+bact_LOD<- 16.5 #LOD copies/µL
+```
+
+```{r}
 master<- master %>%
     mutate(
-    log_sq = ((Cq-38.705)/-3.542), #Equation of the line to get log(SQ). Equation is 5/30/23. e6--> e1
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    log_sq = ((Cq-38.705)/-3.542), #Equation 5/30/23. e6--> e1
+    sq = 10^log_sq,
+    copies_uL = sq *dilution,
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor) %>%
+    copies_mL = copies_uL*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site)
 
 mon<- mon %>%
     mutate(
-    log_sq = ((Cq-38.705)/-3.542), #Equation of the line to get log(SQ). Equation is 5/30/23. e6--> e1
+    log_sq = ((Cq-38.705)/-3.542), 
     sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq *dilution, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
+    copies_uL_extract = sq *dilution, 
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
     copies_mL = copies_uL_extract*concentration_factor) %>%
 dplyr::select(Sample,copies_mL, site,day)
@@ -213,6 +217,7 @@ anova<-
   filter(!site %in% "NTC")
 
 write_csv(anova, here('data', 'processed_data', 'ANOVA Data', 'total_bacteria.csv'))
+write_csv(mon, here('data', 'processed_data', 'ANOVA Data', 'total_bacteria_monthly.csv'))
 ```
 
 #### Average qPCR Triplicates

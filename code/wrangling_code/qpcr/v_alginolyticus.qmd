@@ -132,74 +132,46 @@ m<- m %>%
 Cq --> Copies/mL
 
 ```{r}
+va_LOD<- 7.08 #LOD as copies/µL
+```
+
+```{r}
 
 #DAILY
 d<- d %>%
     mutate(
-    log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
+    log_sq = ((Cq-38.817)/-3.672), #Equation of the line (7/6/23 (e6--> e1))
     sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
-    copies_assay = copies_uL_extract * 1.2,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 8.4960) ~ 4.25, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.2,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution)
+    copies_uL = sq, #THese are the same 
+    copies_uL1= case_when((copies_uL == "NaN" | copies_uL < va_LOD) ~ 0.5*va_LOD, #50% LOD
+                     TRUE ~ copies_uL),
+    concentration_factor = 100/filter_amt, 
+    copies_mL = copies_uL1*concentration_factor*dilution)
 
 #MONTHLY
 m<- m %>%
     mutate(
-    log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq , #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
-    copies_assay = copies_uL_extract * 1.2,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 8.4960) ~ 4.25, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.2,
+    log_sq = ((Cq-38.817)/-3.672), 
+    sq = 10^log_sq,
+    copies_uL = sq , 
+    copies_uL1= case_when((copies_uL == "NaN" | copies_uL < va_LOD) ~ 0.5*va_LOD, #50% LOD
+                     TRUE ~ copies_uL),
     concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution) %>%
-select(Sample,copies_mL, site, day)
-```
-
-```{r}
-shit<- d %>%
-    mutate(
-    log_sq = ((Cq-38.817)/-3.672), #Equation of the line to get log(SQ). Equation is 7/6/23 (e6--> e1)
-    sq = 10^log_sq, #Unlog 
-    copies_uL_extract = sq, #(Copies/uL of 1:10)*(1 if there was no sample dilution // *10 if there was a 1:10 dilution etc.)
-    copies_assay = copies_uL_extract * 1.2,
-    copies_assay= case_when((copies_assay == "NaN" | copies_assay < 8.4960) ~ 4.25, #50% LOD
-                     TRUE ~ copies_assay),
-    copies_uL_extract = copies_assay / 1.2,
-    concentration_factor = 100/filter_amt, #(Concentration factor = amount of eluted DNA from ZYMO) / (filter amount from vacuum filtration)
-    copies_mL = copies_uL_extract*concentration_factor*dilution)
+    copies_mL = copies_uL1*concentration_factor*dilution) %>%
+select(Sample,copies_mL, site, day, copies_uL1)
 ```
 
 #### Save Triplicates for Boxplots
 
 ```{r}
 write_csv(d, here('data', 'processed_data', 'ANOVA Data','va_anova.csv'))
-```
-
-### %Pos delete later
-
-**1/36 were above LOD**
-
-```{r}
-per_pos<- d %>% 
- select(copies_assay,Sample) %>%
- #group_by(Sample) %>% #Group all chr together. All that should be left out is the numeric vector we want to work with (in this case, copies_mL)
-  #summarize_if(is.numeric, mean) %>%
-  #ungroup() %>%
-  mutate(lod = case_when(copies_assay < 8.496 ~ "bad", TRUE ~"good"))
-
-write_csv(per_pos,here('data', 'processed_data', 'qpcr', 'LOD', 'va_copies_assay.csv'))
+write_csv(m, here('data', 'processed_data', 'ANOVA Data','va_anova_monthly.csv'))
 ```
 
 ```{r}
 d<-
   d %>%
-select(Sample,copies_mL, site)
+select(Sample,copies_mL, site, copies_uL1)
 
 ```
 
@@ -231,7 +203,7 @@ d<- d %>%
                          day ==  "18"~"2022-07-18",
                          day == "19"~"2022-07-19")) %>%
   filter(!is.na(date)) %>%
-  select(date, copies_mL, site)
+  select(date, copies_mL, site, copies_uL1)
 
 
 m<- m %>%
