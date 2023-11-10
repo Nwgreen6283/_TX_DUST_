@@ -13,7 +13,9 @@ library(here)
 ```
 
 ```{r}
-
+here<- here::here
+rename<- dplyr::rename
+select<- dplyr::select
 ```
 
 # LOADING AND CLEANING DATA

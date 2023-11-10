@@ -118,6 +118,10 @@ mean(c$VAI)
 #### Daily VAI
 
 ```{r}
+cbbPalette <- c("#DDAA33", "#BB5566", "#004488")
+```
+
+```{r}
 daily %>%
   ggplot() + geom_bar(
     aes(x = date,
@@ -127,8 +131,7 @@ daily %>%
     stat = "identity") +
   facet_wrap(~site) +
   theme_bw() + 
-  labs(title = "Daily VAI",
-       fill = "Site",
+  labs(fill = "Site",
        x = "Date")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(face = "bold"),
