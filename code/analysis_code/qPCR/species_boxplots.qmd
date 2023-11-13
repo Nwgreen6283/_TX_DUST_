@@ -233,9 +233,9 @@ ggplot(vv_sum1,
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
-  theme(#axis.text.x = element_blank(),
+  theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-       # axis.ticks.x = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.title.y = element_text(size = 13, face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -301,8 +301,8 @@ ggplot(vc_sum1,
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
-  theme(#axis.text.x = element_blank(),
-        #axis.ticks.x = element_blank(),
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 13, face = "bold"),
         axis.text.y = element_text(size = 10),
@@ -381,7 +381,7 @@ vp_p
 ggarrange(vc_bo, vv_bo, vc_c2_rd, vv_c2_rd,
           nrow = 2,
           ncol = 2,
-          #common.legend = TRUE,
+          common.legend = TRUE,
           align = "hv")
 
 ggsave(here('results', 'plots','qpcr', 'species', 'species_SE_plots.png' ))

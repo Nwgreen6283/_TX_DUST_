@@ -89,7 +89,9 @@ vibrio<-
          "Vibrio_CFU" = "cfu_tot",
          "NH4+" = "Ammonium",
          "Chlorophyll-a" = "Chl_a",
-         "24_h_lag_Dust" = "dust_lag")
+         "24_h_lag_Dust" = "dust_lag",
+         "V_vulnificus" = "Vv",
+         "V_cholerae" = "Vc")
 
 bacteria<-
   bacteria %>%

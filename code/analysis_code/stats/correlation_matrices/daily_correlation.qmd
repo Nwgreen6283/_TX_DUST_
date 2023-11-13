@@ -50,15 +50,15 @@ sp<- read_rds(here("data", "processed_data", "qpcr", "species_copies.rds")) #spe
 ```{r}
 bo<- 
   bo %>%
-  dplyr::select(!c(...1, date, cfu_gre, cfu_yel, VAI, ...3, type))
+  dplyr::select(!c(...1, date, cfu_gre, cfu_yel, VAI, ...3, type, Va, Vp))
 
 c2<- 
   c2 %>%
-  dplyr::select(!c( ...1, date, hf_copies_mL,cfu_gre, cfu_yel, VAI,...3, type))
+  dplyr::select(!c( ...1, date, hf_copies_mL,cfu_gre, cfu_yel, VAI,...3, type, Va, Vp))
 
 rd<- 
   rd %>%
-  dplyr::select(!c(...1, date, hf_copies_mL,cfu_gre, cfu_yel, VAI, ...3, type))
+  dplyr::select(!c(...1, date, hf_copies_mL,cfu_gre, cfu_yel, VAI, ...3, type, Va, Vp))
 ```
 
 #### Rename Copies --> Vibrio
@@ -218,6 +218,18 @@ flattenCorrMatrix(bo_cor$r, bo_cor$P)
 flattenCorrMatrix(c2_cor$r, c2_cor$P)
 flattenCorrMatrix(rd_cor$r, rd_cor$P)
 
+```
+
+**Save DF as csv to print**
+
+```{r}
+b_print<- flattenCorrMatrix(bo_cor$r, bo_cor$P)
+c_print<- flattenCorrMatrix(c2_cor$r, c2_cor$P)
+r_print<- flattenCorrMatrix(rd_cor$r, rd_cor$P)
+
+write_csv(b_print, here('data', 'processed_data', 'correlation_pvalues', 'bo_pvalues.csv'))
+write_csv(c_print, here('data', 'processed_data', 'correlation_pvalues', 'c2_pvalues.csv'))
+write_csv(r_print, here('data', 'processed_data', 'correlation_pvalues', 'rd_pvalues.csv'))
 ```
 
 \

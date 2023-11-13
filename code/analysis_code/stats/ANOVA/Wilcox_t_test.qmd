@@ -176,23 +176,23 @@ r_bac<-
   filter(site %in% "Gulf")
 ```
 
-# T.test
+# Stat Test
 
-#### Bacteria
-
-```{r}
-t.test(tot_bacteria ~ event, data = b_bac)
-t.test(tot_bacteria ~ event, data = c_bac)
-t.test(tot_bacteria ~ event, data = r_bac)
-```
-
-#### Dust
+#### Bacteria: Non-parametric
 
 ```{r}
-t.test(t7sum ~ event, data = dust)
+wilcox.test(tot_bacteria ~ event, data = b_bac)
+wilcox.test(tot_bacteria ~ event, data = c_bac)
+wilcox.test(tot_bacteria ~ event, data = r_bac)
 ```
 
-#### Total Vibrio
+#### Dust: Non-parametric
+
+```{r}
+wilcox.test(t7sum ~ event, data = dust)
+```
+
+#### Total Vibrio: Parametric
 
 ```{r}
 #BO
@@ -205,7 +205,7 @@ t.test(copies_mL ~ dust, data = c)
 t.test(copies_mL ~ dust, data = r)
 ```
 
-#### CFU
+#### CFU: Parametei
 
 ```{r}
 #BO
@@ -218,17 +218,17 @@ t.test(cfu_tot ~ dust, data = c_cfu)
 t.test(cfu_tot ~ dust, data = r_cfu)
 ```
 
-#### Species
+#### Species: Nonpara
 
 ```{r}
 #BO Vv
-t.test(Vv ~ dust, data = b_vv)
+wilcox.test(Vv ~ dust, data = b_vv)
 
 #BO Vc
-t.test(Vc ~ dust, data = b_vc)
+wilcox.test(Vc ~ dust, data = b_vc)
 
 #RD Vc
-t.test(Vc ~ dust, data = r_vc)
+wilcox.test(Vc ~ dust, data = r_vc)
 ```
 
 #### HF183

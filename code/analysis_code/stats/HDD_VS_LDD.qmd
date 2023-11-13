@@ -7,7 +7,7 @@ format:
 
 #### Library
 
-```{r}
+```{r, include=FALSE}
 library(tidyverse)
 library(here)
 library(ggpubr)

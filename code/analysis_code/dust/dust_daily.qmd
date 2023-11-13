@@ -86,14 +86,19 @@ dust %>%
 
 ```
 
-#### What was the average for the first half (7-12)
+#### What was the average for the LDD and HDD
 
 ```{r}
-avg<-
+avg_low<-
   dust %>%
   filter(between(date, as.Date('2022-07-07'), as.Date('2022-07-12')))
 
-avg_value<- mean(avg$t7sum)
+avg_high<-
+  dust %>%
+  filter(between(date, as.Date('2022-07-13'), as.Date('2022-07-19')))
+
+avg_value_LDD<- mean(avg_low$t7sum)
+avg_value_HDD<- mean(avg_high$t7sum)
 ```
 
 #### Plot TSUM
@@ -131,4 +136,4 @@ dust_tbl<-
 dust_tbl
 ```
 
-hgyaqs
+#### 

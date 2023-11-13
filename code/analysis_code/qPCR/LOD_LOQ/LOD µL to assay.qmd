@@ -15,7 +15,9 @@ library(here)
 ```
 
 ```{r}
-here<-here::here
+here<- here::here
+select<- dplyr::select
+rename<- dplyr::rename
 ```
 
 #### Data
@@ -137,12 +139,21 @@ vc3<- vc1 %>%
   mutate(point_shape = case_when((LOD == 3 & site == "Canals") ~ 1,
                                  (LOD == 3 & site == "Gulf") ~ 1,
                                  (LOD == 5 & site == "Blind Oso") ~ 1, TRUE ~ 16),
-         per_pos = case_when(LOD == 5 ~ 0,
-                             LOD == 4 ~0.2,
-                             LOD == 3 ~ 0.4,
-                             LOD == 2 ~ 0.6,
-                             LOD == 1 ~ 0.8,
-                             LOD == 0 ~ 1)) %>% #If all three or 5 were below LOD (so n = 3 or n = 5), then it will be shape #1 or open circle. Else it will be shape #16 or closed cirlce
+         per_pos = case_when(LOD == 5 & site == "Blind Oso" ~ 0 ,
+                             LOD == 4 & site == "Blind Oso" ~0.2,
+                             LOD == 3 & site == "Blind Oso" ~ 0.4,
+                             LOD == 2 & site == "Blind Oso" ~ 0.6,
+                             LOD == 1 & site == "Blind Oso"  ~ 0.8,
+                             LOD == 0 & site == "Blind Oso"  ~ 1,
+                             LOD == 3 & site == "Canals"  ~ 0,
+                             LOD == 2 & site == "Canals"  ~ 0.33,
+                             LOD == 1 & site == "Canals"  ~ 0.66,
+                             LOD == 0 & site == "Canals"  ~ 1,
+                             LOD == 3 & site == "Gulf"  ~ 0,
+                             LOD == 2 & site == "Gulf"  ~ 0.33,
+                             LOD == 1 & site == "Gulf"  ~ 0.66,
+                             LOD == 0 & site == "Gulf"  ~ 1,
+                             )) %>% #If all three or 5 were below LOD (so n = 3 or n = 5), then it will be shape #1 or open circle. Else it will be shape #16 or closed cirlce
   unique()
 
   write_csv(vc3, here('data', 'processed_data', 'qpcr','LOD', 'vc_above_below.csv' )) 

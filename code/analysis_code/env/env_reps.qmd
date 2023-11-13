@@ -374,6 +374,7 @@ toc<-
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
+toc
 ```
 
 #### 
@@ -738,6 +739,7 @@ cop<-
    #annotate("text", x = as.Date('2022-07-09'), y = 85000, label = "r = 0.67", color = "4c848c") #RD
 
 ggsave(here("results", "plots", "env", "total_vib.png"))
+cop
 ```
 
 # COMBINE
@@ -876,13 +878,9 @@ annotate_figure(NITRATE,
 
 ```{r}
 single<-
-  ysi %>%
+  daily %>%
   dplyr::select(date, Site,
-                
-         Chl_a
-         
-         )
-
+                tot_bacteria)
 ```
 
 ```{r}
@@ -900,9 +898,7 @@ b<-
 ```
 
 ```{r}
-mean(b$Chl_a)
-mean(c$Chl_a)
-mean(g$Chl_a)
+colMeans(b[,3])
+colMeans(c[,3])
+colMeans(g[,3])
 ```
-
-# 
