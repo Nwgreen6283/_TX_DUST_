@@ -18,6 +18,8 @@ select<- dplyr::select
 rename<- dplyr::rename
 ```
 
+# DAILY
+
 **Data**
 
 ```{r, include = FALSE}
@@ -28,9 +30,7 @@ cfu<- read_csv(here('data', 'processed_data', 'cfu', 'cfu_anova.csv'))
 tss<- read_csv(here('data', 'raw_data', 'tss.csv'))
 ```
 
-# Cleaning
-
-## Daily
+## Cleaning
 
 ```{r}
 #Water Quality
@@ -71,7 +71,7 @@ tss<- tss %>% select(site, date, Replicate, TSS)
 
 ```
 
-**MASTER**
+**DAILY MASTER**
 
 ```{r}
 data1<-
@@ -92,6 +92,10 @@ MASTER<-
         by = c("date", 'Replicate'),
         all = TRUE)
 ```
+
+# MONTHLY
+
+**Data**
 
 # Save MASTER REPS
 

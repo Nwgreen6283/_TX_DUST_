@@ -18,7 +18,7 @@ here<- here::here
 rename<- dplyr::rename
 ```
 
-#### Data
+#### Daily Data
 
 ```{r, include = FALSE}
 va<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'va_anova.csv'))
@@ -30,7 +30,7 @@ vib<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_vibrio'))
 hf<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'HF183.csv'))
 ```
 
-# Clean Daily
+# DAILY CLEANING
 
 ## Va
 
@@ -175,12 +175,178 @@ DAILY1<-
   merge(DAILY1, hf,
         by = c("date", "site", "Replicate"),
         all = TRUE) %>%
-  select(!copies_uL)
+  select(!copies_uL) %>%
+  select(date, type, site, Replicate, Total_Bacteria, Total_Vibrio, Va, Vc, Vp, Vv, HF183) %>%
+  rename(
+    "Date" = 'date',
+    'Site' = 'site',
+    'V_parahaemolyticus' = 'Vp',
+    'V_vulnificus' = 'Vv',
+    'V_cholerae' = 'Vc',
+    'V_alginolyticus' = 'Va',
+    'Type' = 'type')
 
+```
+
+# MONTHLY CLEANING
+
+**Monthly Data**
+
+```{r, include = FALSE}
+va<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'va_anova_monthly.csv'))
+vc<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vc_anova_monthly.csv'))
+vp<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vp_anova_monthly.csv'))
+vv<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'vv_anova_monthly.csv'))
+bact<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_bacteria_monthly.csv'))
+vib<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'total_vibrio_monthly_anova.csv'))
+hf<- read_csv(here('data', 'processed_data', 'ANOVA Data', 'HF183.csv'))
+```
+
+## Va
+
+```{r}
+va<-
+  va %>%
+  select(Sample, site, copies_mL) %>%
+  mutate(day = substr(Sample, 4,7),
+         date = as.Date(case_when(
+                         day == "2"~"2022-02-16",
+                         day == " 2"~"2022-02-16",#One with a space
+                         day ==  "3"~"2022-03-09",
+                         day ==  "4"~"2022-04-20",
+                         day ==  "5_11"~"2022-05-11",
+                         day == "5_20"~"2022-05-20",
+                         day ==  "5_24"~"2022-05-24",
+                         day ==  "6"~"2022-06-14",
+                         day ==  "8"~"2022-08-09",
+                         day ==  "9"~"2022-09-13",
+                         day == "10"~"2022-10-18",
+                         day ==  "11"~"2022-11-15",
+                         day == "12"~"2022-12-14"))) %>%
+  select(date, copies_mL, site) %>%
+  rename("Va" = "copies_mL")
+va<- va[with(va, order(site, date)),]
+va$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Vc
+
+```{r}
+vc<-
+  vc %>%
+  select(copies_mL, site, date)
+
+vc<- vc[with(vc, order(site, date)),]
+
+vc$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+
+vc<-
+  vc %>%
+  rename("Vc" = "copies_mL")
+```
+
+## Vp
+
+```{r}
+vp<-
+  vp %>%
+  select(date, copies_mL, site)%>%
+  drop_na%>%
+  rename("Vp" = "copies_mL")
+vp$date[vp$date == "2022-06-13"] <- "2022-06-14" 
+vp$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Vv
+
+```{r}
+vv<-
+  vv %>%
+   select(date, site, copies_mL) %>%
+  drop_na()
+
+
+vv$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+
+vv<-vv %>%
+  rename("Vv" = "copies_mL")
+```
+
+## Total Bacteria
+
+```{r}
+bact<-
+  bact %>%
+  rename("Total_Bacteria" = "copies_mL") %>%
+  drop_na() 
+bact$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## Total Vibrio
+
+```{r}
+vib<-
+  vib %>%
+  select(!Type)%>%
+  rename("Total_Vibrio" = "copies_mL")
+
+vib$Replicate<-as.numeric(rep(c('1','2','3'),times=36))
+```
+
+## HF183
+
+```{r}
+hf<-
+  hf %>%
+  filter(!between(date, as.Date('2022-07-07'), as.Date('2022-07-19'))) %>%
+  mutate(site = "BO")%>%
+  rename("HF183" = "hf_copies_mL")
+hf<- hf[with(hf, order(site, date)),]
+
+hf$Replicate<-as.numeric(rep(c('1','2','3'),times=12))
+```
+
+## Combine Monthly qPCR Data
+
+```{r}
+MONTHLY<-
+  bact %>%
+  full_join(vib) %>%
+  full_join(vp) %>%
+  full_join(va) %>%
+  full_join(vv) 
+
+MONTHLY1<-
+  merge(MONTHLY, vc,
+        by = c("date", "site", "Replicate"),
+        all = TRUE) %>%
+  mutate(type = "Monthly")
+
+MONTHLY1<-
+  merge(MONTHLY1, hf,
+        by = c("date", "site", "Replicate"),
+        all = TRUE) %>%
+  select(!copies_uL) %>%
+  select(date, type, site, Replicate, Total_Bacteria, Total_Vibrio, Va, Vc, Vp, Vv, HF183) %>%
+  rename(
+    "Date" = 'date',
+    'Site' = 'site',
+    'V_parahaemolyticus' = 'Vp',
+    'V_vulnificus' = 'Vv',
+    'V_cholerae' = 'Vc',
+    'V_alginolyticus' = 'Va',
+    'Type' = 'type')
+
+```
+
+# Merge MONTHLY and DAILY DF
+
+```{r}
+MASTER_OF_ALL_THAT_LIVES<- rbind(DAILY1, MONTHLY1)
 ```
 
 # Save
 
 ```{r}
-write_csv(DAILY1, here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
+write_csv(MASTER_OF_ALL_THAT_LIVES, here('data', 'processed_data', 'qpcr', 'ALL_QPCR_REPS.csv'))
 ```
