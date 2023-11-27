@@ -25,6 +25,12 @@ library(tidyverse)
 library(lubridate)
 ```
 
+```{r}
+here<-here::here
+select<- dplyr::select
+rename<- dplyr::rename
+```
+
 #### Data
 
 ```{r}
@@ -68,24 +74,18 @@ master<- rbind(bo_d, c2_d, rd_d) %>%
 ```{r}
 master<-
   master %>%
-  select(site, date, copies_mL, Vc, Vv, don, toc, tn, doc, dust, dust_lag, do_mgl, cfu_tot, sal, amm, chl, nn, sil, temp, tss, tot_bacteria)
+  select(site, date, copies_mL, Vc, Vv, DON, TOC, TN, DOC, dust, dust_lag, DO_mgL, cfu_tot, Salinity, Ammonium, Chl_a, NO2NO3, Silicate, Temperature, tss, tot_bacteria)
 
 master<-
   master %>%
-  rename("Temperature" = "temp",
-         "Salinity" = "sal",
-         "DOC" = "doc", 
-         "TOC" = "toc",
-         "TN" = "tn",  
-         "DON" = "don",
-         "Chl_a" = "chl",
-         "SiO42-" = "sil",
+  rename("SiO42-" = "Silicate",
          "TSS" = "tss",
-         "NO2-NO3" = "nn",
-         "DO" = "do_mgl",
+         "DO" = "DO_mgL",
          "Total_Vibrio" = "copies_mL",
          "Vibrio_CFU" = "cfu_tot",
-         "NH4+" = "amm")
+         "NH4+" = "Ammonium",
+         'V.cholerae' = 'Vc',
+         'V.vulnificus' = 'Vv')
 ```
 
 # PCA

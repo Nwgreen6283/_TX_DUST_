@@ -111,7 +111,7 @@ temp<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text( face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none") + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
@@ -148,7 +148,7 @@ sal<- ysi %>%
     axis.title.x = element_blank(),
    # axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none") + #Moves legend onto plot 
     scale_color_manual(values = cbbPalette)
@@ -177,7 +177,7 @@ pH<-
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text( face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -209,7 +209,7 @@ do<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text( face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.position = "none",
     legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) + #Moves legend onto plot 
@@ -307,7 +307,7 @@ don<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+        #axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -434,9 +434,9 @@ tn<-
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
-  theme(axis.text.x = element_blank(),
+  theme(axis.text.x = element_text(size = 10),
         axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+        #axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -467,7 +467,7 @@ sil<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_text(size =10),
         axis.title.x = element_text(size = 13),
-        axis.title.y = element_text(size = 13,face = "bold"),
+        axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
 sil
@@ -529,7 +529,7 @@ din_dip<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_text(size =10),
         axis.title.x = element_text(size = 13),
-        axis.title.y = element_text(size = 13,face = "bold"),
+        axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") +
   geom_hline(yintercept = 16, linetype = "dotdash")
@@ -563,7 +563,7 @@ din<-
   scale_color_manual(values = cbbPalette)+
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+        #axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(size = 10),
         legend.position = "none") 
@@ -656,7 +656,7 @@ tss<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
    axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 13, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.3,'cm'),
     legend.position = "none")+
@@ -727,7 +727,7 @@ cop<-
     axis.title.x = element_blank(),
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title.y = element_text(size = 7, face = "bold"),
+    axis.title.y = element_text(face = "bold"),
     axis.text.y = element_text(size = 7),
     legend.key.size = unit(0.5,'cm'),
     legend.position = "none",
@@ -864,12 +864,14 @@ annotate_figure(NITRATE,
 
 # ALL
 
-```{r, fig.height=8, fig.width=5}
-  ggarrange(temp, sal, do,ortho, nn,amm,tdn,toc,doc,tss,don,din,
+```{r, fig.height=5.9, fig.width=13}
+  ggarrange(temp, sal, do,ortho, nn,amm,tdn,toc,doc,tss,
+            don+font("x.text", size = 10),
+            din+font("x.text", size = 10),
             tn +font("x.text", size = 10),
           chl+font("x.text", size = 10),
-          nrow = 7,
-          ncol = 2,
+          nrow = 4,
+          ncol = 4,
           align = "v",
           common.legend = TRUE)
 ```

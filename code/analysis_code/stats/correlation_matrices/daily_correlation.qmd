@@ -67,10 +67,10 @@ rd<-
 bo<- 
   bo %>%
   rename("Total Vibrio" = "copies_mL",
-         "Chlorophyl a" = "Chl_a",
+         "Chlorophyll a" = "Chl_a",
          "Salinity" = "Salinity",
          "Temperature" = "Temperature",
-         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+         "Dissolved Oxygen" = "DO_mgL",
        #  "Dissolved Oxygen (%)" = "DO_perc",
          "Ammonium" = "Ammonium",
          "Nitrate+Nitrite" = "NO2NO3",
@@ -84,21 +84,23 @@ bo<-
          "TOC" = "TOC",
          "TN" = "TN",
          "Dust" = "dust",
-         "Dust_Lag" = "dust_lag",
+         "24_h_lag_Dust" = "dust_lag",
          "Total CFU" = "cfu_tot",
          "HF183" = "hf_copies_mL",
          "Total Bacteria" = "tot_bacteria",
         # "Yellow CFU"  = "cfu_yel",
         # "Green CFU" = "cfu_gre",
-         "TSS" = "tss")
+         "TSS" = "tss",
+       'V.cholerae' = 'Vc',
+       'V.vulnificus' = 'Vv')
 
 c2<- 
   c2 %>%
   rename("Total Vibrio" = "copies_mL",
-         "Chlorophyl a" = "Chl_a",
+         "Chlorophyll a" = "Chl_a",
          "Salinity" = "Salinity",
          "Temperature" = "Temperature",
-         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+         "Dissolved Oxygen" = "DO_mgL",
         # "Dissolved Oxygen (%)" = "DO_perc",
          "Ammonium" = "Ammonium",
          "Nitrate+Nitrite" = "NO2NO3",
@@ -112,21 +114,23 @@ c2<-
          "TOC" = "TOC",
          "TN" = "TN",
          "Dust" = "dust",
-         "Dust_Lag" = "dust_lag",
+         "24_h_lag_Dust" = "dust_lag",
          "Total CFU" = "cfu_tot",
          #"HF183" = "hf_copies_mL",
          "Total Bacteria" = "tot_bacteria",
         # "Yellow CFU"  = "cfu_yel",
         # "Green CFU" = "cfu_gre",
-         "TSS" = "tss")
+         "TSS" = "tss",
+      'V.cholerae' = 'Vc',
+       'V.vulnificus' = 'Vv')
 
 rd<- 
   rd %>%
   rename("Total Vibrio" = "copies_mL",
-         "Chlorophyl a" = "Chl_a",
+         "Chlorophyll a" = "Chl_a",
          "Salinity" = "Salinity",
          "Temperature" = "Temperature",
-         "Dissolved Oxygen (mg/L)" = "DO_mgL",
+         "Dissolved Oxygen" = "DO_mgL",
         # "Dissolved Oxygen (%)" = "DO_perc",
          "Ammonium" = "Ammonium",
          "Nitrate+Nitrite" = "NO2NO3",
@@ -140,13 +144,15 @@ rd<-
          "TOC" = "TOC",
          "TN" = "TN",
          "Dust" = "dust",
-         "Dust_Lag" = "dust_lag",
+         "24_h_lag_Dust" = "dust_lag",
          "Total CFU" = "cfu_tot",
         # "HF183" = "hf_copies_mL",
          "Total Bacteria" = "tot_bacteria",
         # "Yellow CFU"  = "cfu_yel",
         # "Green CFU" = "cfu_gre",
-         "TSS" = "tss")
+         "TSS" = "tss",
+       'V.cholerae' = 'Vc',
+       'V.vulnificus' = 'Vv')
 ```
 
 # Correlation Matrix
@@ -197,21 +203,24 @@ corrplot(bo_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = bo_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
-         number.cex = 0.60,
+         number.cex = 0.90,
+         tl.cex = 1.5,
          title = "BLIND OSO", mar = c(0,0,1,0))
 
 corrplot(c2_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = c2_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
-         number.cex = 0.60,
+         number.cex = 0.90,
+         tl.cex = 1.5,,
          title = "CANALS", mar = c(0,0,1,0))
 
 corrplot(rd_cor$r, type="upper", order = "alphabet",
          tl.col = "black",
          p.mat = rd_cor$P, sig.level = 0.05, insig = "blank",
          addCoef.col = "black",
-         number.cex = 0.60,
+         number.cex = 0.90,
+         tl.cex = 1.5,
          title = "GULF", mar = c(0,0,1,0))
 
 flattenCorrMatrix(bo_cor$r, bo_cor$P)

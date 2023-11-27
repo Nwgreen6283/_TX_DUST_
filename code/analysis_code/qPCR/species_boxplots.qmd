@@ -297,7 +297,7 @@ ggplot(vc_sum1,
     geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
-       y = "V. cholerae (gene copies/mL)",
+       y = "V. cholerae (copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette)+
@@ -333,7 +333,7 @@ ggplot(vc_sum1,
     geom_point(data = vc_sum1, shape= vc_sum1$point_shape, size = 2.5)+
   theme_bw()+
   labs(x = "Date",
-       y = "V. cholerae (gene copies/mL)",
+       y = "V. cholerae (copies/mL)",
        color = "Site")+
   scale_x_date(date_breaks = "2 day", date_labels = "%b %d")+
   scale_color_manual(values = cbbPalette2)+
